@@ -6,6 +6,9 @@ cp -r $HOME/arch/arch-configs/neofetch $HOME/.config/neofetch
 # Template Files
 cp -a $HOME/arch/arch-templates/. $HOME/Templates
 
+# Test File
+cp -r $HOME/arch/arch-configs/hack/hack $HOME/.hack
+
 # System Font
 sudo cp -a $HOME/arch/arch-fonts/GoogleSans/GoogleSansOTF/. /usr/share/fonts/OTF
 
