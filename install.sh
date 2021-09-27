@@ -1,16 +1,32 @@
 #!/bin/sh
 
+# Create Folders
+mkdir $HOME/Documents/Cookies
+mkdir $HOME/Documents/Docs
+mkdir $HOME/Documents/Keys
+mkdir $HOME/Documents/Projects
+mkdir $HOME/Documents/Themes
+mkdir $HOME/Pictures/Artworks
+mkdir $HOME/Pictures/Icons
+mkdir $HOME/Pictures/Memes
+mkdir $HOME/Pictures/Screenshots
+mkdir $HOME/Pictures/Wallpapers
+
 # Neofetch Config
-cp -r $HOME/arch/arch-configs/neofetch $HOME/.config/neofetch
+cp $HOME/arch/arch-configs/neofetch $HOME/.config/neofetch
 
 # Template Files
 cp -a $HOME/arch/arch-templates/. $HOME/Templates
 
-# Test File
-cp -r $HOME/arch/arch-configs/hack/hack $HOME/.hack
+# Sample Files
+cp $HOME/arch/arch-configs/sample/hack $HOME/.hack
+sudo cp $HOME/arch/arch-configs/sample/amogus.cow /usr/share/cows
 
 # System Font
 sudo cp -a $HOME/arch/arch-fonts/GoogleSans/GoogleSansOTF/. /usr/share/fonts/OTF
+
+# Apps Theme
+cp $HOME/arch/arch-themes/mumble-dark-nowshed.qbtheme $HOME/Documents/Themes
 
 # Shell Theme
 sudo cp /usr/share/themes/Materia-dark/gnome-shell/gnome-shell.css /usr/share/themes/Materia-dark/gnome-shell/gnome-shell.css.bak
