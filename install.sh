@@ -13,7 +13,7 @@ mkdir $HOME/Pictures/Screenshots
 mkdir $HOME/Pictures/Wallpapers
 
 # Neofetch Config
-cp $HOME/arch/arch-configs/neofetch $HOME/.config/neofetch
+cp -r $HOME/arch/arch-configs/neofetch $HOME/.config
 
 # Template Files
 cp -a $HOME/arch/arch-templates/. $HOME/Templates
