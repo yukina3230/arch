@@ -18,12 +18,9 @@ cp -r $HOME/arch/arch-configs/neofetch $HOME/.config
 # Template Files
 cp -a $HOME/arch/arch-templates/. $HOME/Templates
 
-# Sample Files
-cp $HOME/arch/arch-configs/sample/hack $HOME/.hack
-sudo cp $HOME/arch/arch-configs/sample/amogus.cow /usr/share/cows
-
 # System Font
-sudo cp -a $HOME/arch/arch-fonts/GoogleSans/GoogleSansOTF/. /usr/share/fonts/OTF
+sudo cp -a "$HOME/arch/arch-fonts/Google Sans (2020)/." /usr/share/fonts/OTF
+sudo cp -a "$HOME/arch/arch-fonts/Google Sans Text (IO 2021)/." /usr/share/fonts/OTF
 
 # Apps Theme
 cp $HOME/arch/arch-themes/mumble-dark-nowshed.qbtheme $HOME/Documents/Themes
@@ -59,3 +56,7 @@ sudo mkinitcpio -p linux
 sudo cp -r $HOME/arch/arch-grub/ArchLinux /usr/share/grub/themes
 sudo cp $HOME/arch/arch-configs/grub/grub /etc/default
 sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+# Sample Files
+cp $HOME/arch/arch-configs/sample/hack $HOME/.hack
+sudo cp $HOME/arch/arch-configs/sample/amogus.cow /usr/share/cows
