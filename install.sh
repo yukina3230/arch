@@ -46,6 +46,9 @@ sudo dconf update
 # Disable Gnome Alert Sound
 gsettings set org.gnome.desktop.sound event-sounds false
 
+# Change Dock Icon Size
+gsettings set org.gnome.shell.extensions.dash-to-dock dash-max-icon-size 55
+
 # Plymouth
 sudo cp -r $HOME/arch/arch-plymouth/arch /usr/share/plymouth/themes
 sudo plymouth-set-default-theme arch
