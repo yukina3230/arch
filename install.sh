@@ -60,9 +60,26 @@ sudo cp -r $HOME/arch/arch-grub/ArchLinux /usr/share/grub/themes
 sudo cp $HOME/arch/arch-config/grub/grub /etc/default
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
+# TLP Config
+sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
+
 # Binaries
+#5/10/21
 sudo cp $HOME/arch/arch-bin/rx /usr/bin
+#8/3/21
+sudo cp $HOME/arch/arch-bin/4chan /usr/bin
+#27/9/21
 sudo cp $HOME/arch/arch-bin/mon /usr/bin
+
+# Set Aliases
+alias lock="xdg-screensaver lock"
+alias suspend="systemctl suspend"
+alias update="yay -Syu"
+alias install="yay -S"
+alias uninstall="yay -R"
+alias remove="yay -Rsn"
+alias update-grub="grub-mkconfig -o /boot/grub/grub.cfg"
+alias update-init="mkinitcpio -p linux"
 
 # Sample Files
 cp $HOME/arch/arch-config/sample/hack $HOME/.hack
