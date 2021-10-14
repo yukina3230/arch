@@ -72,14 +72,22 @@ sudo cp $HOME/arch/arch-bin/4chan /usr/bin
 sudo cp $HOME/arch/arch-bin/mon /usr/bin
 
 # Set Aliases
-alias lock="xdg-screensaver lock"
-alias suspend="systemctl suspend"
-alias update="yay -Syu"
-alias install="yay -S"
-alias uninstall="yay -R"
-alias remove="yay -Rsn"
-alias update-grub="grub-mkconfig -o /boot/grub/grub.cfg"
-alias update-init="mkinitcpio -p linux"
+alias lock "xdg-screensaver lock"
+funcsave lock
+alias suspend "systemctl suspend"
+funcsave suspend
+alias update "yay -Syu"
+funcsave update
+alias install "yay -S"
+funcsave install
+alias uninstall "yay -R"
+funcsave uninstall
+alias remove "yay -Rsn"
+funcsave remove
+alias update-grub "grub-mkconfig -o /boot/grub/grub.cfg"
+funcsave update-grub
+alias update-init "mkinitcpio -p linux"
+funcsave update-init
 
 # Sample Files
 cp $HOME/arch/arch-config/sample/hack $HOME/.hack
