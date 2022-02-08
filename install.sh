@@ -28,8 +28,6 @@ cp $HOME/arch/arch-theme/mumble-dark-nowshed.qbtheme $HOME/Documents/Themes
 # Shell Theme
 sudo cp /usr/share/themes/Materia-dark/gnome-shell/gnome-shell.css /usr/share/themes/Materia-dark/gnome-shell/gnome-shell.css.bak
 sudo cp $HOME/arch/arch-shell/gnome-shell.css /usr/share/themes/Materia-dark/gnome-shell
-sudo cp /usr/share/gnome-shell/gnome-shell-theme.gresource /usr/share/gnome-shell/gnome-shell-theme.gresource.bak
-sudo cp $HOME/arch/arch-shell/gnome-shell-theme.gresource /usr/share/gnome-shell
 
 # GDM Icon & Cursor Theme
 sudo cp $HOME/arch/arch-config/gdm/00_org.gnome.shell.gschema.override /usr/share/glib-2.0/schemas
