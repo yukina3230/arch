@@ -25,14 +25,6 @@ sudo cp -a "$HOME/arch/arch-font/Google Sans Text (IO 2021)/." /usr/share/fonts/
 # Apps Theme
 cp $HOME/arch/arch-theme/mumble-dark-nowshed.qbtheme $HOME/Documents/Themes
 
-# Shell Theme
-sudo cp /usr/share/themes/Materia-dark/gnome-shell/gnome-shell.css /usr/share/themes/Materia-dark/gnome-shell/gnome-shell.css.bak
-sudo cp $HOME/arch/arch-shell/gnome-shell.css /usr/share/themes/Materia-dark/gnome-shell
-
-# GDM Icon & Cursor Theme
-sudo cp $HOME/arch/arch-config/gdm/00_org.gnome.shell.gschema.override /usr/share/glib-2.0/schemas
-sudo glib-compile-schemas /usr/share/glib-2.0/schemas
-
 # Activities Icon & GDM Logo
 sudo cp $HOME/arch/arch-icon/archlinux-icon.svg /usr/share/icons
 sudo cp $HOME/arch/arch-icon/archlinux.svg /usr/share/icons
@@ -74,14 +66,6 @@ alias lock "xdg-screensaver lock"
 funcsave lock
 alias suspend "systemctl suspend"
 funcsave suspend
-alias update "yay -Syu"
-funcsave update
-alias install "yay -S"
-funcsave install
-alias uninstall "yay -R"
-funcsave uninstall
-alias remove "yay -Rsn"
-funcsave remove
 alias update-grub "grub-mkconfig -o /boot/grub/grub.cfg"
 funcsave update-grub
 alias update-init "mkinitcpio -p linux"
