@@ -1,16 +1,13 @@
 #!/bin/sh
 
 # Create Folders
-mkdir $HOME/Documents/Cookies
-mkdir $HOME/Documents/Docs
-mkdir $HOME/Documents/Keys
 mkdir $HOME/Documents/Projects
 mkdir $HOME/Documents/Themes
-mkdir $HOME/Pictures/Artworks
 mkdir $HOME/Pictures/Icons
 mkdir $HOME/Pictures/Memes
-mkdir $HOME/Pictures/Screenshots
+mkdir $HOME/Pictures/Artworks
 mkdir $HOME/Pictures/Wallpapers
+mkdir $HOME/Pictures/Screenshots
 
 # Neofetch Config
 cp -r $HOME/arch/arch-config/neofetch $HOME/.config
@@ -19,8 +16,11 @@ cp -r $HOME/arch/arch-config/neofetch $HOME/.config
 cp -a $HOME/arch/arch-template/. $HOME/Templates
 
 # System Font
-sudo cp -a "$HOME/arch/arch-font/Google Sans (2020)/." /usr/share/fonts/OTF
-sudo cp -a "$HOME/arch/arch-font/Google Sans Text (IO 2021)/." /usr/share/fonts/OTF
+sudo cp -a "$HOME/arch/arch-font/Comic Sans/." /usr/share/fonts/TTF
+sudo cp -a "$HOME/arch/arch-font/Google Sans/." /usr/share/fonts/TTF
+sudo cp -a "$HOME/arch/arch-font/Gotham/." /usr/share/fonts/TTF
+sudo cp -a "$HOME/arch/arch-font/Gotham Rounded/." /usr/share/fonts/TTF
+sudo cp -a "$HOME/arch/arch-font/Bookerly/." /usr/share/fonts/TTF
 
 # Apps Theme
 cp $HOME/arch/arch-theme/mumble-dark-nowshed.qbtheme $HOME/Documents/Themes
@@ -39,12 +39,8 @@ gsettings set org.gnome.shell disable-extension-version-validation true
 # Disable Gnome Alert Sound
 gsettings set org.gnome.desktop.sound event-sounds false
 
-# Change Dock Icon Size
-gsettings set org.gnome.shell.extensions.dash-to-dock dash-max-icon-size 55
-
 # Plymouth
-sudo cp -r $HOME/arch/arch-plymouth/arch /usr/share/plymouth/themes
-sudo plymouth-set-default-theme arch
+sudo plymouth-set-default-theme archlinux
 sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc
 sudo mkinitcpio -p linux
 
@@ -55,14 +51,6 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # TLP Config
 sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
-
-# Binaries
-#5/10/21
-sudo cp $HOME/arch/arch-bin/rx /usr/bin
-#8/3/21
-sudo cp $HOME/arch/arch-bin/4chan /usr/bin
-#27/9/21
-sudo cp $HOME/arch/arch-bin/mon /usr/bin
 
 # Set Aliases
 alias lock "xdg-screensaver lock"
