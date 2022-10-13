@@ -33,6 +33,9 @@ sudo mkdir /etc/dconf/db/gdm.d
 sudo cp $HOME/arch/arch-config/gdm/01-logo /etc/dconf/db/gdm.d
 sudo dconf update
 
+# Disable GNOME Shell's version check
+gsettings set org.gnome.shell disable-extension-version-validation true
+
 # Disable Gnome Alert Sound
 gsettings set org.gnome.desktop.sound event-sounds false
 
