@@ -24,7 +24,6 @@ sudo cp -a "$HOME/arch/arch-font/Gotham/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Gotham Rounded/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Montserrat/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/P22Typewriter/." /usr/share/fonts/TTF
-sudo cp -a "$HOME/arch/arch-font/TravelingTypewriter/." /usr/share/fonts/TTF
 
 # Activities Icon & GDM Logo
 sudo cp $HOME/arch/arch-icon/archlinux-icon.svg /usr/share/icons
