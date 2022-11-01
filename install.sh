@@ -16,15 +16,15 @@ cp -r $HOME/arch/arch-config/neofetch $HOME/.config
 cp -a $HOME/arch/arch-template/. $HOME/Templates
 
 # System Font
+sudo cp -a "$HOME/arch/arch-font/Bookerly/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Comic Sans/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Google Sans (2020)/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Google Sans Text (IO 2021)/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Gotham/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Gotham Rounded/." /usr/share/fonts/TTF
-sudo cp -a "$HOME/arch/arch-font/Bookerly/." /usr/share/fonts/TTF
-
-# Apps Theme
-cp $HOME/arch/arch-theme/mumble-dark-nowshed.qbtheme $HOME/Documents/Themes
+sudo cp -a "$HOME/arch/arch-font/Montserrat/." /usr/share/fonts/TTF
+sudo cp -a "$HOME/arch/arch-font/P22Typewriter/." /usr/share/fonts/TTF
+sudo cp -a "$HOME/arch/arch-font/TravelingTypewriter/." /usr/share/fonts/TTF
 
 # Activities Icon & GDM Logo
 sudo cp $HOME/arch/arch-icon/archlinux-icon.svg /usr/share/icons
@@ -46,7 +46,7 @@ sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc
 sudo mkinitcpio -p linux
 
 # Grub Theme
-sudo cp -r $HOME/arch/arch-grub/ArchLinux /usr/share/grub/themes
+sudo cp -r $HOME/arch/arch-grub/arch /usr/share/grub/themes
 sudo cp $HOME/arch/arch-config/grub/grub /etc/default
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
