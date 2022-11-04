@@ -1,8 +1,9 @@
 #!/bin/sh
 
 # Create Folders
+mkdir $HOME/Documents/Archive
+mkdir $HOME/Documents/Ebooks
 mkdir $HOME/Documents/Projects
-mkdir $HOME/Documents/Themes
 mkdir $HOME/Pictures/Icons
 mkdir $HOME/Pictures/Memes
 mkdir $HOME/Pictures/Artworks
