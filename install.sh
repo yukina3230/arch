@@ -40,11 +40,6 @@ gsettings set org.gnome.shell disable-extension-version-validation true
 # Disable Gnome Alert Sound
 gsettings set org.gnome.desktop.sound event-sounds false
 
-# Plymouth
-sudo plymouth-set-default-theme archlinux
-sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc
-sudo mkinitcpio -p linux
-
 # Grub Theme
 sudo cp -r $HOME/arch/arch-grub/arch /usr/share/grub/themes
 sudo cp $HOME/arch/arch-config/grub/grub /etc/default
