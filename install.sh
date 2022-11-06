@@ -49,10 +49,10 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
 
 # Set Aliases
-alias --save lock="xdg-screensaver lock"
-alias --save suspend="systemctl suspend"
-alias --save update-grub="grub-mkconfig -o /boot/grub/grub.cfg"
-alias --save update-init="mkinitcpio -p linux"
+alias -s lock="xdg-screensaver lock"
+alias -s suspend="systemctl suspend"
+alias -s update-grub="grub-mkconfig -o /boot/grub/grub.cfg"
+alias -s update-init="mkinitcpio -p linux"
 
 # Sample Files
 cp $HOME/arch/arch-config/sample/hack $HOME/.hack
