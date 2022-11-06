@@ -41,9 +41,13 @@ gsettings set org.gnome.shell disable-extension-version-validation true
 gsettings set org.gnome.desktop.sound event-sounds false
 
 # Grub Theme
-sudo cp -r $HOME/arch/arch-grub/arch /usr/share/grub/themes
+sudo cp -r $HOME/arch/arch-grub/archlinux /usr/share/grub/themes
 sudo cp $HOME/arch/arch-config/grub/grub /etc/default
 sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+# Plymouth Theme
+#sudo cp -r $HOME/arch/arch-plymouth/archlinux /usr/share/plymouth/themes
+#sudo plymouth-set-default-theme -R archlinux
 
 # TLP Config
 sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
