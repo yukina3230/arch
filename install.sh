@@ -34,9 +34,6 @@ sudo mkdir /etc/dconf/db/gdm.d
 sudo cp $HOME/arch/arch-config/gdm/01-logo /etc/dconf/db/gdm.d
 sudo dconf update
 
-# Change Dock Icon Size
-gsettings set org.gnome.shell.extensions.dash-to-dock dash-max-icon-size 55
-
 # Disable GNOME Shell's version check
 gsettings set org.gnome.shell disable-extension-version-validation true
 
