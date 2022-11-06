@@ -47,6 +47,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # Plymouth Theme
 #sudo cp -r $HOME/arch/arch-plymouth/archlinux /usr/share/plymouth/themes
+#sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc/mkinitcpio.conf
 #sudo plymouth-set-default-theme -R archlinux
 
 # TLP Config
