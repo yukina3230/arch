@@ -3,6 +3,7 @@
 # Create Folders
 mkdir $HOME/Documents/Archive
 mkdir $HOME/Documents/Ebooks
+mkdir $HOME/Documents/Journals
 mkdir $HOME/Documents/Projects
 mkdir $HOME/Pictures/Icons
 mkdir $HOME/Pictures/Memes
