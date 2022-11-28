@@ -54,6 +54,9 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 # TLP Config
 sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
 
+# Reflector Config
+sudo cp $HOME/arch/arch-config/reflector/reflector.conf /etc/xdg/reflector
+
 # Set Aliases
 alias -s lock="xdg-screensaver lock"
 alias -s suspend="systemctl suspend"
