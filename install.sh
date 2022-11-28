@@ -11,12 +11,6 @@ mkdir $HOME/Pictures/Artworks
 mkdir $HOME/Pictures/Wallpapers
 mkdir $HOME/Pictures/Screenshots
 
-# Neofetch Config
-cp -r $HOME/arch/arch-config/neofetch $HOME/.config
-
-# Template Files
-cp -a $HOME/arch/arch-template/. $HOME/Templates
-
 # System Font
 sudo cp -a "$HOME/arch/arch-font/Bookerly/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Comic Sans/." /usr/share/fonts/TTF
@@ -48,8 +42,11 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # Plymouth Theme
 #sudo cp -r $HOME/arch/arch-plymouth/archlinux /usr/share/plymouth/themes
-#sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc/mkinitcpio.conf
-#sudo plymouth-set-default-theme -R archlinux
+sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc/mkinitcpio.conf
+sudo plymouth-set-default-theme -R archlinux
+
+# Neofetch Config
+cp -r $HOME/arch/arch-config/neofetch $HOME/.config
 
 # TLP Config
 sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
@@ -62,6 +59,9 @@ alias -s lock="xdg-screensaver lock"
 alias -s suspend="systemctl suspend"
 alias -s update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias -s update-init="sudo mkinitcpio -p linux"
+
+# Template Files
+cp -a $HOME/arch/arch-template/. $HOME/Templates
 
 # Sample Files
 cp $HOME/arch/arch-config/sample/hack $HOME/.hack
