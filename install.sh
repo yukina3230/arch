@@ -45,6 +45,9 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc/mkinitcpio.conf
 sudo plymouth-set-default-theme -R archlinux
 
+# Binary Files
+cp -r $HOME/arch/arch-bin/anonfile $HOME/.local/bin
+
 # Neofetch Config
 cp -r $HOME/arch/arch-config/neofetch $HOME/.config
 
