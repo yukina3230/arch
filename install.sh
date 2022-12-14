@@ -46,10 +46,10 @@ sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc/mkinitcpio.conf
 sudo plymouth-set-default-theme -R archlinux
 
 # Binary Files
-cp -r $HOME/arch/arch-bin/anonfile $HOME/.local/bin
+cp $HOME/arch/arch-bin/anonfile $HOME/.local/bin
 
 # Neofetch Config
-cp -r $HOME/arch/arch-config/neofetch $HOME/.config
+cp $HOME/arch/arch-config/neofetch/config.conf $HOME/.config
 
 # TLP Config
 sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
