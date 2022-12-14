@@ -46,6 +46,7 @@ sudo cp $HOME/arch/arch-config/mkinitcpio/mkinitcpio.conf /etc/mkinitcpio.conf
 sudo plymouth-set-default-theme -R archlinux
 
 # Binary Files
+# anonfile v1.0.0
 cp $HOME/arch/arch-bin/anonfile $HOME/.local/bin
 
 # Neofetch Config
