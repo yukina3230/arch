@@ -52,6 +52,9 @@ cp $HOME/arch/arch-bin/anonfile $HOME/.local/bin
 # Neofetch Config
 cp $HOME/arch/arch-config/neofetch/config.conf $HOME/.config
 
+# zram Config
+sudo cp $HOME/arch/arch-config/zram/zram-generator.conf /etc/systemd
+
 # TLP Config
 sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
 
