@@ -11,6 +11,13 @@ mkdir $HOME/Pictures/Artworks
 mkdir $HOME/Pictures/Wallpapers
 mkdir $HOME/Pictures/Screenshots
 
+# Set Aliases
+alias -s lock="xdg-screensaver lock"
+alias -s suspend="systemctl suspend"
+alias -s update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias -s update-init="sudo mkinitcpio -p linux"
+alias -s session-type="echo $XDG_SESSION_TYPE"
+
 # System Font
 sudo cp -a "$HOME/arch/arch-font/Bookerly/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Comic Sans/." /usr/share/fonts/TTF
@@ -60,12 +67,6 @@ sudo cp $HOME/arch/arch-config/tlp/tlp.conf /etc
 
 # Reflector Config
 sudo cp $HOME/arch/arch-config/reflector/reflector.conf /etc/xdg/reflector
-
-# Set Aliases
-alias -s lock="xdg-screensaver lock"
-alias -s suspend="systemctl suspend"
-alias -s update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
-alias -s update-init="sudo mkinitcpio -p linux"
 
 # Template Files
 cp -a $HOME/arch/arch-template/. $HOME/Templates
