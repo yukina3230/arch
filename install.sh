@@ -18,7 +18,7 @@ alias -s update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias -s update-init="sudo mkinitcpio -p linux"
 alias -s session-type="echo $XDG_SESSION_TYPE"
 
-# System Font
+# System Fonts
 sudo cp -a "$HOME/arch/arch-font/Bookerly/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Comic Sans/." /usr/share/fonts/TTF
 sudo cp -a "$HOME/arch/arch-font/Google Sans (2020)/." /usr/share/fonts/TTF
