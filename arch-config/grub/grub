@@ -5,7 +5,7 @@ GRUB_TIMEOUT=10
 GRUB_DISTRIBUTOR="Arch"
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=0 udev.log_level=0 vt.global_cursor_default=0 fbcon=nodefer"
 GRUB_CMDLINE_LINUX=""
-GRUB_DISABLE_OS_PROBER=false
+GRUB_DISABLE_OS_PROBER=true
 
 # Preload both GPT and MBR modules so that they are not missed
 GRUB_PRELOAD_MODULES="part_gpt part_msdos"
