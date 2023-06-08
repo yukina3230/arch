@@ -1,31 +1,36 @@
 #!/bin/sh
 
-# Create Folders
-mkdir $HOME/Documents/Archive/
+# Folders
+mkdir $HOME/Archive/
+mkdir $HOME/Projects/
+mkdir $HOME/Applications/
+mkdir $HOME/Games/
+mkdir $HOME/Temp/
 mkdir $HOME/Documents/Ebooks/
 mkdir $HOME/Documents/Journals/
-mkdir $HOME/Documents/Projects/
 mkdir $HOME/Pictures/Icons/
 mkdir $HOME/Pictures/Memes/
 mkdir $HOME/Pictures/Artworks/
 mkdir $HOME/Pictures/Wallpapers/
 
-# Set Aliases
+# Aliases
 alias -s lock="xdg-screensaver lock"
 alias -s suspend="systemctl suspend"
 alias -s update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias -s update-init="sudo mkinitcpio -p linux"
 alias -s session-type="echo $XDG_SESSION_TYPE"
 
-# System Fonts
-sudo cp -a "$HOME/arch/font/Bookerly/." /usr/share/fonts/TTF/
-sudo cp -a "$HOME/arch/font/Comic Sans/." /usr/share/fonts/TTF/
-sudo cp -a "$HOME/arch/font/Google Sans (2020)/." /usr/share/fonts/TTF/
-sudo cp -a "$HOME/arch/font/Google Sans Text (IO 2021)/." /usr/share/fonts/TTF/
-sudo cp -a "$HOME/arch/font/Gotham/." /usr/share/fonts/TTF/
-sudo cp -a "$HOME/arch/font/Gotham Rounded/." /usr/share/fonts/TTF/
-sudo cp -a "$HOME/arch/font/Montserrat/." /usr/share/fonts/TTF/
-sudo cp -a "$HOME/arch/font/P22 Typewriter/." /usr/share/fonts/TTF/
+# Fonts
+#sudo unzip "$HOME/arch/fonts/Bookerly.zip" -d /usr/share/fonts/TTF/
+sudo unzip "$HOME/arch/fonts/Comic Sans.zip" -d /usr/share/fonts/TTF/
+sudo unzip "$HOME/arch/fonts/Google Sans.zip" -d /usr/share/fonts/TTF/
+sudo unzip "$HOME/arch/fonts/Google Sans Text.zip" -d /usr/share/fonts/TTF/
+sudo unzip "$HOME/arch/fonts/Gotham.zip" -d /usr/share/fonts/TTF/
+sudo unzip "$HOME/arch/fonts/Gotham Rounded.zip" -d /usr/share/fonts/TTF/
+sudo unzip "$HOME/arch/fonts/Montserrat.zip" -d /usr/share/fonts/TTF/
+sudo unzip "$HOME/arch/fonts/P22 Typewriter.zip" -d /usr/share/fonts/TTF/
+sudo rm -f "/usr/share/fonts/TTF/Impact.TTF"
+sudo unzip "$HOME/arch/fonts/Impact.zip" -d /usr/share/fonts/TTF/
 
 # Activities Icon & GDM Logo
 sudo cp $HOME/arch/icon/archlinux-icon.svg /usr/share/icons/
@@ -35,21 +40,27 @@ sudo mkdir /etc/dconf/db/gdm.d/
 sudo cp $HOME/arch/config/gdm/01-logo /etc/dconf/db/gdm.d/
 sudo dconf update
 
-# Disable GNOME Shell's version check
+# Set GNOME Not Responding Timeout
+gsettings set org.gnome.mutter check-alive-timeout 10000
+
+# Disable GNOME Extension Version Validation
 gsettings set org.gnome.shell disable-extension-version-validation true
 
 # Disable Gnome Alert Sound
 gsettings set org.gnome.desktop.sound event-sounds false
 
 # Grub Theme
-sudo cp -r $HOME/arch/grub/archlinux/ /usr/share/grub/themes/
+sudo unzip "$HOME/arch/themes/grub/arch.zip" -d /usr/share/grub/themes/
 sudo cp $HOME/arch/config/grub/grub /etc/default/
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # Plymouth Theme
-#sudo cp -r $HOME/arch/plymouth/archlinux /usr/share/plymouth/themes/
+#sudo unzip "$HOME/arch/themes/plymouth/archlinux.zip" -d /usr/share/plymouth/themes/
 sudo cp $HOME/arch/config/mkinitcpio/mkinitcpio.conf /etc/
 sudo plymouth-set-default-theme -R archlinux
+
+# Pacman Config
+sudo cp $HOME/arch/config/pacman/pacman.conf /etc/
 
 # zram Config
 sudo cp $HOME/arch/config/zram/zram-generator.conf /etc/systemd/
