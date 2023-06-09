@@ -47,6 +47,7 @@ local user_opts = {
     showloop = true,                -- show the loop button
     showinfo = true,                -- show the info button
     showontop = true,               -- show window on top button
+    downloadbutton = true,          -- show download button for web videos
     volumecontrol = true,           -- whether to show mute button and volume slider
     compactmode = true,             -- replace the jump buttons with the chapter buttons, clicking the
                                     -- buttons will act as jumping, and shift clicking will act as
@@ -99,6 +100,7 @@ local icons = {
   loopoff = '',
   loopon = '', -- copied private use character
   info = '',
+  download = '',
 }
 
 -- Localization
@@ -259,6 +261,9 @@ local state = {
     looping = false,
     windowtitle = "",
     videoDescription = "",                  -- fill if it is a YouTube
+    isWebVideo = false,
+    path = "",                               -- used for yt-dlp downloading
+    downloading = false,
 }
 
 local thumbfast = {
@@ -311,6 +316,7 @@ function build_keyboard_controls()
     end
     table.insert(bottom_button_line, 'pl_next')
 
+    table.insert(bottom_button_line, 'download')
     if user_opts.showinfo then
         table.insert(bottom_button_line, 'tog_info')
     end
@@ -1038,15 +1044,62 @@ function limited_list(prop, pos)
     return count, reslist
 end
 
+function startupevents()
+    checktitle()
+    checkWebLink()
+end
+
 function checktitle()
     if not string.find(user_opts.title, "filename") then
         if user_opts.dynamictitle and  mp.get_property("filename") ~= mp.get_property("media-title") then
-            msg.warn("Changing title name to include filename")
+            msg.info("Changing title name to include filename")
             user_opts.title = "${filename} | ${media-title}" -- {filename/no-ext}
         else
             user_opts.title = "${media-title}"
         end
     end
+end
+
+function checkWebLink()
+    if not user_opts.downloadbutton then return end
+    local path = mp.get_property("path")
+    if not path then return nil end
+
+    if string.find(path, "https://") then
+        path = string.gsub(path, "ytdl://", "") -- Strip possible ytdl:// prefix
+    else
+        path = string.gsub(path, "ytdl://", "https://") -- Strip possible ytdl:// prefix and replace with "https://" if there it isn't there already
+    end
+
+    local function is_url(s)
+        return nil ~=
+            string.match(path,
+                "^[%w]-://[-a-zA-Z0-9@:%._\\+~#=]+%." ..
+                "[a-zA-Z0-9()][a-zA-Z0-9()]?[a-zA-Z0-9()]?[a-zA-Z0-9()]?[a-zA-Z0-9()]?[a-zA-Z0-9()]?" ..
+                "[-a-zA-Z0-9()@:%_\\+.~#?&/=]*")
+    end
+
+    if is_url(path) and path or nil then
+        state.isWebVideo = true
+        state.path = path
+        msg.info("Is a web video")
+    end
+end
+
+function exec(args, callback)
+    print("Running: " .. table.concat(args, " "))
+    local ret = mp.command_native_async({
+        name = "subprocess",
+        args = args,
+        capture_stdout = true,
+        capture_stderr = true
+    }, callback)
+    return ret.status
+end
+
+function downloadDone()
+    show_message("{\\an9}Download complete")
+    state.downloading = false
 end
 
 function get_playlist()
@@ -1253,7 +1306,7 @@ function window_controls()
     ne = new_element('close', 'button')
     ne.content = '\238\132\149'
     ne.eventresponder['mbtn_left_up'] =
-        function () mp.commandv('quit') end
+        function () mp.commandv('script-message', 'eof-replay') end
     lo = add_layout('close')
     lo.geometry = third_geo
     lo.style = osc_styles.WinCtrl
@@ -1487,6 +1540,13 @@ layouts = function ()
         lo.style = osc_styles.Ctrl3
         lo.visible = (osc_param.playresx >= 500 - outeroffset)
     end
+
+    if user_opts.downloadbutton then
+        lo = add_layout('download')
+        lo.geometry = {x = osc_geo.w - 237 + (showloop and 0 or 50) + (showontop and 0 or 50) + (showinfo and 0 or 50), y = refY - 40, an = 5, w = 24, h = 24}
+        lo.style = osc_styles.Ctrl3
+        lo.visible = (osc_param.playresx >= 400 - outeroffset)
+    end
     
     geo = { x = 25, y = refY - 132, an = 1, w = osc_geo.w - 50, h = 48 }
     lo = add_layout('title')
@@ -1631,7 +1691,7 @@ function osc_init()
         end
     end
     ne.eventresponder['mbtn_left_up'] =
-        function () mp.commandv('cycle', 'pause') end
+        function () mp.commandv('script-message', 'pause-replay') end
 
 
     if user_opts.showjump then
@@ -1911,6 +1971,24 @@ function osc_init()
             state.looping = not state.looping
             mp.set_property_native("loop-file", state.looping)
         end    
+
+    --download
+    ne = new_element('download', 'button')
+    ne.content = icons.download
+    ne.visible = (osc_param.playresx >= 900 - outeroffset) and state.isWebVideo
+    ne.eventresponder['mbtn_left_up'] =
+        function ()
+            if state.downloading then
+                show_message("{\\an9}Already downloading...")
+                return
+            end
+            local localpath = mp.command_native({"expand-path", "~/Videos/mpv"})
+            print(localpath)
+            local command = { "yt-dlp", "-S res,ext:mp4:m4a", "--add-metadata", "--write-auto-subs", "--embed-subs", "-P " .. localpath ,state.path }
+            state.downloading = true
+            show_message("{\\an9}Downloading...")
+            local status = exec(command, downloadDone)
+        end
 
     --tog_info
     ne = new_element('tog_info', 'button')
@@ -2688,7 +2766,7 @@ validate_user_opts()
 
 mp.register_event('shutdown', shutdown)
 mp.register_event('start-file', request_init)
-mp.register_event("file-loaded", checktitle)
+mp.register_event("file-loaded", startupevents)
 mp.observe_property('track-list', nil, request_init)
 mp.observe_property('playlist', nil, request_init)
 mp.observe_property("chapter-list", "native", function(_, list) -- chapter list changes
