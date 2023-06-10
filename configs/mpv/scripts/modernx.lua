@@ -1982,7 +1982,7 @@ function osc_init()
                 show_message("{\\an9}Already downloading...")
                 return
             end
-            local localpath = mp.command_native({"expand-path", "~/Videos/mpv"})
+            local localpath = mp.command_native({"expand-path", "~/Videos/mpv/"})
             print(localpath)
             local command = { "yt-dlp", "-S res,ext:mp4:m4a", "--add-metadata", "--write-auto-subs", "--embed-subs", "-P " .. localpath ,state.path }
             state.downloading = true

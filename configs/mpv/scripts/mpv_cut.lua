@@ -5,7 +5,7 @@ utils = require("mp.utils")
 
 -- #region globals
 local settings = {
-    key_mark_cut = "c",
+    key_mark_cut = ";",
     video_extension = "mp4",
     custom_output_path = "",
 
@@ -14,7 +14,7 @@ local settings = {
 
     web = {
         -- small file settings
-        key_mark_cut = "shift+c",
+        key_mark_cut = "ctrl+;",
 
         audio_target_bitrate = 128, -- kbps
         video_target_file_size = 7.50,  -- mb, keeping this less than 8 since the process is not perfectly accurate.
