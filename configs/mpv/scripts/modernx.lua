@@ -16,7 +16,7 @@ local utils = require 'mp.utils'
 -- default user option values
 -- may change them in osc.conf
 local user_opts = {
-    language = 'en',		    -- en:English, chs:Chinese, pl:Polish, jp:Japanese
+    language = 'en',		        -- en:English, chs:Chinese, pl:Polish, jp:Japanese
     showwindowed = true,            -- show OSC when windowed?
     showfullscreen = true,          -- show OSC when fullscreen?
     welcomescreen = true,           -- show the mpv 'play files' screen upon open
@@ -37,7 +37,7 @@ local user_opts = {
     font = 'mpv-osd-symbols',	    -- default osc font
     iconstyle = 'round',            -- icon style, 'solid' or 'round'
     seekbarhandlesize = 1.0,	    -- size ratio of the slider handle, range 0 ~ 1
-    seekrange = true,		    -- show seekrange overlay
+    seekrange = true,		        -- show seekrange overlay
     seekrangealpha = 64,      	    -- transparency of seekranges
     seekbarkeyframes = false,       -- use keyframes when dragging the seekbar
     showjump = true,                -- show "jump forward/backward 5 seconds" buttons 
@@ -61,7 +61,7 @@ local user_opts = {
                                     -- to be shown as OSC title
     dynamictitle = true,            -- change the title depending on if {media-title} and {filename} 
                                     -- differ (like with playing urls, audio or some media)
-    showtitle = true,		    -- show title in OSC
+    showtitle = true,		        -- show title in OSC
     showwindowtitle = false,        -- show window title in borderless/fullscreen mode
     showonpause = true,             -- whether to disable the hide timeout on pause
     thumbnailborder = 2,            -- the width of the thumbnail border
@@ -124,6 +124,11 @@ local language = {
         ontopdisable = 'Unpin window',
         loopenable = 'Enable looping',
         loopdisable = 'Disable looping',
+        mute = 'Mute',
+        unmute = 'Unmute',
+        download = 'Download',
+        info = 'Info',
+        fullscreen = 'Toggle fullscreen',
 	},
 	['chs'] = {
 		welcome = '{\\fs24\\1c&H0&\\1c&HFFFFFF&}将文件或URL放在这里播放',  -- this text appears when mpv starts
@@ -1400,14 +1405,14 @@ layouts = function ()
     -- Seekbar
     new_element('seekbarbg', 'box')
     lo = add_layout('seekbarbg')
-    lo.geometry = {x = refX , y = refY - 96 , an = 5, w = osc_geo.w - 50, h = 2}
+    lo.geometry = {x = refX , y = refY - 106 , an = 5, w = osc_geo.w - 50, h = 2}
     lo.layer = 13
     lo.style = osc_styles.SeekbarBg
     lo.alpha[1] = 128
     lo.alpha[3] = 128
 
     lo = add_layout('seekbar')
-    lo.geometry = {x = refX, y = refY - 96 , an = 5, w = osc_geo.w - 50, h = 16}
+    lo.geometry = {x = refX, y = refY - 106 , an = 5, w = osc_geo.w - 50, h = 16}
 	lo.style = osc_styles.SeekbarFg
     lo.slider.gap = 7
     lo.slider.tooltip_style = osc_styles.Tooltip
@@ -1441,7 +1446,7 @@ layouts = function ()
     lo.slider.tooltip_style = osc_styles.Tooltip
     lo.slider.tooltip_an = 2
 
-	-- buttons
+	-- Buttons
     lo = add_layout('pl_prev')
     if showskip then
         lo.geometry = {x = refX - 120 - offset, y = refY - 40 , an = 5, w = 30, h = 24}
@@ -1491,11 +1496,11 @@ layouts = function ()
 
 	-- Time
     lo = add_layout('tc_left')
-    lo.geometry = {x = 25, y = refY - 84, an = 7, w = 64, h = 20}
+    lo.geometry = {x = 25, y = refY - 94, an = 7, w = 64, h = 20}
     lo.style = osc_styles.Time	
 	
     lo = add_layout('tc_right')
-    lo.geometry = {x = osc_geo.w - 25 , y = refY -84, an = 9, w = 64, h = 20}
+    lo.geometry = {x = osc_geo.w - 25 , y = refY -94, an = 9, w = 64, h = 20}
     lo.style = osc_styles.Time	
 
     -- Audio/Subtitle
@@ -1915,6 +1920,14 @@ function osc_init()
             return (icons.volume)
         end
     end
+    ne.tooltip_style = osc_styles.Tooltip
+    ne.tooltipF = function ()
+		local msg = texts.mute
+        if (state.mute) then
+            msg = texts.unmute
+        end
+        return msg
+    end
     ne.eventresponder['mbtn_left_up'] =
         function () 
             mp.commandv('cycle', 'mute')
@@ -1944,6 +1957,10 @@ function osc_init()
         end
     end
     ne.visible = (osc_param.playresx >= 250)
+    ne.tooltip_style = osc_styles.Tooltip
+    ne.tooltipF = function ()
+        return texts.fullscreen
+    end
     ne.eventresponder['mbtn_left_up'] =
         function () mp.commandv('cycle', 'fullscreen') end
 
@@ -1976,6 +1993,10 @@ function osc_init()
     ne = new_element('download', 'button')
     ne.content = icons.download
     ne.visible = (osc_param.playresx >= 900 - outeroffset) and state.isWebVideo
+    ne.tooltip_style = osc_styles.Tooltip
+    ne.tooltipF = function ()
+        return texts.download
+    end
     ne.eventresponder['mbtn_left_up'] =
         function ()
             if state.downloading then
@@ -1994,6 +2015,10 @@ function osc_init()
     ne = new_element('tog_info', 'button')
     ne.content = icons.info
     ne.visible = (osc_param.playresx >= 800 - outeroffset)
+    ne.tooltip_style = osc_styles.Tooltip
+    ne.tooltipF = function ()
+        return texts.info
+    end
     ne.eventresponder['mbtn_left_up'] =
         function () mp.commandv('script-binding', 'stats/display-stats-toggle') end
 

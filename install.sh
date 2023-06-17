@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # Folders
-mkdir $HOME/Archive/
+mkdir $HOME/Archives/
 mkdir $HOME/Projects/
 mkdir $HOME/Applications/
 mkdir $HOME/Games/
-mkdir $HOME/Temp/
+mkdir $HOME/Temps/
 mkdir $HOME/Documents/Ebooks/
 mkdir $HOME/Documents/Journals/
 mkdir $HOME/Pictures/Icons/
@@ -32,13 +32,14 @@ sudo unzip "$HOME/arch/fonts/P22 Typewriter.zip" -d /usr/share/fonts/TTF/
 sudo rm -f "/usr/share/fonts/TTF/Impact.TTF"
 sudo unzip "$HOME/arch/fonts/Impact.zip" -d /usr/share/fonts/TTF/
 
-# Activities Icon & GDM Logo
-sudo cp $HOME/arch/icon/archlinux-icon.svg /usr/share/icons/
-sudo cp $HOME/arch/icon/archlinux.svg /usr/share/icons/
-sudo cp $HOME/arch/config/gdm/gdm /etc/dconf/profile/
+# Activities Icon, GDM Logo & Cursors
+sudo cp $HOME/arch/icons/archlinux-icon.svg /usr/share/icons/
+sudo cp $HOME/arch/icons/archlinux.svg /usr/share/icons/
+sudo cp $HOME/arch/configs/gdm/gdm /etc/dconf/profile/
 sudo mkdir /etc/dconf/db/gdm.d/
-sudo cp $HOME/arch/config/gdm/01-logo /etc/dconf/db/gdm.d/
+sudo cp $HOME/arch/configs/gdm/01-logo /etc/dconf/db/gdm.d/
 sudo dconf update
+sudo cp $HOME/arch/configs/cursors/index.theme /usr/share/icons/default/
 
 # Set GNOME Not Responding Timeout
 gsettings set org.gnome.mutter check-alive-timeout 10000
@@ -51,35 +52,35 @@ gsettings set org.gnome.desktop.sound event-sounds false
 
 # Grub Theme
 sudo unzip "$HOME/arch/themes/grub/arch.zip" -d /usr/share/grub/themes/
-sudo cp $HOME/arch/config/grub/grub /etc/default/
+sudo cp $HOME/arch/configs/grub/grub /etc/default/
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # Plymouth Theme
 #sudo unzip "$HOME/arch/themes/plymouth/archlinux.zip" -d /usr/share/plymouth/themes/
-sudo cp $HOME/arch/config/mkinitcpio/mkinitcpio.conf /etc/
+sudo cp $HOME/arch/configs/mkinitcpio/mkinitcpio.conf /etc/
 sudo plymouth-set-default-theme -R archlinux
 
 # Pacman Config
-sudo cp $HOME/arch/config/pacman/pacman.conf /etc/
+sudo cp $HOME/arch/configs/pacman/pacman.conf /etc/
 
 # zram Config
-sudo cp $HOME/arch/config/zram/zram-generator.conf /etc/systemd/
+sudo cp $HOME/arch/configs/zram/zram-generator.conf /etc/systemd/
 
 # TLP Config
-sudo cp $HOME/arch/config/tlp/tlp.conf /etc/
+sudo cp $HOME/arch/configs/tlp/tlp.conf /etc/
 
 # Reflector Config
-sudo cp $HOME/arch/config/reflector/reflector.conf /etc/xdg/reflector/
+sudo cp $HOME/arch/configs/reflector/reflector.conf /etc/xdg/reflector/
 
 # Neofetch Config
-cp $HOME/arch/config/neofetch/config.conf $HOME/.config/
+cp $HOME/arch/configs/neofetch/config.conf $HOME/.config/
 
 # mpv Config
-cp -r $HOME/arch/config/mpv/ $HOME/.config/
+cp -r $HOME/arch/configs/mpv/ $HOME/.config/
 
 # Template Files
-cp -a $HOME/arch/template/. $HOME/Templates/
+cp -a $HOME/arch/templates/. $HOME/Templates/
 
 # Sample Files
-cp $HOME/arch/config/sample/hack $HOME/.hack
-sudo cp $HOME/arch/config/sample/amogus.cow /usr/share/cows/
+cp $HOME/arch/configs/sample/hack $HOME/.hack
+sudo cp $HOME/arch/configs/sample/amogus.cow /usr/share/cows/
