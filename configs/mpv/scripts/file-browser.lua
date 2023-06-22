@@ -15,13 +15,13 @@ local opt = require 'mp.options'
 
 local o = {
     --root directories
-    root = "~/",
+    root = "~/,~/Videos/",
 
     --characters to use as separators
     root_separators = ",;",
 
     --number of entries to show on the screen at once
-    num_entries = 20,
+    num_entries = 18,
 
     --wrap the cursor around the top and bottom of the list
     wrap = false,
@@ -83,7 +83,7 @@ local o = {
     indent_icon = [[\h\h\h]],
 
     --enable addons
-    addons = false,
+    addons = true,
     addon_directory = "~~/script-modules/file-browser-addons",
 
     --directory to load external modules - currently just user-input-module
@@ -95,7 +95,7 @@ local o = {
     --force file-browser to use a specific text alignment (default: top-left)
     --uses ass tag alignment numbers: https://aegi.vmoe.info/docs/3.0/ASS_Tags/#index23h3
     --set to 0 to use the default mpv osd-align options
-    alignment = 7,
+    alignment = 0,
 
     --style settings
     font_bold_header = true,
@@ -1515,8 +1515,8 @@ state.keybinds = {
     {'HOME',        'goto_current', goto_current_dir},
     {'Shift+HOME',  'goto_root',    goto_root},
     {'Ctrl+r',      'reload',       function() cache:clear(); update() end},
-    {'s',           'select_mode',  toggle_select_mode},
-    {'S',           'select_item',  toggle_selection},
+    {'s',           'select_item',  toggle_selection},
+    {'Ctrl+s',      'select_mode',  toggle_select_mode},
     {'Ctrl+a',      'select_all',   select_all}
 }
 

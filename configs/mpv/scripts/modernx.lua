@@ -1399,20 +1399,20 @@ layouts = function ()
 	
     -- Alignment
 	local refX = osc_w / 2
-	local refY = posY
+	local refY = posY + 10
 	local geo
 	
     -- Seekbar
     new_element('seekbarbg', 'box')
     lo = add_layout('seekbarbg')
-    lo.geometry = {x = refX , y = refY - 106 , an = 5, w = osc_geo.w - 50, h = 2}
+    lo.geometry = {x = refX , y = refY - 106, an = 5, w = osc_geo.w - 50, h = 4}
     lo.layer = 13
     lo.style = osc_styles.SeekbarBg
     lo.alpha[1] = 128
     lo.alpha[3] = 128
 
     lo = add_layout('seekbar')
-    lo.geometry = {x = refX, y = refY - 106 , an = 5, w = osc_geo.w - 50, h = 16}
+    lo.geometry = {x = refX, y = refY - 106, an = 5, w = osc_geo.w - 50, h = 18}
 	lo.style = osc_styles.SeekbarFg
     lo.slider.gap = 7
     lo.slider.tooltip_style = osc_styles.Tooltip
@@ -1435,9 +1435,11 @@ layouts = function ()
     lo = new_element('volumebarbg', 'box')
     lo.visible = (osc_param.playresx >= 900) and user_opts.volumecontrol
     lo = add_layout('volumebarbg')
-    lo.geometry = {x = 155, y = refY - 40, an = 4, w = 80, h = 2}
+    lo.geometry = {x = 155, y = refY - 40, an = 4, w = 80, h = 4}
     lo.layer = 13
     lo.style = osc_styles.VolumebarBg
+    lo.alpha[1] = 128
+    lo.alpha[3] = 128
     
     lo = add_layout('volumebar')
     lo.geometry = {x = 155, y = refY - 40, an = 4, w = 80, h = 8}
