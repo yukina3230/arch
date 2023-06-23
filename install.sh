@@ -2,16 +2,24 @@
 
 # Folders
 mkdir $HOME/Archives/
-mkdir $HOME/Projects/
-mkdir $HOME/Applications/
 mkdir $HOME/Games/
 mkdir $HOME/Temps/
+mkdir $HOME/Projects/
+mkdir $HOME/Applications/
 mkdir $HOME/Documents/Ebooks/
 mkdir $HOME/Documents/Journals/
+mkdir $HOME/Documents/Novels/
+mkdir $HOME/Documents/Keys/
+mkdir $HOME/Documents/Cookies/
+mkdir $HOME/Downloads/General/
+mkdir $HOME/Downloads/Compressed/
+mkdir $HOME/Downloads/Programs/
+mkdir $HOME/Downloads/Torrents/
 mkdir $HOME/Pictures/Icons/
-mkdir $HOME/Pictures/Memes/
 mkdir $HOME/Pictures/Artworks/
 mkdir $HOME/Pictures/Wallpapers/
+mkdir $HOME/Pictures/Memes/
+mkdir $HOME/Pictures/Reacts/
 
 # Aliases
 alias -s lock="xdg-screensaver lock"

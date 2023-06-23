@@ -63,7 +63,7 @@ local user_opts = {
                                     -- differ (like with playing urls, audio or some media)
     showtitle = true,		        -- show title in OSC
     showwindowtitle = false,        -- show window title in borderless/fullscreen mode
-    showonpause = true,             -- whether to disable the hide timeout on pause
+    showonpause = false,            -- whether to disable the hide timeout on pause
     thumbnailborder = 2,            -- the width of the thumbnail border
     raisesubswithosc = true,        -- whether to raise subtitles above the osc when it's shown
     timetotal = true,          	    -- display total time instead of remaining time?
