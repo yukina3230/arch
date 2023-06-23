@@ -1435,14 +1435,14 @@ layouts = function ()
     lo = new_element('volumebarbg', 'box')
     lo.visible = (osc_param.playresx >= 900) and user_opts.volumecontrol
     lo = add_layout('volumebarbg')
-    lo.geometry = {x = 155, y = refY - 40, an = 4, w = 80, h = 2}
+    lo.geometry = {x = 155, y = refY - 40, an = 4, w = 80, h = 4}
     lo.layer = 13
     lo.style = osc_styles.VolumebarBg
     lo.alpha[1] = 128
     lo.alpha[3] = 128
     
     lo = add_layout('volumebar')
-    lo.geometry = {x = 155, y = refY - 40, an = 4, w = 80, h = 8}
+    lo.geometry = {x = 155, y = refY - 40, an = 4, w = 80, h = 10}
     lo.style = osc_styles.VolumebarFg
     lo.slider.gap = 3
     lo.slider.tooltip_style = osc_styles.Tooltip
