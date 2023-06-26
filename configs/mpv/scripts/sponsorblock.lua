@@ -80,8 +80,7 @@ local options = {
     skip = true
 }
 
-mp.options = require "mp.options"
-mp.options.read_options(options, "sponsorblock")
+(require 'mp.options').read_options(options)
 
 local legacy = mp.command_native_async == nil
 --[[
@@ -387,6 +386,11 @@ function file_loaded()
     last_skip = {uuid = "", dir = nil}
     chapter_cache = {}
     local video_path = mp.get_property("path", "")
+    if string.find(video_path, "https://") then
+        video_path = string.gsub(video_path, "ytdl://", "") -- Strip possible ytdl:// prefix
+    else
+        video_path = string.gsub(video_path, "ytdl://", "https://") -- Strip possible ytdl:// prefix and replace with "https://" if there it isn't there already
+    end
     mp.msg.debug("Path: " .. video_path)
     local video_referer = string.match(mp.get_property("http-header-fields", ""), "Referer:([^,]+)") or ""
     mp.msg.debug("Referer: " .. video_referer)

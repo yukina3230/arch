@@ -8,19 +8,17 @@ local settings = {
     key_mark_cut = ";",
     video_extension = "mp4",
     custom_output_path = "",
+    
+    -- web
+    ffmpeg_custom_parameters = "",  -- if you want faster cutting, leave this blank
 
-    -- if you want faster cutting, leave this blank
-    ffmpeg_custom_parameters = "",
+    webkey_mark_cut = "shift+;",
 
-    web = {
-        -- small file settings
-        key_mark_cut = "ctrl+;",
-
-        audio_target_bitrate = 128, -- kbps
-        video_target_file_size = 7.50,  -- mb, keeping this less than 8 since the process is not perfectly accurate.
-        video_target_scale = "1280:-1" -- https://trac.ffmpeg.org/wiki/Scaling everthing after "scale=" will be considered, keep "original" for no changes to the scaling
-    }
+    audio_target_bitrate = 128, -- kbps
+    video_target_file_size = 24.50,  -- mb, keeping this less than 8 since the process is not perfectly accurate.
+    video_target_scale = "1280:-1" -- https://trac.ffmpeg.org/wiki/Scaling everthing after "scale=" will be considered, keep "original" for no changes to the scaling
 }
+(require 'mp.options').read_options(settings)
 
 local vars = {
     path = nil,
@@ -169,8 +167,8 @@ function ffmpeg_resize(input_file, output_file)
     local cut_duration = math.abs(math.floor(vars.pos.cut_duration))
     log(msg.info, string.format("Cut duration: %s", cut_duration))
 
-    local target_bitrate = (settings.web.video_target_file_size * 8192) / cut_duration -- Video bitrate
-    target_bitrate = target_bitrate - settings.web.audio_target_bitrate -- Audio bitrate
+    local target_bitrate = (settings.video_target_file_size * 8192) / cut_duration -- Video bitrate
+    target_bitrate = target_bitrate - settings.audio_target_bitrate -- Audio bitrate
 
     if target_bitrate < 0 then
         log(msg.error, "Target video bitrate is lower than 0!", 10)
@@ -181,8 +179,8 @@ function ffmpeg_resize(input_file, output_file)
     log(msg.info, string.format("Target video bitrate: %s", formatted_target_bitrate))
 
     local vf, video_target_scale = "-vf", "scale=iw:ih"
-    if settings.web.video_target_scale ~= "original" then
-        video_target_scale = string.format("scale=%s", settings.web.video_target_scale)
+    if settings.video_target_scale ~= "original" then
+        video_target_scale = string.format("scale=%s", settings.video_target_scale)
     end
 
     -- Double pass from https://trac.ffmpeg.org/wiki/Encode/H.264#twopass
@@ -193,7 +191,7 @@ function ffmpeg_resize(input_file, output_file)
         return false
     end
 
-    status, stdout, stderr = exec_native({"ffmpeg", "-async", "1", "-y", "-i", input_file, "-c:v", "libx264", vf, video_target_scale, "-b:v", formatted_target_bitrate, "-pass", "2", "-c:a", "aac", "-b:a", string.format("%sk", settings.web.audio_target_bitrate), output_file})
+    status, stdout, stderr = exec_native({"ffmpeg", "-async", "1", "-y", "-i", input_file, "-c:v", "libx264", vf, video_target_scale, "-b:v", formatted_target_bitrate, "-pass", "2", "-c:a", "aac", "-b:a", string.format("%sk", settings.audio_target_bitrate), output_file})
     if status > 0 then
         stderr = stderr:gsub("^%s*(.-)%s*$", "%1")
         log(msg.error, stderr, nil, stderr)
@@ -309,5 +307,5 @@ mp.register_event("file-loaded", function()
 end)
 
 mp.add_key_binding(settings.key_mark_cut, "mark_pos", mark_pos)
-mp.add_key_binding(settings.web.key_mark_cut, "web_mark_pos", web_mark_pos)
+mp.add_key_binding(settings.webkey_mark_cut, "web_mark_pos", web_mark_pos)
 -- #endregion

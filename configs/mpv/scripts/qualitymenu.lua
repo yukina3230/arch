@@ -12,7 +12,6 @@ local mp = require 'mp'
 local utils = require 'mp.utils'
 local msg = require 'mp.msg'
 local assdraw = require 'mp.assdraw'
-local opt = require('mp.options')
 
 local opts = {
     --key bindings
@@ -123,7 +122,7 @@ local opts = {
     sort_video = 'height,fps,tbr,size,format_id',
     sort_audio = 'asr,tbr,size,format_id',
 }
-read_options(opts)
+(require 'mp.options').read_options(opts)
 opts.quality_strings = utils.parse_json(opts.quality_strings)
 
 opts.font_size = tonumber(opts.style_ass_tags:match('\\fs(%d+%.?%d*)')) or mp.get_property_number('osd-font-size') or 25
