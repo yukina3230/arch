@@ -61,7 +61,7 @@ local user_opts = {
                                     -- 'exact', 'relative+keyframes', etc.
     title = '${media-title}',       -- string compatible with property-expansion
                                     -- to be shown as OSC title
-    dynamictitle = true,            -- change the title depending on if {media-title} and {filename}
+    dynamictitle = false,           -- change the title depending on if {media-title} and {filename}
                                     -- differ (like with playing urls, audio or some media)
     showtitle = true,		        -- show title in OSC
     showdescription = true,         -- show video description on web videos
@@ -491,6 +491,13 @@ function ass_draw_rr_h_ccw(ass, x0, y0, x1, y1, r1, hexagon, r2)
     end
 end
 
+-- update vol_value
+function update_vol_value()
+    if not (mp.get_property_number('volume') == 0) then
+        mp.set_property_native('mute', false)
+        vol_value = mp.get_property_number('volume')
+    end
+end
 
 --
 -- Tracklist Management
@@ -2023,16 +2030,12 @@ function osc_init()
     ne.eventresponder["wheel_up_press"] =
         function ()
             mp.commandv("osd-auto", "add", "volume", 5)
-            if not (mp.get_property_number('volume') == 0) then
-                vol_value = mp.get_property_number('volume')
-            end
+            update_vol_value()
         end
     ne.eventresponder["wheel_down_press"] =
         function ()
             mp.commandv("osd-auto", "add", "volume", -5)
-            if not (mp.get_property_number('volume') == 0) then
-                vol_value = mp.get_property_number('volume')
-            end
+            update_vol_value()
         end
     
     --tog_fs
@@ -2293,33 +2296,25 @@ function osc_init()
         function (element)
             local pos = get_slider_value(element)
             mp.commandv("set", "volume", set_volume(pos))
-            if not (mp.get_property_number('volume') == 0) then
-                vol_value = mp.get_property_number('volume')
-            end
+            update_vol_value()
         end
     ne.eventresponder['mbtn_left_down'] =
         function (element)
             local pos = get_slider_value(element)
             mp.commandv("set", "volume", set_volume(pos))
-            if not (mp.get_property_number('volume') == 0) then
-                vol_value = mp.get_property_number('volume')
-            end
+            update_vol_value()
         end
     ne.eventresponder['reset'] =
         function (element) element.state.lastseek = nil end
     ne.eventresponder['wheel_up_press'] =
         function ()
             mp.commandv("osd-auto", "add", "volume", 5)
-            if not (mp.get_property_number('volume') == 0) then
-                vol_value = mp.get_property_number('volume')
-            end
+            update_vol_value()
         end
     ne.eventresponder['wheel_down_press'] =
         function ()
             mp.commandv("osd-auto", "add", "volume", -5)
-            if not (mp.get_property_number('volume') == 0) then
-                vol_value = mp.get_property_number('volume')
-            end
+            update_vol_value()
         end
     
     -- volumetext
