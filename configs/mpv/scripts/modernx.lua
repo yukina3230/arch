@@ -41,8 +41,8 @@ local user_opts = {
     seekrange = true,		        -- show seekrange overlay
     seekrangealpha = 64,      	    -- transparency of seekranges
     seekbarkeyframes = false,       -- use keyframes when dragging the seekbar
-    showjump = true,                -- show "jump forward/backward 5 seconds" buttons 
-                                    -- shift+left-click to step 1 frame and 
+    showjump = true,                -- show "jump forward/backward 5 seconds" buttons
+                                    -- shift+left-click to step 1 frame and
                                     -- right-click to jump 1 minute
     showskip = true,                -- show the skip back and forward (chapter) buttons
     showloop = true,                -- show the loop button
@@ -61,7 +61,7 @@ local user_opts = {
                                     -- 'exact', 'relative+keyframes', etc.
     title = '${media-title}',       -- string compatible with property-expansion
                                     -- to be shown as OSC title
-    dynamictitle = true,            -- change the title depending on if {media-title} and {filename} 
+    dynamictitle = true,            -- change the title depending on if {media-title} and {filename}
                                     -- differ (like with playing urls, audio or some media)
     showtitle = true,		        -- show title in OSC
     showdescription = true,         -- show video description on web videos
@@ -77,16 +77,20 @@ local user_opts = {
     keyboardnavigation = false,     -- enable directional keyboard navigation
     chapter_fmt = "Chapter: %s",    -- chapter print format for seekbar-hover. "no" to disable
     boxalpha = 0,                   -- alpha of the background box, 0 (opaque) to 255 (fully transparent)
+    blur_intensity = 150,           -- adjust the strength of the OSC blur
+    osc_color = "000000",           -- accent of the OSC and the title bar
+    seekbarfg_color = "E39C42",     -- color of the seekbar progress and handle
+    seekbarbg_color = "FFFFFF",     -- color of the remaining seekbar
     hovereffect = false,            -- whether buttons have a glowing effect when hovered over
 }
 
--- Icons for jump button depending on jumpamount 
-local jumpicons = { 
-    [5] = {'\239\142\177', '\239\142\163'}, 
-    [10] = {'\239\142\175', '\239\142\161'}, 
-    [30] = {'\239\142\176', '\239\142\162'}, 
-    default = {'\239\142\178	', '\239\142\178'}, -- second icon is mirrored in layout() 
-} 
+-- Icons for jump button depending on jumpamount
+local jumpicons = {
+    [5] = {'\239\142\177', '\239\142\163'},
+    [10] = {'\239\142\175', '\239\142\161'},
+    [30] = {'\239\142\176', '\239\142\162'},
+    default = {'\239\142\178	', '\239\142\178'}, -- second icon is mirrored in layout()
+}
 
 local icons = {
   previous = '\239\142\181',
@@ -102,7 +106,7 @@ local icons = {
   volumemute = '\239\142\187',
   sub = '\239\143\147',
   minimize = '\239\133\172',
-  fullscreen = '\239\133\173',  
+  fullscreen = '\239\133\173',
   loopoff = '',
   loopon = '', -- copied private use character
   info = '',
@@ -215,9 +219,9 @@ local osc_param = {                         -- calculated by osc_init()
 local iconfont = user_opts.iconstyle == 'round' and 'Material-Design-Iconic-Round' or 'Material-Design-Iconic-Font'
 
 local osc_styles = {
-    TransBg = '{\\blur100\\bord150\\1c&H000000&\\3c&H000000&}',
-    SeekbarBg = '{\\blur0\\bord0\\1c&HFFFFFF&}',
-    SeekbarFg = '{\\blur1\\bord1\\1c&HE39C42&}',
+    TransBg = "{\\blur100\\bord" .. user_opts.blur_intensity .. "\\1c&H000000&\\3c&H" .. user_opts.osc_color .. "&}",
+    SeekbarBg = "{\\blur0\\bord0\\1c&H" .. user_opts.seekbarbg_color .. "&}",
+    SeekbarFg = "{\\blur1\\bord1\\1c&H" .. user_opts.seekbarfg_color .. "&}",
     VolumebarBg = '{\\blur0\\bord0\\1c&H999999&}',
     VolumebarFg = '{\\blur1\\bord1\\1c&HFFFFFF&}',
     Ctrl1 = '{\\blur0\\bord0\\1c&HFFFFFF&\\3c&HFFFFFF&\\fs36\\fn' .. iconfont .. '}',
@@ -233,6 +237,7 @@ local osc_styles = {
     WinCtrl = '{\\blur1\\bord0.5\\1c&HFFFFFF&\\3c&H0\\fs20\\fnmpv-osd-symbols}',
     elementDown = '{\\1c&H999999&}',
     elementHover = "{\\blur5\\2c&HFFFFFF&}",
+    wcBar = "{\\1c&H" .. user_opts.osc_color .. "}",
 }
 
 -- internal states, do not touch
@@ -664,7 +669,7 @@ function prepare_elements()
             if not (element.slider.markerF == nil) and (slider_lo.gap > 0) then
                 local markers = element.slider.markerF()
                 for _,marker in pairs(markers) do
-                    if (marker >= element.slider.min.value) and 
+                    if (marker >= element.slider.min.value) and
                     (marker <= element.slider.max.value) then
                         local s = get_slider_ele_pos_for(element, marker)
                         if (slider_lo.gap > 5) then -- draw triangles
@@ -1028,7 +1033,7 @@ end
 
 function checktitle()
     if not string.find(user_opts.title, "filename") then
-        if (user_opts.dynamictitle and mp.get_property("filename") ~= mp.get_property("media-title")) 
+        if (user_opts.dynamictitle and mp.get_property("filename") ~= mp.get_property("media-title"))
         and (not string.find(mp.get_property("path"), "watch?")) then -- youtube links are garbage so dont use this
             msg.info("Changing title name to include filename")
             user_opts.title = "${filename} | ${media-title}" -- {filename/no-ext}
@@ -1279,6 +1284,14 @@ function window_controls()
 
     local lo
 
+    -- Background Bar
+    -- new_element("wcbar", "box")
+    -- lo = add_layout("wcbar")
+    -- lo.geometry = wc_geo
+    -- lo.layer = 10
+    -- lo.style = osc_styles.wcBar
+    -- lo.alpha[1] = user_opts.boxalpha
+
     local button_y = wc_geo.y - (wc_geo.h / 2)
     local first_geo =
         {x = controlbox_left + 30, y = button_y, an = 5, w = 40, h = wc_geo.h}
@@ -1449,7 +1462,7 @@ layouts = function ()
 
     -- Volumebar
     lo = new_element('volumebarbg', 'box')
-    lo.visible = (osc_param.playresx >= 900) and user_opts.volumecontrol
+    lo.visible = (osc_param.playresx >= 900 - outeroffset) and user_opts.volumecontrol
     lo = add_layout('volumebarbg')
     lo.geometry = {x = 155, y = refY - 40, an = 4, w = 80, h = 4}
     lo.layer = 13
@@ -1472,7 +1485,7 @@ layouts = function ()
     end
     lo.style = osc_styles.Ctrl2
 
-    if showskip then 
+    if showskip then
         lo = add_layout('skipback')
         lo.geometry = {x = refX - 60 - offset, y = refY - 40 , an = 5, w = 30, h = 24}
         lo.style = osc_styles.Ctrl2
@@ -1486,7 +1499,7 @@ layouts = function ()
 
     lo = add_layout('playpause')
     lo.geometry = {x = refX, y = refY - 40 , an = 5, w = 45, h = 45}
-    lo.style = osc_styles.Ctrl1	
+    lo.style = osc_styles.Ctrl1
 
     if showjump then
         lo = add_layout('jumpfrwd')
@@ -1499,7 +1512,7 @@ layouts = function ()
     if showskip then
         lo = add_layout('skipfrwd')
         lo.geometry = {x = refX + 60 + offset, y = refY - 40 , an = 5, w = 30, h = 24}
-        lo.style = osc_styles.Ctrl2	
+        lo.style = osc_styles.Ctrl2
     end
 
     lo = add_layout('pl_next')
@@ -1513,11 +1526,11 @@ layouts = function ()
 	-- Time
     lo = add_layout('tc_left')
     lo.geometry = {x = 25, y = refY - 94, an = 7, w = 64, h = 20}
-    lo.style = osc_styles.Time	
+    lo.style = osc_styles.Time
 	
     lo = add_layout('tc_right')
     lo.geometry = {x = osc_geo.w - 25 , y = refY -94, an = 9, w = 64, h = 20}
-    lo.style = osc_styles.Time	
+    lo.style = osc_styles.Time
 
     -- Audio/Subtitle
     lo = add_layout('cy_audio')
@@ -1539,13 +1552,13 @@ layouts = function ()
     lo = add_layout('vol_text')
     lo.geometry = {x = 250, y = refY - 40, an = 4, w = 20, h = 20}
     lo.style = osc_styles.VolumeText
-    lo.visible = (osc_param.playresx >= 900) and user_opts.volumecontrol
+    lo.visible = (osc_param.playresx >= 900 - outeroffset) and user_opts.volumecontrol
 
     -- Fullscreen/Loop/Info
 	lo = add_layout('tog_fs')
     lo.geometry = {x = osc_geo.w - 37, y = refY - 40, an = 5, w = 24, h = 24}
     lo.style = osc_styles.Ctrl3
-    lo.visible = (osc_param.playresx >= 250 - outeroffset)    
+    lo.visible = (osc_param.playresx >= 250 - outeroffset)
 
     if showontop then
         lo = add_layout('tog_ontop')
@@ -1558,7 +1571,7 @@ layouts = function ()
         lo = add_layout('tog_loop')
         lo.geometry = {x = osc_geo.w - 82, y = refY - 40, an = 5, w = 24, h = 24}
         lo.style = osc_styles.Ctrl3
-        lo.visible = (osc_param.playresx >= 600 - outeroffset)    
+        lo.visible = (osc_param.playresx >= 600 - outeroffset)
     end
 
     if showinfo then
@@ -1705,14 +1718,14 @@ function osc_init()
     ne.eventresponder['enter'] =
         function ()
             mp.commandv('playlist-prev', 'weak')
-            show_message(get_playlist()) 
+            show_message(get_playlist())
         end
     ne.eventresponder['mbtn_right_up'] =
         function () show_message(get_playlist()) end
     ne.eventresponder['shift+mbtn_left_down'] =
         function ()
             mp.commandv('playlist-prev', 'weak')
-            show_message(get_playlist()) 
+            show_message(get_playlist())
         end
     ne.eventresponder['shift+mbtn_right_down'] =
         function () show_message(get_playlist()) end
@@ -1725,14 +1738,14 @@ function osc_init()
     ne.eventresponder['mbtn_left_up'] =
         function () mp.commandv('playlist-next', 'weak') end
     ne.eventresponder['enter'] =
-        function () 
+        function ()
             mp.commandv('playlist-next', 'weak')
             show_message(get_playlist())
         end
     ne.eventresponder['mbtn_right_up'] =
         function () show_message(get_playlist()) end
     ne.eventresponder['shift+mbtn_left_down'] =
-        function () 
+        function ()
             mp.commandv('playlist-next', 'weak')
             show_message(get_playlist())
         end
@@ -1814,7 +1827,7 @@ function osc_init()
     ne.content = icons.backward
     ne.enabled = (have_ch) or compactmode -- disables button when no chapters available.
     ne.eventresponder['mbtn_left_down'] =
-        function () 
+        function ()
             if compactmode then
                 mp.commandv('seek', -jumpamount, jumpmode)
             else
@@ -1832,7 +1845,7 @@ function osc_init()
             end
         end
     ne.eventresponder['mbtn_right_down'] =
-        function () 
+        function ()
             if compactmode then
                 mp.commandv('seek', -60, jumpmode)
             else
@@ -1920,14 +1933,14 @@ function osc_init()
         return msg
     end
     ne.nothingavailable = texts.noaudio
-    ne.eventresponder['mbtn_left_up'] = 
+    ne.eventresponder['mbtn_left_up'] =
     function () set_track('audio', 1) show_message(get_tracklist('audio')) end
-    ne.eventresponder['enter'] = 
-        function () 
-            set_track('audio', 1) 
+    ne.eventresponder['enter'] =
+        function ()
+            set_track('audio', 1)
             show_message(get_tracklist('audio'))
         end
-    ne.eventresponder['mbtn_right_up'] = 
+    ne.eventresponder['mbtn_right_up'] =
         function () set_track('audio', -1) show_message(get_tracklist('audio')) end
     ne.eventresponder['shift+mbtn_left_down'] =
         function () show_message(get_tracklist('audio')) end
@@ -1959,9 +1972,9 @@ function osc_init()
         return msg
     end
     ne.nothingavailable = texts.nosub
-    ne.eventresponder['mbtn_left_up'] = 
+    ne.eventresponder['mbtn_left_up'] =
         function () set_track('sub', 1) show_message(get_tracklist('sub')) end
-    ne.eventresponder['enter'] = 
+    ne.eventresponder['enter'] =
         function ()
             set_track('sub', 1)
             show_message(get_tracklist('sub'))
@@ -2062,7 +2075,7 @@ function osc_init()
         function ()
             state.looping = not state.looping
             mp.set_property_native("loop-file", state.looping)
-        end    
+        end
 
     --download
     ne = new_element('download', 'button')
@@ -2124,8 +2137,8 @@ function osc_init()
     end
     ne.visible = (osc_param.playresx >= 700 - outeroffset)
     ne.eventresponder['mbtn_left_up'] =
-        function () 
-            mp.commandv('cycle', 'ontop') 
+        function ()
+            mp.commandv('cycle', 'ontop')
             if (state.initialborder == 'yes') then
                 if (mp.get_property('ontop') == 'yes') then
                     mp.commandv('set', 'border', "no")
@@ -2137,8 +2150,8 @@ function osc_init()
         end
 
     ne.eventresponder['mbtn_right_up'] =
-        function () 
-            mp.commandv('cycle', 'ontop') 
+        function ()
+            mp.commandv('cycle', 'ontop')
         end
     
     --seekbar
@@ -2309,7 +2322,7 @@ function osc_init()
             end
         end
     
-    -- vol_text
+    -- volumetext
     ne = new_element('vol_text', 'button')
     ne.visible = user_opts.showtitle
     ne.content = function ()
@@ -2426,7 +2439,7 @@ function adjustSubtitles(visible)
         end
 	else
 		mp.commandv('set', 'sub-pos', 100)
-	end	
+	end
 end
 
 function pause_state(name, enabled)
@@ -2896,9 +2909,9 @@ mp.observe_property('mute', 'bool',
 )
 mp.observe_property('loop-file', 'bool',
     function(name, val) -- ensure compatibility with auto looping scripts (eg: a script that sets videos under 2 seconds to loop by default)
-        if (val == nil) then 
+        if (val == nil) then
             state.looping = true;
-        else 
+        else
             state.looping = false
         end
     end
