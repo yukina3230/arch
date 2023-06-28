@@ -112,8 +112,8 @@ local icons = {
   info = '',
   download = '',
   downloading = '',
-  ontopon = '\xEF\x86\x8C',
-  ontopoff = '\xEF\x86\x8B',
+  ontopon = '',
+  ontopoff = '',
 }
 
 -- Localization
@@ -2103,7 +2103,7 @@ function osc_init()
             end
             local localpath = mp.command_native({"expand-path", "~/Videos/mpv/"})
             msg.info(localpath)
-            local command = { "yt-dlp", "-S res,ext:mp4:m4a", "--add-metadata", "--write-auto-subs", "--embed-subs", "-P " .. localpath ,state.path }
+            local command = { "yt-dlp", "-S res,ext:mp4:m4a", "--add-metadata", "--write-auto-subs", "--embed-subs", "-P " .. localpath, state.path }
             state.downloading = true
             show_message("\\N{\\an9}Downloading...")
             local status = exec(command, downloadDone)
