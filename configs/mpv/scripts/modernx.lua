@@ -139,8 +139,10 @@ local language = {
         unmute = 'Unmute',
         download = 'Download file',
         downloading = 'Downloading...',
-        info = 'Info',
-        fullscreen = 'Toggle fullscreen',
+        info = 'Show info',
+        hideinfo = 'Hide info',
+        fullscreen = 'Fullscreen',
+        exitfullscreen = 'Exit fullscreen',
 	},
 	['chs'] = {
 		welcome = '{\\fs24\\1c&H0&\\1c&HFFFFFF&}将文件或URL放在这里播放',  -- this text appears when mpv starts
@@ -284,8 +286,9 @@ local state = {
     videoDescription = "",                  -- fill if it is a YouTube
     descriptionLoaded = false,
     isWebVideo = false,
-    path = "",                               -- used for yt-dlp downloading
+    path = "",                              -- used for yt-dlp downloading
     downloading = false,
+    info_showing = false,
 }
 
 local thumbfast = {
@@ -2050,6 +2053,9 @@ function osc_init()
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
         local msg = texts.fullscreen
+        if (state.fullscreen) then
+            msg = texts.exitfullscreen
+        end
         return msg
     end
     ne.eventresponder['mbtn_left_up'] =
@@ -2068,7 +2074,7 @@ function osc_init()
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
 		local msg = texts.loopenable
-        if state.looping then
+        if (state.looping) then
             msg = texts.loopdisable
         end
         return msg
@@ -2118,10 +2124,16 @@ function osc_init()
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
         local msg = texts.info
+        if (state.info_showing) then
+            msg = texts.hideinfo
+        end
         return msg
     end
     ne.eventresponder['mbtn_left_up'] =
-        function () mp.commandv('script-binding', 'stats/display-stats-toggle') end
+        function ()
+            state.info_showing = not state.info_showing
+            mp.commandv('script-binding', 'stats/display-stats-toggle')
+        end
 
     --tog_ontop
     ne = new_element('tog_ontop', 'button')
