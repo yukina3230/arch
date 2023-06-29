@@ -26,8 +26,6 @@ local user_opts = {
     scaleforcedwindow = 1.0,        -- scaling when rendered on a forced window
     titlefontsize = 28,             -- the font size of the title text
     infofontsize = 22,              -- the font size of the info text
-    titlecutoff = true,             -- if title is long, replace with '...' instead of cutting of screen
-    scrollingtitle = false,         -- instead of cutting off the title, it will scroll
     vidscale = false,               -- scale the controller with the video?
     hidetimeout = 0,                -- duration in ms until the OSC hides if no
                                     -- mouse movement. enforced non-negative for the
@@ -139,7 +137,8 @@ local language = {
         loopdisable = 'Disable looping',
         mute = 'Mute',
         unmute = 'Unmute',
-        download = 'Download',
+        download = 'Download file',
+        downloading = 'Downloading...',
         info = 'Info',
         fullscreen = 'Toggle fullscreen',
 	},
@@ -1950,7 +1949,7 @@ function osc_init()
     ne.eventresponder['mbtn_right_up'] =
         function () set_track('audio', -1) show_message(get_tracklist('audio')) end
     ne.eventresponder['shift+mbtn_left_down'] =
-        function () show_message(get_tracklist('audio')) end
+    function () set_track('audio', 1) show_message(get_tracklist('audio')) end
     ne.eventresponder['shift+mbtn_right_down'] =
         function () show_message(get_tracklist('audio')) end
                 
@@ -1989,7 +1988,7 @@ function osc_init()
     ne.eventresponder['mbtn_right_up'] =
         function () set_track('sub', -1) show_message(get_tracklist('sub')) end
     ne.eventresponder['shift+mbtn_left_down'] =
-        function () show_message(get_tracklist('sub')) end
+    function () set_track('sub', 1) show_message(get_tracklist('sub')) end
     ne.eventresponder['shift+mbtn_right_down'] =
         function () show_message(get_tracklist('sub')) end
     
@@ -2092,7 +2091,10 @@ function osc_init()
     ne.visible = (osc_param.playresx >= 900 - outeroffset) and state.isWebVideo
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
-        local msg = texts.download
+		local msg = texts.download
+        if (state.downloading)then
+            msg = texts.downloading
+        end
         return msg
     end
     ne.eventresponder['mbtn_left_up'] =
@@ -2680,6 +2682,8 @@ function process_event(source, what)
         what and ('_' .. what) or '')
 
     if what == 'down' or what == 'press' then
+
+        state.showtime = mp.get_time() -- clicking resets the hideosc timer
 
         for n = 1, #elements do
 
