@@ -189,6 +189,12 @@ function get_path()
 	local path = mp.get_property('path')
 	if not path then return end
 	
+	if string.find(path, "https://") then
+        path = string.gsub(path, "ytdl://", "") -- Strip possible ytdl:// prefix
+    else
+        path = string.gsub(path, "ytdl://", "https://") -- Strip possible ytdl:// prefix and replace with "https://" if there it isn't there already
+    end
+	
 	local title = mp.get_property('media-title'):gsub("\"", "")
 	
 	if starts_protocol(protocols, path) and o.prefer_filename_over_title == 'protocols' then
