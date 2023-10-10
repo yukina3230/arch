@@ -101,8 +101,8 @@ local o = {
     font_bold_header = true,
     font_opacity_selection_marker = "99",
 
-    font_size_header = 28,
-    font_size_body = 24,
+    font_size_header = 26,
+    font_size_body = 22,
     font_size_wrappers = 20,
 
     font_name_header = "",

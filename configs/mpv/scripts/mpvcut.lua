@@ -5,18 +5,19 @@ utils = require("mp.utils")
 
 -- #region globals
 local settings = {
-    key_mark_cut = ";",
+    key_mark_cut = "/",
     video_extension = "mp4",
     custom_output_path = "",
     
     -- web
     ffmpeg_custom_parameters = "",  -- if you want faster cutting, leave this blank
 
-    webkey_mark_cut = "shift+;",
+    webkey_mark_cut = "shift+/",
 
     audio_target_bitrate = 128, -- kbps
-    video_target_file_size = 24.50,  -- mb, keeping this less than 8 since the process is not perfectly accurate.
-    video_target_scale = "1280:-1" -- https://trac.ffmpeg.org/wiki/Scaling everthing after "scale=" will be considered, keep "original" for no changes to the scaling
+    video_target_file_size = 24.50,  -- mb, keeping this less than 25 since the process is not perfectly accurate.
+    video_target_scale = "original", -- https://trac.ffmpeg.org/wiki/Scaling everthing after "scale=" will be considered, keep "original" for no changes to the scaling
+    max_resolution = "1280:-2",
 }
 (require 'mp.options').read_options(settings)
 

@@ -9,7 +9,7 @@ local settings = {
   -- to bind multiple keys separate them by a space
 
   -- main key to show playlist
-  key_showplaylist = "p P",
+  key_showplaylist = "SHIFT+ENTER",
 
   -- display playlist while key is held down
   key_peek_at_playlist = "",
@@ -21,18 +21,18 @@ local settings = {
   key_movepagedown = "PGDWN",
   key_movebegin = "HOME",
   key_moveend = "END",
-  key_selectfile = "RIGHT",
-  key_unselectfile = "LEFT",
+  key_selectfile = "RIGHT LEFT",
+  key_unselectfile = "",
   key_playfile = "ENTER",
-  key_removefile = "BS DEL",
+  key_removefile = "BS",
   key_closeplaylist = "ESC SHIFT+ENTER",
 
   -- extra functionality keys
-  key_sortplaylist = "CTRL+SHIFT+p CTRL+SHIFT+P",
-  key_shuffleplaylist = "CTRL+SHIFT+g CTRL+SHIFT+G",
-  key_reverseplaylist = "CTRL+SHIFT+ALT+p CTRL+SHIFT+ALT+P",
-  key_loadfiles = "CTRL+SHIFT+a CTRL+SHIFT+A",
-  key_saveplaylist = "CTRL+SHIFT+s CTRL+SHIFT+S",
+  key_sortplaylist = "",
+  key_shuffleplaylist = "",
+  key_reverseplaylist = "",
+  key_loadfiles = "",
+  key_saveplaylist = "",
 
   --replaces matches on filenames based on extension, put as empty string to not replace anything
   --replace rules are executed in provided order
@@ -693,7 +693,7 @@ function showplaylist(duration)
   draw_playlist()
   keybindstimer:kill()
 
-  local dur = duration or settings.playlist_display_timeout
+  local dur = tonumber(duration) or settings.playlist_display_timeout
   if dur > 0 then
     keybindstimer = mp.add_periodic_timer(dur, remove_keybinds)
   end
@@ -709,7 +709,7 @@ function showplaylist_non_interactive(duration)
   draw_playlist()
   keybindstimer:kill()
 
-  local dur = duration or settings.playlist_display_timeout
+  local dur = tonumber(duration) or settings.playlist_display_timeout
   if dur > 0 then
     keybindstimer = mp.add_periodic_timer(dur, remove_keybinds)
   end

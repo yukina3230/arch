@@ -188,7 +188,7 @@ end
 function get_path()
 	local path = mp.get_property('path')
 	if not path then return end
-	
+
 	if string.find(path, "https://") then
         path = string.gsub(path, "ytdl://", "") -- Strip possible ytdl:// prefix
     else

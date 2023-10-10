@@ -23,16 +23,16 @@ local o = {
 	[""]
 	]], --Paths / URLs / Websites / Files / Protocols / Extensions, that wont be added to history automatically, e.g.: ["c:\\users\\eisa01\\desktop", "c:\\users\\eisa01\\desktop\\*", "c:\\temp\\naruto-01.mp4", "youtube.com", "https://dailymotion.com/", "avi", "https://www.youtube.com/watch?v=e8YBesRKq_U", ".jpeg", "magnet:", "https://", "ftp"]
 	history_resume_keybind=[[
-	["ctrl+r", "ctrl+R"]
+	["ctrl+h", "ctrl+H"]
 	]], --Keybind that will be used to immediately load and resume last item when no video is playing. If video is playing it will resume to the last found position
 	history_load_last_keybind=[[
-	["alt+r", "alt+R"]
+	["alt+h", "alt+H"]
 	]], --Keybind that will be used to immediately load the last item without resuming when no video is playing. If video is playing then it will add into playlist
 	open_list_keybind=[[
-	[ ["h", "all"], ["H", "all"], ["r", "recents"], ["R", "recents"] ]
+	[ ["h", "all"], ["H", "all"], ["ctrl+r", "recents"], ["ctrl+R", "recents"] ]
 	]], --Keybind that will be used to open the list along with the specified filter. Available filters: 'all', 'recents', 'distinct', 'protocols', 'fileonly', 'titleonly', 'timeonly', 'keywords'.
 	list_filter_jump_keybind=[[
-	[ ["h", "all"], ["H", "all"], ["r", "recents"], ["R", "recents"], ["d", "distinct"], ["D", "distinct"], ["f", "fileonly"], ["F", "fileonly"] ]
+	[ ["h", "all"], ["H", "all"], ["ctrl+r", "recents"], ["ctrl+R", "recents"], ["ctrl+d", "distinct"], ["ctrl+D", "distinct"], ["ctrl+f", "fileonly"], ["ctrl+F", "fileonly"] ]
 	]], --Keybind that is used while the list is open to jump to the specific filter (it also enables pressing a filter keybind twice to close list). Available fitlers: 'all', 'recents', 'distinct', 'protocols', 'fileonly', 'titleonly', 'timeonly', 'keywords'.
 	
 	-----Incognito Settings----
