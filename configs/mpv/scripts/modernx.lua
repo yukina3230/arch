@@ -2277,6 +2277,7 @@ function osc_init()
         end
         return msg
     end
+    ne.nothingavailable = texts.noaudio
     ne.eventresponder['mbtn_left_up'] =
         function ()
             if (mp.get_property_number('volume') == 0 or state.mute) then

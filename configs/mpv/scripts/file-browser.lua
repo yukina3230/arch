@@ -21,7 +21,7 @@ local o = {
     root_separators = ",;",
 
     --number of entries to show on the screen at once
-    num_entries = 18,
+    num_entries = 20,
 
     --wrap the cursor around the top and bottom of the list
     wrap = false,
@@ -124,7 +124,9 @@ local o = {
 }
 
 opt.read_options(o, 'file_browser')
-utils.shared_script_property_set("file_browser-open", "no")
+if utils.shared_script_property_set then
+    utils.shared_script_property_set('file_browser-open', 'no')
+end
 mp.set_property('user-data/file_browser/open', 'no')
 
 package.path = mp.command_native({"expand-path", o.module_directory}).."/?.lua;"..package.path
@@ -1184,7 +1186,9 @@ local function open()
         mp.add_forced_key_binding(v[1], 'dynamic/'..v[2], v[3], v[4])
     end
 
-    utils.shared_script_property_set("file_browser-open", "yes")
+    if utils.shared_script_property_set then
+        utils.shared_script_property_set('file_browser-open', 'yes')
+    end
     mp.set_property('user-data/file_browser/open', 'yes')
 
     if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'no', 'no_osd') end
@@ -1566,7 +1570,7 @@ local CUSTOM_KEYBIND_CODES = ""
 for key in pairs(code_fns) do CUSTOM_KEYBIND_CODES = CUSTOM_KEYBIND_CODES..key:lower()..key:upper() end
 local KEYBIND_CODE_PATTERN = ('%%%%([%s])'):format(API.ass_escape(CUSTOM_KEYBIND_CODES))
 
---substitutes the key codes for the 
+--substitutes the key codes for the
 local function substitute_codes(str, cmd, items, state)
     return string.gsub(str, KEYBIND_CODE_PATTERN, function(code)
         if type(code_fns[code]) == "string" then return code_fns[code] end
