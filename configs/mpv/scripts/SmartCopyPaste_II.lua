@@ -288,7 +288,10 @@ o.open_list_keybind = utils.parse_json(o.open_list_keybind)
 o.list_filter_jump_keybind = utils.parse_json(o.list_filter_jump_keybind)
 o.list_ignored_keybind = utils.parse_json(o.list_ignored_keybind)
 
-utils.shared_script_property_set("smartcopypaste-menu-open", "no")
+if utils.shared_script_property_set then
+    utils.shared_script_property_set('smartcopypaste-menu-open', 'no')
+end
+mp.set_property('user-data/smartcopypaste/menu-open', 'no')
 
 if string.lower(o.log_path) == '/:dir%mpvconf%' then
 	o.log_path = mp.find_config_file('.')
@@ -435,7 +438,7 @@ function bind_keys(keys, name, func, opts)
 	end
 	
 	for i = 1, #keys do
-		if i == 1 then 
+		if i == 1 then
 			mp.add_forced_key_binding(keys[i], name, func, opts)
 		else
 			mp.add_forced_key_binding(keys[i], name .. i, func, opts)
@@ -551,7 +554,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listduration%%", '')
 		end
-	end	
+	end
 	if list_total_duration > 0 then
 		string = string:gsub("%%prelistduration%%", o.header_list_duration_pre_text)
 		:gsub("%%afterlistduration%%", o.header_list_duration_after_text)
@@ -568,7 +571,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listlength%%", '')
 		end
-	end	
+	end
 	if list_total_length > 0 then
 		string = string:gsub("%%prelistlength%%", o.header_list_length_pre_text)
 		:gsub("%%afterlistlength%%", o.header_list_length_after_text)
@@ -585,7 +588,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listremaining%%", '')
 		end
-	end	
+	end
 	if list_total_remaining > 0 then
 		string = string:gsub("%%prelistremaining%%", o.header_list_remaining_pre_text)
 		:gsub("%%afterlistremaining%%", o.header_list_remaining_after_text)
@@ -1029,7 +1032,7 @@ function display_list(filter, sort, action)
 		if list_pages[i][3] == 2 and filter == 'all' and o.main_list_keybind_twice_exits then
 			trigger_close_list = true
 		elseif list_pages[i][3] == 2 and list_pages[1][1] == filter then
-			trigger_close_list = true		
+			trigger_close_list = true
 		elseif list_pages[i][3] == 2 then
 			trigger_initial_list = true
 		end
@@ -1047,7 +1050,10 @@ function display_list(filter, sort, action)
 	
 	if not search_active then get_page_properties(filter) else update_search_results('','') end
 	draw_list()
-	utils.shared_script_property_set("smartcopypaste-menu-open", "yes")
+	if utils.shared_script_property_set then
+		utils.shared_script_property_set('smartcopypaste-menu-open', 'yes')
+	end
+	mp.set_property('user-data/smartcopypaste/menu-open', 'yes')
 	if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'no', 'no_osd') end
 	list_drawn = true
 	if not search_active then get_list_keybinds() end
@@ -1074,13 +1080,13 @@ function select(pos, action)
 					for i = pos, 1, -1 do
 						if not has_value(list_highlight_cursor, list_cursor-i, 1) then
 							table.insert(list_highlight_cursor, {list_cursor-i, list_contents[#list_contents+1+i - list_cursor]})
-						end 
+						end
 					end
 				else
 					for i = pos, -1, 1 do
 						if not has_value(list_highlight_cursor, list_cursor-i, 1) then
 							table.insert(list_highlight_cursor, {list_cursor-i, list_contents[#list_contents+1+i - list_cursor]})
-						end 
+						end
 					end
 				end
 				table.insert(list_highlight_cursor, {list_cursor, list_contents[#list_contents+1 - list_cursor]})
@@ -1628,7 +1634,7 @@ function get_list_keybinds()
 		else
 			mp.remove_key_binding('open-list'..i)
 		end
-	end	
+	end
 	
 	if o.quickselect_0to9_keybind and o.list_show_amount <= 10 then
 		mp.add_forced_key_binding("1", "recent-1", function()load(list_start + 1) end)
@@ -1710,7 +1716,10 @@ function unbind_list_keys()
 end
 
 function list_close_and_trash_collection()
-	utils.shared_script_property_set("smartcopypaste-menu-open", "no")
+	if utils.shared_script_property_set then
+		utils.shared_script_property_set('smartcopypaste-menu-open', 'no')
+	end
+	mp.set_property('user-data/smartcopypaste/menu-open', 'no')
 	if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'yes', 'no_osd') end
 	unbind_list_keys()
 	unbind_search_keys()
@@ -1748,8 +1757,8 @@ function list_search_not_typing_mode(auto_triggered)
 		end
 	else
 		if search_string ~= '' then
-			search_active = 'not_typing' 
-		else 
+			search_active = 'not_typing'
+		else
 			search_active = false
 		end
 	end
@@ -2267,7 +2276,7 @@ function parse_clipboard(text)
 						c_clip_file = string.match(c, '^\"(.*)\"$')
 					else
 						c_clip_file = c_protocols
-					end			
+					end
 					c_clip_extension = get_extension(c_clip_file)
 					table.insert(clip_table, {c_clip_file, c_clip_time, c_clip_extension})
 				end
@@ -2691,7 +2700,7 @@ function multipaste()
 	if triggered_multipaste[2] == true then
 		if osd_msg ~= '' then osd_msg = osd_msg..'\n' end
 		osd_msg = osd_msg..'Added Into Playlist '..#clip_table - file_ignored_total - file_subtitle_total..' item/s'
-	end	
+	end
 	if file_ignored_total > 0 then
 		if osd_msg ~= '' then osd_msg = osd_msg..'\n' end
 		osd_msg = osd_msg..'Ignored '..file_ignored_total.. ' Item/s'
@@ -2819,7 +2828,7 @@ function paste()
 				end
 			end
 		end
-	end	
+	end
 end
 
 

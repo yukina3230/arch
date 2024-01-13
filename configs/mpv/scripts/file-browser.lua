@@ -92,6 +92,14 @@ local o = {
     --turn the OSC idle screen off and on when opening and closing the browser
     toggle_idlescreen = false,
 
+    --Set the current open status of the browser in the `file_browser/open` field of the `user-data` property.
+    --This property is only available in mpv v0.36+.
+    set_user_data = true,
+
+    --Set the current open status of the browser in the `file_browser-open` field of the `shared-script-properties` property.
+    --This property is deprecated. When it is removed in mpv v0.37 file-browser will automatically ignore this option.
+    set_shared_script_properties = true,
+
     --force file-browser to use a specific text alignment (default: top-left)
     --uses ass tag alignment numbers: https://aegi.vmoe.info/docs/3.0/ASS_Tags/#index23h3
     --set to 0 to use the default mpv osd-align options
@@ -124,10 +132,11 @@ local o = {
 }
 
 opt.read_options(o, 'file_browser')
-if utils.shared_script_property_set then
-    utils.shared_script_property_set('file_browser-open', 'no')
-end
-mp.set_property('user-data/file_browser/open', 'no')
+
+
+o.set_shared_script_properties = o.set_shared_script_properties and utils.shared_script_property_set
+if o.set_shared_script_properties then utils.shared_script_property_set('file_browser-open', 'no') end
+if o.set_user_data then mp.set_property_bool('user-data/file_browser/open', false) end
 
 package.path = mp.command_native({"expand-path", o.module_directory}).."/?.lua;"..package.path
 local success, input = pcall(require, "user-input-module")
@@ -707,15 +716,23 @@ local file_parser = {
 --------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------
 
+local string_buffer = {}
+
 --appends the entered text to the overlay
-local function append(text)
-    if text == nil then return end
-    ass.data = ass.data .. text
+local function append(...)
+    for i = 1, select("#", ...) do
+        table.insert(string_buffer, select(i, ...) or '' )
+    end
 end
 
 --appends a newline character to the osd
 local function newline()
-ass.data = ass.data .. '\\N'
+    table.insert(string_buffer, '\\N')
+end
+
+local function flush_buffer()
+    ass.data = table.concat(string_buffer, '')
+    string_buffer = {}
 end
 
 --detects whether or not to highlight the given entry as being played
@@ -731,7 +748,7 @@ end
 --saves the directory and name of the currently playing file
 local function update_current_directory(_, filepath)
     --if we're in idle mode then we want to open the working directory
-    if filepath == nil then 
+    if filepath == nil then
         current_file.directory = API.fix_path( mp.get_property("working-directory", ""), true)
         current_file.name = nil
         current_file.path = nil
@@ -751,7 +768,7 @@ end
 local function update_ass()
     if state.hidden then state.flag_update = true ; return end
 
-    ass.data = style.global
+    append(style.global)
 
     local dir_name = state.directory_label or state.directory
     if dir_name == "" then dir_name = "ROOT" end
@@ -762,6 +779,7 @@ local function update_ass()
 
     if #state.list < 1 then
         append(state.empty_text)
+        flush_buffer()
         ass:update()
         return
     end
@@ -790,7 +808,7 @@ local function update_ass()
     if not overflow then finish = #state.list end
 
     --adding a header to show there are items above in the list
-    if start > 1 then append(style.footer_header..(start-1)..' item(s) above\\N\\N') end
+    if start > 1 then append(style.footer_header, (start-1), ' item(s) above\\N\\N') end
 
     for i=start, finish do
         local v = state.list[i]
@@ -806,9 +824,9 @@ local function update_ass()
                 if state.selection[state.multiselect_start] then append(style.cursor_select)
                 else append(style.cursor_deselect) end
             end
-            append(o.cursor_icon.."\\h"..style.body)
+            append(o.cursor_icon, "\\h", style.body)
         else
-            append(o.indent_icon.."\\h"..style.body)
+            append(o.indent_icon, "\\h", style.body)
         end
 
         --sets the selection colour scheme
@@ -825,7 +843,7 @@ local function update_ass()
 
         --sets the folder icon
         if v.type == 'dir' then
-            append(style.folder..o.folder_icon.."\\h"..style.body)
+            append(style.folder, o.folder_icon, "\\h", style.body)
             set_colour()
         end
 
@@ -834,7 +852,9 @@ local function update_ass()
         newline()
     end
 
-    if overflow then append('\\N'..style.footer_header..#state.list-finish..' item(s) remaining') end
+    if overflow then append('\\N', style.footer_header, #state.list-finish, ' item(s) remaining') end
+
+    flush_buffer()
     ass:update()
 end
 
@@ -1186,10 +1206,8 @@ local function open()
         mp.add_forced_key_binding(v[1], 'dynamic/'..v[2], v[3], v[4])
     end
 
-    if utils.shared_script_property_set then
-        utils.shared_script_property_set('file_browser-open', 'yes')
-    end
-    mp.set_property('user-data/file_browser/open', 'yes')
+    if o.set_shared_script_properties then utils.shared_script_property_set('file_browser-open', 'yes') end
+    if o.set_user_data then mp.set_property_bool('user-data/file_browser/open', true) end
 
     if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'no', 'no_osd') end
     state.hidden = false
@@ -1213,8 +1231,8 @@ local function close()
         mp.remove_key_binding('dynamic/'..v[2])
     end
 
-    utils.shared_script_property_set("file_browser-open", "no")
-    mp.set_property('user-data/file_browser/open', 'no')
+    if o.set_shared_script_properties then utils.shared_script_property_set("file_browser-open", "no") end
+    if o.set_user_data then mp.set_property_bool('user-data/file_browser/open', false) end
 
     if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'yes', 'no_osd') end
     state.hidden = true
@@ -1520,7 +1538,7 @@ state.keybinds = {
     {'Shift+HOME',  'goto_root',    goto_root},
     {'Ctrl+r',      'reload',       function() cache:clear(); update() end},
     {'s',           'select_item',  toggle_selection},
-    {'Ctrl+s',      'select_mode',  toggle_select_mode},
+    {'Shift+s',     'select_mode',  toggle_select_mode},
     {'Ctrl+a',      'select_all',   select_all}
 }
 

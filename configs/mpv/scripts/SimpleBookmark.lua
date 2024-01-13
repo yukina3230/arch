@@ -166,7 +166,7 @@ local o = {
 	]],
 	list_remaining_time_format=[[
 	["default", "truncate"]
-	]],	
+	]],
 	header_duration_time_format=[[
 	["hms", "truncate", ":"]
 	]],
@@ -290,7 +290,10 @@ o.open_list_keybind = utils.parse_json(o.open_list_keybind)
 o.list_filter_jump_keybind = utils.parse_json(o.list_filter_jump_keybind)
 o.list_ignored_keybind = utils.parse_json(o.list_ignored_keybind)
 
-utils.shared_script_property_set("simplebookmark-menu-open", "no")
+if utils.shared_script_property_set then
+	utils.shared_script_property_set('simplebookmark-menu-open', 'no')
+end
+mp.set_property('user-data/simplebookmark/menu-open', 'no')
 
 if string.lower(o.log_path) == '/:dir%mpvconf%' then
 	o.log_path = mp.find_config_file('.')
@@ -474,7 +477,7 @@ function bind_keys(keys, name, func, opts)
 	end
 	
 	for i = 1, #keys do
-		if i == 1 then 
+		if i == 1 then
 			mp.add_forced_key_binding(keys[i], name, func, opts)
 		else
 			mp.add_forced_key_binding(keys[i], name .. i, func, opts)
@@ -600,7 +603,7 @@ function parse_list_item(str, properties) --1.3#add ability to parse the content
 
 	str = str:gsub("%%name%%", list_filename)
 		:gsub("%%path%%", list_filepath)
-		:gsub("%%title%%", list_filetitle)		
+		:gsub("%%title%%", list_filetitle)
 		:gsub("%%number%%", properties["index"]+1) --1.3# index +1 is the osd_index
 		:gsub("%%dt%%", properties["item"].found_datetime)
 		
@@ -756,7 +759,7 @@ function parse_header(str)
 				str = str:gsub(esc_string(s), "")
 			end
 		end
-	end	
+	end
 	
 	if #list_highlight_cursor > 0 then
 		str = str:gsub("%%highlight%%", #list_highlight_cursor)
@@ -808,7 +811,7 @@ function search_log_contents(arr_contents)
 	local search_query = ''
 	for search in search_string:gmatch("[^%s]+") do
 		search_query = search_query..'.-'..esc_string(search)
-	end	
+	end
 	local contents_string = ''
 
 	local search_arr_contents = {}
@@ -831,7 +834,7 @@ function search_log_contents(arr_contents)
 			end
 			if tonumber(arr_contents[i].found_remaining) > 0 then
 				contents_string = contents_string..format_time(arr_contents[i].found_remaining, o.list_remaining_time_format[3], o.list_remaining_time_format[2], o.list_remaining_time_format[1])
-			end			
+			end
 			if arr_contents[i].found_slot then
 				contents_string = contents_string..get_slot_keybind(tonumber(arr_contents[i].found_slot))
 			end
@@ -1259,7 +1262,7 @@ function display_list(filter, sort, action)
 		if list_pages[i][3] == 2 and filter == 'all' and o.main_list_keybind_twice_exits then
 			trigger_close_list = true
 		elseif list_pages[i][3] == 2 and list_pages[1][1] == filter then
-			trigger_close_list = true		
+			trigger_close_list = true
 		elseif list_pages[i][3] == 2 then
 			trigger_initial_list = true
 		end
@@ -1277,7 +1280,10 @@ function display_list(filter, sort, action)
 	
 	if not search_active then get_page_properties(filter) else update_search_results('','') end
 	draw_list(osd_log_contents)
-	utils.shared_script_property_set("simplebookmark-menu-open", "yes")
+	if utils.shared_script_property_set then
+		utils.shared_script_property_set('simplebookmark-menu-open', 'yes')
+	end
+	mp.set_property('user-data/simplebookmark/menu-open', 'yes')
 	if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'no', 'no_osd') end
 	list_drawn = true
 	if not search_active then get_list_keybinds() end
@@ -1411,7 +1417,7 @@ function list_page_down(action)
 
 	if search_active and o.search_not_typing_smartly then
 		list_search_not_typing_mode(true)
-	end	
+	end
 end
 
 function list_highlight_all()
@@ -1422,7 +1428,7 @@ function list_highlight_all()
 		for i=1, #osd_log_contents do
 			if not has_value(list_highlight_cursor, i, 1) then
 				table.insert(list_highlight_cursor, {i, osd_log_contents[#osd_log_contents+1-i]})
-			end 
+			end
 		end
 		select(0)
 	else
@@ -1860,7 +1866,7 @@ function get_list_keybinds()
 		else
 			mp.remove_key_binding('open-list'..i)
 		end
-	end	
+	end
 	
 	if o.quickselect_0to9_keybind and o.list_show_amount <= 10 then
 		mp.add_forced_key_binding("1", "recent-1", function()load(list_start + 1) end)
@@ -1958,7 +1964,10 @@ function unbind_list_keys()
 end
 
 function list_close_and_trash_collection()
-	utils.shared_script_property_set("simplebookmark-menu-open", "no")
+	if utils.shared_script_property_set then
+		utils.shared_script_property_set('simplebookmark-menu-open', 'no')
+	end
+	mp.set_property('user-data/simplebookmark/menu-open', 'no')
 	if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'yes', 'no_osd') end
 	unbind_list_keys()
 	unbind_search_keys()
@@ -1996,8 +2005,8 @@ function list_search_not_typing_mode(auto_triggered)
 		end
 	else
 		if search_string ~= '' then
-			search_active = 'not_typing' 
-		else 
+			search_active = 'not_typing'
+		else
 			search_active = false
 		end
 	end
@@ -2408,9 +2417,9 @@ function slot_remove(action)
 		display_list('all')
 		return
 	elseif list_cursor ~= #osd_log_contents + 1 then
-		select(0) 
-	else 
-		select(-1) 
+		select(0)
+	else
+		select(-1)
 	end
 end
 
@@ -2529,9 +2538,9 @@ function group_remove(action)
 		display_list('all')
 		return
 	elseif list_cursor ~= #osd_log_contents + 1 then
-		select(0) 
-	else 
-		select(-1) 
+		select(0)
+	else
+		select(-1)
 	end
 end
 
@@ -2548,10 +2557,10 @@ function group_add(index, action)
 		list_cursor = 0
 		select(list_cursor)
 	elseif list_cursor ~= #osd_log_contents + 1 then
-		select(0) 
-	else 
-		select(-1) 
-	end	
+		select(0)
+	else
+		select(-1)
+	end
 end
 --End of Group Feature--
 

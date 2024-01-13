@@ -1,6 +1,7 @@
 local options = {
-    saveAsTimeStamp = false;
-    fileExtension = "jpg"
+    saveAsTimeStamp = true,
+    fileExtension = "jpg",
+    includeYouTubeID = true
 }
 (require 'mp.options').read_options(options)
 
@@ -14,8 +15,28 @@ function updateTime()
 end
 
 function init()
-    filename = mp.get_property("filename")
-    title = string.gsub(filename, "%..+$", "")
+    local function is_url(s)
+        return nil ~=
+            string.match(s,
+                "^[%w]-://[-a-zA-Z0-9@:%._\\+~#=]+%." ..
+                "[a-zA-Z0-9()][a-zA-Z0-9()]?[a-zA-Z0-9()]?[a-zA-Z0-9()]?[a-zA-Z0-9()]?[a-zA-Z0-9()]?" ..
+                "[-a-zA-Z0-9()@:%_\\+.~#?&/=]*")
+    end
+
+    local filename = mp.get_property("filename")
+    local media = mp.get_property("media-title")
+    local path = mp.get_property("path")
+
+    if is_url(path) and path or nil then
+        youtubeID = ""
+        if options.includeYouTubeID then
+            youtubeID = " [" .. mp.get_property("filename"):match('[?&]v=([^&]+)') .. "]"
+        end
+        filename = string.gsub(media:sub(1, 100), "^%s*(.-)%s*$", "%1") .. youtubeID
+    end
+    local pattern = '[\\/:*?"<>|]'
+    title = filename:gsub(pattern, '')
+
     setFileDir()
 end
 
@@ -43,5 +64,6 @@ function screenshotdone()
 end
 
 mp.register_event("start-file", init)
+mp.register_event("file-loaded", init)
 mp.add_periodic_timer(1, setFileDir)
 mp.add_key_binding("s", "screenshotdone", screenshotdone);

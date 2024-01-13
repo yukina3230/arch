@@ -32,8 +32,8 @@ local function prepareUndoRedo()
 	else
 		seconds = seconds - 0.5
 	end
-		seekTable[currentIndex] = seekTable[currentIndex] + seconds 	
-		seconds = 0	
+		seekTable[currentIndex] = seekTable[currentIndex] + seconds
+		seconds = 0
 end
 
 local function getUndoRedo()

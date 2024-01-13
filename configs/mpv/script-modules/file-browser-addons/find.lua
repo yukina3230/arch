@@ -6,7 +6,7 @@
 
     Keybinds:
         Ctrl+f  open search box
-        Ctrl+F  open advanced search box (supports Lua patterns)
+        Shift+f open advanced search box (supports Lua patterns)
         n       cycle to next valid item
 ]]--
 
@@ -88,7 +88,7 @@ end
 
 find.keybinds = {
     {"Ctrl+f", "find", main, {}},
-    {"Ctrl+F", "find_advanced", main, {}},
+    {"Shift+f", "find_advanced", main, {}},
     {"n", "next", step_find, {}},
 }
 

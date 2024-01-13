@@ -4,6 +4,7 @@
 -- Project: SmartCopyPaste
 -- Version: 3.2.1
 
+
 local o = {
 ---------------------------USER CUSTOMIZATION SETTINGS---------------------------
 --These settings are for users to manually change some options.
@@ -215,7 +216,7 @@ function bind_keys(keys, name, func, opts)
 	end
 	
 	for i = 1, #keys do
-		if i == 1 then 
+		if i == 1 then
 			mp.add_forced_key_binding(keys[i], name, func, opts)
 		else
 			mp.add_forced_key_binding(keys[i], name .. i, func, opts)
@@ -857,13 +858,13 @@ mp.register_event('file-loaded', function()
 			local video_duration = mp.get_property_number('duration')
 			seekTime = clip_time + o.resume_offset
 
-			if seekTime > video_duration then 
+			if seekTime > video_duration then
 				if o.osd_messages == true then
 					mp.osd_message('Time Paste Exceeds Video Length' .. o.time_seperator .. format_time(clip_time, o.osd_time_format[3], o.osd_time_format[2], o.osd_time_format[1]))
 				end
 				msg.info("The time pasted exceeds the video length:\n"..format_time(clip_time))
 				return
-			end 
+			end
 
 			if seekTime < 0 then
 				seekTime = 0

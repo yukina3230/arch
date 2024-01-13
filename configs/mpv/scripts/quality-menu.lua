@@ -1,4 +1,4 @@
--- quality-menu 4.1.0 - 2023-Feb-17
+-- quality-menu 4.1.1 - 2023-Oct-22
 -- https://github.com/christoph-heinrich/mpv-quality-menu
 --
 -- Change the stream video and audio quality on the fly.
@@ -22,14 +22,14 @@ local opts = {
     select_binding = 'ENTER MBTN_LEFT',
     close_menu_binding = 'ESC MBTN_RIGHT',
 
-    --youtube-dl version(could be youtube-dl or yt-dlp, or something else)
+    --yt-dlp version(could be youtube-dl or yt-dlp, or something else)
     ytdl_ver = 'yt-dlp',
 
     --formatting / cursors
-    selected_and_active     = '▶  - ',
-    selected_and_inactive   = '●  - ',
-    unselected_and_active   = '▷ - ',
-    unselected_and_inactive = '○ - ',
+    selected_and_active     = "▶  ",
+    selected_and_inactive   = "●  ",
+    unselected_and_active   = "▷ ",
+    unselected_and_inactive = "○ ",
 
     --font size scales by window, if false requires larger font and padding sizes
     scale_playlist_by_window = true,
@@ -52,13 +52,13 @@ local opts = {
     text_padding_y = 10,
 
     --Screen dim when menu is open
-    curtain_opacity = 0.7,
+    curtain_opacity = 0,
 
     --how many seconds until the quality menu times out
     --setting this to 0 deactivates the timeout
     menu_timeout = 0,
 
-    --use youtube-dl to fetch a list of available formats (overrides quality_strings)
+    --use yt-dlp to fetch a list of available formats (overrides quality_strings)
     fetch_formats = true,
 
     --list of ytdl-format strings to choose from
@@ -120,8 +120,8 @@ local opts = {
     --
     --Not all videos have all columns available.
     --Be careful, misspelled columns simply won't be displayed, there is no error.
-    columns_video = '-resolution,frame_rate,dynamic_range|language,bitrate_total,size,-codec_video,-codec_audio',
-    columns_audio = 'audio_sample_rate,bitrate_total|size,language,-codec_audio',
+    columns_video = '-resolution,frame_rate,dynamic_range,bitrate_total,-codec_video',
+    columns_audio = 'audio_sample_rate,bitrate_total,-codec_audio',
 
     --columns used for sorting, see "columns_video" for available columns
     --comma separated list, prefix column with "-" to reverse sorting order
@@ -498,7 +498,12 @@ end
 local function get_url()
     local path = mp.get_property('path')
     if not path then return nil end
-    path = path:gsub('ytdl://', '') -- Strip possible ytdl:// prefix.
+
+    if string.find(path, "https://") then
+        path = string.gsub(path, "ytdl://", "") -- Strip possible ytdl:// prefix
+    else
+        path = string.gsub(path, "ytdl://", "https://") -- Strip possible ytdl:// prefix and replace with "https://" if there it isn't there already
+    end
 
     ---@param str string
     ---@return boolean
@@ -684,7 +689,13 @@ local function set_format(url, video_format, audio_format)
     if (url_data[url].video_active_id ~= video_format or url_data[url].audio_active_id ~= audio_format) then
         url_data[url].video_active_id = video_format
         url_data[url].audio_active_id = audio_format
-        if url == mp.get_property('path') then reload_resume() end
+        local correctpath = mp.get_property('path')
+        if string.find(correctpath, "https://") then
+            correctpath = string.gsub(correctpath, "ytdl://", "") -- Strip possible ytdl:// prefix
+        else
+            correctpath = string.gsub(correctpath, "ytdl://", "https://") -- Strip possible ytdl:// prefix and replace with "https://" if there it isn't there already
+        end
+        if url == correctpath then reload_resume() end
     end
 end
 
@@ -1221,6 +1232,12 @@ end)
 -- run before ytdl_hook, which uses a priority of 10
 mp.add_hook('on_load', 9, function()
     local path = mp.get_property('path')
+    if string.find(path, "https://") then
+        path = string.gsub(path, "ytdl://", "") -- Strip possible ytdl:// prefix
+    else
+        path = string.gsub(path, "ytdl://", "https://") -- Strip possible ytdl:// prefix and replace with "https://" if there it isn't there already
+    end
+    
     local data = url_data[path]
     if not (data and data.video_active_id and data.audio_active_id) then return end
     local format = format_string(data.video_active_id, data.audio_active_id)

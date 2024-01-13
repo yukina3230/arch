@@ -254,7 +254,10 @@ o.open_list_keybind = utils.parse_json(o.open_list_keybind)
 o.list_filter_jump_keybind = utils.parse_json(o.list_filter_jump_keybind)
 o.list_ignored_keybind = utils.parse_json(o.list_ignored_keybind)
 
-utils.shared_script_property_set("simplehistory-menu-open", "no")
+if utils.shared_script_property_set then
+    utils.shared_script_property_set('simplehistory-menu-open', 'no')
+end
+mp.set_property('user-data/simplehistory/menu-open', 'no')
 
 if string.lower(o.log_path) == '/:dir%mpvconf%' then
 	o.log_path = mp.find_config_file('.')
@@ -519,7 +522,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listduration%%", '')
 		end
-	end	
+	end
 	if list_total_duration > 0 then
 		string = string:gsub("%%prelistduration%%", o.header_list_duration_pre_text)
 		:gsub("%%afterlistduration%%", o.header_list_duration_after_text)
@@ -536,7 +539,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listlength%%", '')
 		end
-	end	
+	end
 	if list_total_length > 0 then
 		string = string:gsub("%%prelistlength%%", o.header_list_length_pre_text)
 		:gsub("%%afterlistlength%%", o.header_list_length_after_text)
@@ -553,7 +556,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listremaining%%", '')
 		end
-	end	
+	end
 	if list_total_remaining > 0 then
 		string = string:gsub("%%prelistremaining%%", o.header_list_remaining_pre_text)
 		:gsub("%%afterlistremaining%%", o.header_list_remaining_after_text)
@@ -959,7 +962,7 @@ function display_list(filter, sort, action)
 		if list_pages[i][3] == 2 and filter == 'all' and o.main_list_keybind_twice_exits then
 			trigger_close_list = true
 		elseif list_pages[i][3] == 2 and list_pages[1][1] == filter then
-			trigger_close_list = true		
+			trigger_close_list = true
 		elseif list_pages[i][3] == 2 then
 			trigger_initial_list = true
 		end
@@ -977,7 +980,10 @@ function display_list(filter, sort, action)
 	
 	if not search_active then get_page_properties(filter) else update_search_results('','') end
 	draw_list()
-	utils.shared_script_property_set("simplehistory-menu-open", "yes")
+	if utils.shared_script_property_set then
+		utils.shared_script_property_set('simplehistory-menu-open', 'yes')
+	end
+	mp.set_property('user-data/simplehistory/menu-open', 'yes')
 	if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'no', 'no_osd') end --1.1.6# fix osc-idlescreen (value was yes for some reason)
 	list_drawn = true
 	if not search_active then get_list_keybinds() end
@@ -1004,13 +1010,13 @@ function select(pos, action)
 					for i = pos, 1, -1 do
 						if not has_value(list_highlight_cursor, list_cursor-i, 1) then
 							table.insert(list_highlight_cursor, {list_cursor-i, list_contents[#list_contents+1+i - list_cursor]})
-						end 
+						end
 					end
 				else
 					for i = pos, -1, 1 do
 						if not has_value(list_highlight_cursor, list_cursor-i, 1) then
 							table.insert(list_highlight_cursor, {list_cursor-i, list_contents[#list_contents+1+i - list_cursor]})
-						end 
+						end
 					end
 				end
 				table.insert(list_highlight_cursor, {list_cursor, list_contents[#list_contents+1 - list_cursor]})
@@ -1089,7 +1095,7 @@ function list_page_up(action)
 
 	if search_active and o.search_not_typing_smartly then
 		list_search_not_typing_mode(true)
-	end	
+	end
 end
 
 function list_page_down(action)
@@ -1111,7 +1117,7 @@ function list_page_down(action)
 
 	if search_active and o.search_not_typing_smartly then
 		list_search_not_typing_mode(true)
-	end	
+	end
 end
 
 function list_highlight_all()
@@ -1122,7 +1128,7 @@ function list_highlight_all()
 		for i=1, #list_contents do
 			if not has_value(list_highlight_cursor, i, 1) then
 				table.insert(list_highlight_cursor, {i, list_contents[#list_contents+1-i]})
-			end 
+			end
 		end
 		select(0)
 	else
@@ -1558,7 +1564,7 @@ function get_list_keybinds()
 		else
 			mp.remove_key_binding('open-list'..i)
 		end
-	end	
+	end
 	
 	if o.quickselect_0to9_keybind and o.list_show_amount <= 10 then
 		mp.add_forced_key_binding("1", "recent-1", function()load(list_start + 1) end)
@@ -1640,7 +1646,10 @@ function unbind_list_keys()
 end
 
 function list_close_and_trash_collection()
-	utils.shared_script_property_set("simplehistory-menu-open", "no")
+	if utils.shared_script_property_set then
+		utils.shared_script_property_set('simplehistory-menu-open', 'no')
+	end
+	mp.set_property('user-data/simplehistory/menu-open', 'no')
 	if o.toggle_idlescreen then mp.commandv('script-message', 'osc-idlescreen', 'yes', 'no_osd') end
 	unbind_list_keys()
 	unbind_search_keys()
@@ -2106,7 +2115,7 @@ function history_resume_option()
 		if video_time > 0 then return end
 		local logged_time = 0
 		local percentage = 0
-		local video_duration = mp.get_property_number('duration')
+		local video_duration = (mp.get_property_number('duration') or 0)
 		list_contents = read_log_table()
 		if not list_contents or not list_contents[1] then return end
 		for i = #list_contents, 1, -1 do

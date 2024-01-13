@@ -23,7 +23,6 @@ mkdir ~/Pictures/Reacts/
 
 # Environment Variables
 sudo sed -i '$a CHROME_EXECUTABLE=/usr/bin/microsoft-edge-stable' /etc/environment
-sudo sed -i '$a MOZ_ENABLE_WAYLAND=1' /etc/environment
 sudo sed -i '$a XCURSOR_THEME=Qogir-cursors' /etc/environment
 
 # Aliases
@@ -32,6 +31,7 @@ alias -s suspend="systemctl suspend"
 alias -s update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias -s update-init="sudo mkinitcpio -p linux"
 alias -s session-type="echo $XDG_SESSION_TYPE"
+alias -s kernel-version="uname -sr"
 
 # Fonts
 #sudo unzip "$HOME/arch/fonts/Bookerly.zip" -d /usr/share/fonts/TTF/
