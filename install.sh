@@ -79,8 +79,8 @@ sudo cp ~/arch/configs/pacman/pacman.conf /etc/
 # zram Config
 sudo cp ~/arch/configs/zram/zram-generator.conf /etc/systemd/
 
-# TLP Config
-sudo cp ~/arch/configs/tlp/tlp.conf /etc/
+# FTP Config
+sudo cp ~/arch/configs/ftp/vsftpd.conf /etc/
 
 # Reflector Config
 sudo cp ~/arch/configs/reflector/reflector.conf /etc/xdg/reflector/
