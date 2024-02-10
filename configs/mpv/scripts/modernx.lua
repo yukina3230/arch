@@ -14,7 +14,7 @@ local utils = require 'mp.utils'
 
 -- Parameters
 -- default user option values
--- may change them in osc.conf
+-- change them using osc.conf
 local user_opts = {
     -- general settings --
     language = 'en',		        -- en:English, chs:Chinese, pl:Polish, jp:Japanese
@@ -41,16 +41,18 @@ local user_opts = {
     raisesubswithosc = true,        -- whether to raise subtitles above the osc when it's shown
     thumbnailborder = 2,            -- the width of the thumbnail border
     persistentprogress = true,      -- always show a small progress line at the bottom of the screen
+    persistentprogressheight = 0,   -- the height of the persistentprogress bar
     persistentbuffer = true,        -- on web videos, show the buffer on the persistent progress line
 
     -- title and chapter settings --
     showtitle = false,		        -- show title in OSC
-    showdescription = false,        -- show video description on web videos
+    showdescription = true,         -- show video description on web videos
     showwindowtitle = true,         -- show window title in borderless/fullscreen mode
     titleBarStrip = false,          -- whether to make the title bar a singular bar instead of a black fade
     title = '${media-title}',       -- title shown on OSC - turn off dynamictitle for this option to apply
     dynamictitle = true,            -- change the title depending on if {media-title} and {filename} 
                                     -- differ (like with playing urls, audio or some media)
+    updatetitleyoutubestats = true, -- update the window/OSC title bar with YouTube video stats (views, likes, dislikes)
     font = 'mpv-osd-symbols',	    -- default osc font
                                     -- to be shown as OSC title
     titlefontsize = 26,             -- the font size of the title text
@@ -92,8 +94,24 @@ local user_opts = {
     showontop = true,               -- show window on top button
     showinfo = true,                -- show the info button
     downloadbutton = true,          -- show download button for web videos
-    ytdlpQuality = '-S res,ext:mp4:m4a' -- what quality of video the download button uses (max quality mp4 by default)
+    downloadpath = "~/Videos/mpv", -- the download path for videos
+    showyoutubecomments = false,    -- EXPERIMENTAL - not ready
+    commentsdownloadpath = "~/Videos/mpv/comments", -- the download path for the comment JSON file
+    ytdlpQuality = '-f bestvideo[vcodec^=avc][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' -- what quality of video the download button uses (max quality mp4 by default)
 }
+
+function dump(o)
+    if type(o) == 'table' then
+       local s = '{ '
+       for k,v in pairs(o) do
+          if type(k) ~= 'number' then k = '"'..k..'"' end
+          s = s .. '['..k..'] = ' .. dump(v) .. ','
+       end
+       return s .. '} '
+    else
+       return tostring(o)
+    end
+ end 
 
 -- Icons for jump button depending on jumpamount 
 local jumpicons = { 
@@ -253,7 +271,7 @@ local osc_styles = {
 
     Title = '{\\blur1\\bord0.5\\1c&HFFFFFF&\\3c&H0\\fs' .. user_opts.titlefontsize .. '\\q2\\fn' .. user_opts.font .. '}',
     WindowTitle = '{\\blur1\\bord0.5\\1c&HFFFFFF&\\3c&H0\\fs' .. user_opts.titlefontsize - 2 .. '\\q2\\fn' .. user_opts.font .. '}',
-    Description = '{\\blur1\\bord0.5\\1c&HFFFFFF&\\3c&H000000&\\fs' .. user_opts.timefontsize - 4 .. '\\q2\\fn' .. user_opts.font .. '}',
+    Description = '{\\blur1\\bord0.5\\1c&HFFFFFF&\\3c&H000000&\\fs' .. user_opts.timefontsize .. '\\q2\\fn' .. user_opts.font .. '}',
     WinCtrl = '{\\blur1\\bord0.5\\1c&HFFFFFF&\\3c&H0\\fs20\\fnmpv-osd-symbols}',
     elementDown = '{\\1c&H999999&}',
     elementHover = "{\\blur5\\2c&HFFFFFF&}",
@@ -312,6 +330,8 @@ local state = {
     localDescriptionClick = nil,
     localDescriptionIsClickable = false,
     videoCantBeDownloaded = false,
+    youtubeuploader = "",
+    youtubecomments = {},
 }
 
 local thumbfast = {
@@ -951,6 +971,7 @@ function render_elements(master_ass)
 
                                 elem_ass:new_event()
                                 elem_ass:pos(thumbX * r_w, ty - thumbMarginY - thumbfast.height * r_h)
+                                elem_ass:an(7)
                                 elem_ass:append(osc_styles.Tooltip)
                                 elem_ass:draw_start()
                                 elem_ass:rect_cw(-thumbPad * r_w, -thumbPad * r_h, (thumbfast.width + thumbPad) * r_w, (thumbfast.height + thumbPad) * r_h)
@@ -1113,6 +1134,12 @@ end
 
 -- downloading --
 
+function newfilereset()
+    request_init()
+    state.videoDescription = "Loading description..."
+    state.fileSizeNormalised = "Approximating size..."
+end
+
 function startupevents()
     state.videoDescription = "Loading description..."
     state.fileSizeNormalised = "Approximating size..."
@@ -1125,15 +1152,13 @@ function checktitle()
     local mediatitle = mp.get_property("media-title")
 
     if (mp.get_property("filename") ~= mediatitle) and user_opts.dynamictitle then
-        if (string.find(mp.get_property("path"), "watch?")) then
+        if mp.get_property("path"):find('youtu%.?be') then
             user_opts.title = "${media-title}" -- youtube videos
         elseif mp.get_property("filename/no-ext") ~= mediatitle then
             user_opts.title = "${media-title} | ${filename}" -- {filename/no-ext}
         else
             user_opts.title = "${filename}" -- audio with the same title (without file extension) and filename
         end
-    else
-        user_opts.title = "${media-title}"
     end
 
     -- fake description using metadata
@@ -1144,6 +1169,11 @@ function checktitle()
     local album = mp.get_property("filtered-metadata/by-key/Album")
     local description = mp.get_property("filtered-metadata/by-key/Description")
     local date = mp.get_property("filtered-metadata/by-key/Date")
+
+    state.youtubeuploader = artist
+    state.ytdescription = mp.get_property_native('metadata').ytdl_description or ""
+
+    print(utils.to_string(mp.get_property_native('metadata')))
 
     state.localDescriptionClick = title .. "\\N----------\\N"
     if (description ~= nil) then
@@ -1267,22 +1297,98 @@ function checkWebLink()
             exec_filesize(command)
         end
 
-        -- Youtube Return Dislike API  
+        -- Youtube Return Dislike API
         state.dislikes = ""
         if path:find('youtu%.?be') then
-            exec_dislikes({"curl","https://returnyoutubedislikeapi.com/votes?videoId=" .. 
-            string.gsub(mp.get_property_osd("filename"), "watch%?v=", "")}) 
+            msg.info("WEB: Loading dislike count...")
+            local filename = mp.get_property_osd("filename")
+            local pattern = "v=([^&]+)"
+            local match = string.match(filename, pattern)
+            if match then
+                exec_dislikes({"curl","https://returnyoutubedislikeapi.com/votes?videoId=" .. match})
+            else
+                local _, _, videoID = string.find(filename, "([%w_-]+)%?si=")
+                if videoID then
+                    exec_dislikes({"curl","https://returnyoutubedislikeapi.com/votes?videoId=" .. videoID})
+                else
+                    msg.info("WEB: Failed to fetch dislikes")
+                end
+            end
         end
+
         if user_opts.showdescription then
             msg.info("WEB: Loading video information...")
+            local uploader = (state.youtubeuploader and '<$\\N!uploader!\\N$>') or "%(uploader)s"
+            local description = (state.ytdescription and '<$\\N!desc!\\N$>') or "%(description)s"
             local command = { 
                 "yt-dlp",
                 "--no-download", 
-                "-O \\N----------\\N%(description)s\\N----------\\NUploaded by: %(uploader)s\nUploaded: %(upload_date>".. user_opts.dateformat ..")s\nViews: %(view_count)s\nComments: %(comment_count)s\nLikes: %(like_count)s", 
+                "-O \\N----------\\N" .. description .. "\\N----------\\NUploaded by: " .. uploader .. "\nUploaded: %(upload_date>".. user_opts.dateformat ..")s\nViews: %(view_count)s\nComments: %(comment_count)s\nLikes: %(like_count)s", 
                 path
             }
             exec_description(command)
         end
+
+        checkcomments()
+    end
+end
+
+function checkcomments()
+    if user_opts.showyoutubecomments then
+        function file_exists(file)
+            local f = io.open(file, "rb")
+            if f then f:close() end
+            return f ~= nil
+          end              
+
+        function lines_from(file)
+            if not file_exists(file) then return {} end
+            local lines = {}
+            for line in io.lines(file) do 
+              lines[#lines + 1] = line
+            end
+            return lines
+          end              
+
+        local ret = mp.command_native_async({
+            name = "subprocess",
+            args = { 
+                "yt-dlp",
+                "--skip-download",
+                "--write-comments",
+                "-o%(title)s",
+                "-P " .. mp.command_native({"expand-path", user_opts.commentsdownloadpath}),
+                state.path 
+            },
+            capture_stdout = true,
+            capture_stderr = true
+        }, function() 
+            msg.info("WEB: Downloaded comments")
+            local filename = mp.command_native({"expand-path", user_opts.commentsdownloadpath .. '/'}) .. mp.get_property("media-title") .. ".info.json"
+            print(filename)
+            local lines = lines_from(filename)
+            local jsoncomments = utils.parse_json(lines[1]).comments
+
+            state.localDescriptionClick = state.localDescriptionClick .. '\\N----------\\N'
+            for i=1, #jsoncomments do
+                local comment = jsoncomments[i]
+                local commentconstruction = comment.author .. ' | '
+                if (comment.like_count) then
+                    commentconstruction = commentconstruction .. comment.like_count .. " likes"
+                else
+                    commentconstruction = commentconstruction .. "0 likes"
+                end
+                if (comment.is_favorited) then
+                    commentconstruction = commentconstruction .. (comment.is_favorited and ' | Favorited ♡\\N')
+                else
+                    commentconstruction = commentconstruction .. '\\N'
+                end
+                commentconstruction = commentconstruction .. comment.text .. '\\N-----\\N'
+                print(commentconstruction)
+                state.youtubecomments[i] = commentconstruction
+                state.localDescriptionClick = state.localDescriptionClick .. commentconstruction
+            end
+        end )
     end
 end
 
@@ -1300,7 +1406,7 @@ end
 
 function downloadDone(success, result, error)
     if success then
-        show_message("\\N{\\an9}Download saved to " .. mp.command_native({"expand-path", "~~desktop/mpv/downloads"}))
+        show_message("\\N{\\an9}Download saved to " .. mp.command_native({"expand-path", user_opts.downloadpath}))
         state.downloadedOnce = true
     else
         show_message("\\N{\\an9}WEB: Download failed - " .. (error or "Unknown error"))
@@ -1308,19 +1414,41 @@ function downloadDone(success, result, error)
     state.downloading = false
 end
 
-function dump(o)
-    if type(o) == 'table' then
-       local s = '{ '
-       for k,v in pairs(o) do
-          if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. dump(v) .. ','
-       end
-       return s .. '} '
-    else
-       return tostring(o)
+function splitUTF8(str, maxLength)
+    local result = {}
+    local currentIndex = 1
+    local length = #str
+    local lastchar = 0
+    while currentIndex <= length do
+        lastchar = lastchar + 1
+        local byte = string.byte(str, currentIndex)
+        local charLength
+        if byte >= 0 and byte <= 127 then
+            charLength = 1
+        elseif byte >= 192 and byte <= 223 then
+            charLength = 2
+        elseif byte >= 224 and byte <= 239 then
+            charLength = 3
+        elseif byte >= 240 and byte <= 247 then
+            charLength = 4
+        else
+            -- Unsupported UTF-8 sequence, handle as needed
+            print("Unsupported UTF-8 sequence detected.")
+            break
+        end
+        local currentPart = string.sub(str, currentIndex, currentIndex + charLength - 1)
+        if #result > 0 and #result[#result] + #currentPart <= maxLength then
+            result[#result] = result[#result] .. currentPart
+        else
+            result[#result + 1] = currentPart
+        end
+        currentIndex = currentIndex + charLength
+        if #result > 0 and #result[#result] >= maxLength then
+            break
+        end
     end
- end
- 
+    return result[1], lastchar
+end
 
 function exec_description(args, result)
     local ret = mp.command_native_async({
@@ -1329,29 +1457,65 @@ function exec_description(args, result)
         capture_stdout = true,
         capture_stderr = true,
     }, function(res, val, err)
-        state.localDescriptionClick = mp.get_property("media-title") .. string.gsub(string.gsub(val.stdout, '\r', '\\N') .. state.dislikes, '\n', "\\N")
+        state.localDescriptionClick = mp.get_property("media-title") .. string.gsub(string.gsub(val.stdout, '\r', '\\N') .. state.dislikes, '\n', '\\N')
+        if (state.dislikes == "") then
+            state.localDescriptionClick = mp.get_property("media-title") .. string.gsub(string.gsub(val.stdout, '\r', '\\N'), '\n', '\\N')
+            state.localDescriptionClick = state.localDescriptionClick:sub(1, #state.localDescriptionClick - 2)
+        end
         addLikeCountToTitle()
 
         -- check if description exists, if it doesn't get rid of the extra "----------"
         local descriptionText = state.localDescriptionClick:match("\\N----------\\N(.-)\\N----------\\N")
-        if (descriptionText == '' or descriptionText == '\\N' or descriptionText == 'NA') then
+        state.ytdescription = state.ytdescription:gsub('\r', '\\N'):gsub('\n', '\\N')
+        state.localDescriptionClick = state.localDescriptionClick:gsub('<$\\N!desc!\\N$>', state.ytdescription)
+        if (state.ytdescription == '' or state.ytdescription == '\\N' or state.ytdescription == 'NA' or #state.ytdescription < 4) then
             state.localDescriptionClick = state.localDescriptionClick:gsub("(.*)\\N----------\\N", "%1")
         end
+        
+        if state.youtubeuploader then
+            state.localDescriptionClick = state.localDescriptionClick:gsub("Uploaded by: <$\\N!uploader!\\N$>", "Uploaded by: " .. state.youtubeuploader)
+        else
+            state.localDescriptionClick = state.localDescriptionClick:gsub("Uploaded by: <$\\N!uploader!\\N$>", "Uploaded by: ")
+        end
+
         state.localDescriptionClick = state.localDescriptionClick:gsub("Uploaded by: NA\\N", "")
         state.localDescriptionClick = state.localDescriptionClick:gsub("Uploaded: NA\\N", "")
         state.localDescriptionClick = state.localDescriptionClick:gsub("Views: NA\\N", "")
+        state.localDescriptionClick = state.localDescriptionClick:gsub("Comments: NA\\N", "")
         state.localDescriptionClick = state.localDescriptionClick:gsub("Likes: NA\\N", "")
+        state.localDescriptionClick = state.localDescriptionClick:gsub("Likes: NA", "")
         state.localDescriptionClick = state.localDescriptionClick:gsub("Dislikes: NA\\N", "")
         state.localDescriptionClick = state.localDescriptionClick:gsub("NA", "")
 
+        local maxdescsize = 120
+        local utf8split, lastchar = splitUTF8(state.ytdescription, maxdescsize)
+        
         -- segment localDescriptionClick parts with " | "
         local beforeLastPattern, afterLastPattern = state.localDescriptionClick:match("(.*)\\N----------\\N(.*)")
         if beforeLastPattern then
-            beforeLastPattern = beforeLastPattern:sub(1, 160) .. '...'
-            afterLastPattern = afterLastPattern:gsub("Views:", emoticon.view):gsub("Comments:", emoticon.comment):gsub("Likes:", emoticon.like):gsub("Dislikes:", emoticon.dislike)  -- replace with icons
-            state.videoDescription = beforeLastPattern  .. "\\N----------\\N" .. afterLastPattern:gsub("\\N", " | ")
-            local startPos, endPos = state.videoDescription:find("\\N----------\\N")
-            state.videoDescription = state.videoDescription:sub(endPos + 1):gsub("\\N----------\\N", " | ")
+            local desc = string.match(beforeLastPattern, "\\N----------\\N(.*)")
+
+            if desc then
+                if utf8split then
+                    if #utf8split == #state.ytdescription then
+                        desc = utf8split
+                    else
+                        desc = utf8split .. '...'
+                    end
+                else
+                    if #desc > maxdescsize then
+                        desc = desc:sub(1, maxdescsize) .. '...'
+                    else
+                        desc = desc:sub(1, maxdescsize)
+                    end
+                end
+
+                afterLastPattern = afterLastPattern:gsub("Views:", emoticon.view):gsub("Comments:", emoticon.comment):gsub("Likes:", emoticon.like):gsub("Dislikes:", emoticon.dislike)  -- replace with icons
+                state.videoDescription = desc  .. "\\N----------\\N" .. afterLastPattern:gsub("\\N", " | ")            
+                state.videoDescription = state.videoDescription:gsub("\\N----------\\N", " | ")
+            else
+                state.videoDescription = afterLastPattern:gsub("\\N", " | ")
+            end
         end
         
         if afterLastPattern then
@@ -1385,7 +1549,7 @@ function exec_dislikes(args, result)
         end
 
         if (not state.descriptionLoaded) then
-            state.localDescriptionClick = state.localDescriptionClick .. state.dislikes
+            state.localDescriptionClick = state.localDescriptionClick .. '\\N' .. state.dislikes
             state.videoDescription = state.localDescriptionClick
         else
             addLikeCountToTitle()
@@ -1394,7 +1558,7 @@ function exec_dislikes(args, result)
 end
 
 function addLikeCountToTitle()
-    if (user_opts.dynamictitle) then
+    if (user_opts.updatetitleyoutubestats) then
         state.viewcount = tonumber(state.localDescriptionClick:match('Views: (%d+)')) 
         state.likecount = tonumber(state.localDescriptionClick:match('Likes: (%d+)'))
         if (state.viewcount and state.likecount and state.dislikecount) then
@@ -1852,7 +2016,7 @@ layouts = function ()
     
     if (user_opts.persistentprogress) then
         lo = add_layout('persistentseekbar')
-        lo.geometry = {x = refX, y = refY, an = 5, w = osc_geo.w, h = 0}
+        lo.geometry = {x = refX, y = refY, an = 5, w = osc_geo.w, h = user_opts.persistentprogressheight}
         lo.style = osc_styles.SeekbarFg
         lo.slider.gap = 7
         lo.slider.tooltip_an = 0   
@@ -1887,7 +2051,7 @@ layouts = function ()
         lo.geometry = geo
         lo.style = osc_styles.Description
         lo.alpha[3] = 0
-        lo.button.maxchars = geo.w / 8
+        lo.button.maxchars = geo.w / 5
     end
 
     -- Volumebar
@@ -2417,7 +2581,7 @@ function osc_init()
     ne.enabled = (get_track('audio')>0)
     ne.visible = (osc_param.playresx >= 700 - outeroffset) and user_opts.volumecontrol
     ne.content = function ()
-        local volume = mp.get_property_number('volume')
+        local volume = mp.get_property_number("volume", 0)
         if state.mute then
             return icons.volumemute
         else
@@ -2431,7 +2595,7 @@ function osc_init()
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
 		local msg = texts.mute
-        if (mp.get_property_number('volume') == 0) then
+        if (state.mute) then
             msg = texts.unmute
         end
         return msg
@@ -2486,7 +2650,7 @@ function osc_init()
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
 		local msg = texts.loopenable
-        if (state.looping) then
+        if state.looping then
             msg = texts.loopdisable
         end
         return msg
@@ -2518,7 +2682,7 @@ function osc_init()
     ne.eventresponder['mbtn_left_up'] =
         function ()
             if (not state.videoCantBeDownloaded) then
-                local localpathnormal = mp.command_native({"expand-path", "~~desktop/mpv/downloads"})
+                local localpathnormal = mp.command_native({"expand-path", user_opts.downloadpath})
                 local localpath = localpathnormal
 
                 local function openFolder()
@@ -2564,7 +2728,7 @@ function osc_init()
                         "-P " .. localpathnormal,
                         state.path 
                     }
-                    local status = exec(command, downloadDone)
+                    local status = exec(command, downloadDone)                
                 end
             else
                 show_message("\\N{\\an9}Can't be downloaded")
@@ -2584,7 +2748,10 @@ function osc_init()
         return msg
     end
     ne.eventresponder['mbtn_left_up'] =
-        function () mp.commandv('script-binding', 'stats/display-stats-toggle') end
+        function ()
+            mp.commandv('script-binding', 'stats/display-stats-toggle')
+            state.show_info = not state.show_info
+        end
 
     --tog_ontop
     ne = new_element('tog_ontop', 'button')
@@ -2799,7 +2966,7 @@ function osc_init()
     end
     ne.slider.posF =
         function ()
-            local volume = mp.get_property_number('volume')
+            local volume = mp.get_property_number("volume", nil)
             if user_opts.volumecontrol == "log" then
                 return math.sqrt(volume * 100)
             else
@@ -2807,7 +2974,7 @@ function osc_init()
             end
         end
     ne.slider.tooltipF = function (pos) return set_volume(pos) end
-    ne.eventresponder['mouse_move'] =
+    ne.eventresponder["mouse_move"] =
         function (element)
             -- see seekbar code for reference
             local pos = get_slider_value(element)
@@ -3393,7 +3560,7 @@ end
 
 validate_user_opts()
 
-mp.register_event('start-file', request_init)
+mp.register_event('start-file', newfilereset)
 mp.register_event("file-loaded", startupevents)
 mp.observe_property('track-list', nil, request_init)
 mp.observe_property('playlist', nil, request_init)
