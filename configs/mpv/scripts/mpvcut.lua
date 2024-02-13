@@ -4,12 +4,12 @@ msg = require "mp.msg"
 local o = {
 	-- Save location
 	localsavetofolder = true, -- Save to `savedirectory` instead of the current folder
-	savedirectory = "~/Temps/mpv/", -- Required for web videos
+	savedirectory = "~~desktop/mpv/clips", -- Required for web videos
 
 	-- Key config
-	keyCut = "/",
-	keyCancelCut = "ctrl+/",
-	keyCycleAction = "alt+/",
+	keyCut = "z",
+	keyCancelCut = "Z",
+	keyCycleAction = "a",
 
 	-- The default action
 	action = "COPY",
@@ -20,7 +20,7 @@ local o = {
 	-- Web videos/cache
 	usecacheforwebvideos = true,
 }
-(require 'mp.options').read_options(o)
+(require 'mp.options').read_options(o, 'mpvcut')
 
 local function print(s)
 	mp.msg.info(s)

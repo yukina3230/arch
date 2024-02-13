@@ -131,16 +131,16 @@ local o = {
 	list_sliced_prefix = '...\\h\\N\\N', --The text that indicates there are more items above. \\N is for new line. \\h is for hard space.
 	list_sliced_suffix = '...', --The text that indicates there are more items below.
 	text_color = 'ffffff', --Text color for list in BGR hexadecimal
-	text_scale = 80, --Font size for the text of list
+	text_scale = 50, --Font size for the text of list
 	text_border = 0.7, --Black border size for the text of list
 	text_cursor_color = 'ffbf7f', --Text color of current cursor position in BGR hexadecimal
-	text_cursor_scale = 80, --Font size for text of current cursor position in list
+	text_cursor_scale = 50, --Font size for text of current cursor position in list
 	text_cursor_border = 0.7, --Black border size for text of current cursor position in list
 	text_highlight_pre_text = '✅ ', --Pre text for highlighted multi-select item
 	search_color_typing = '00bfff', --Search color when in typing mode
 	search_color_not_typing = 'ffffaa', --Search color when not in typing mode and it is active
 	header_color = 'ffffaa', --Header color in BGR hexadecimal
-	header_scale = 100, --Header text size for the list
+	header_scale = 55, --Header text size for the list
 	header_border = 0.8, --Black border size for the Header of list
 	header_text = '🔖 Bookmarks [%cursor%/%total%]%0_highlight%%highlight%%0_filter%%filter%%1_filter%%0_sort%%sort%%1_sort%%0_search%%search%%1_search%\\h\\N\\N', --The formatting of the items when you open the list
 		--header_text variables: %cursor%, %total%, %highlight%, %filter%, %search%, %duration%, %length%, %remaining%.
@@ -166,7 +166,7 @@ local o = {
 	]],
 	list_remaining_time_format=[[
 	["default", "truncate"]
-	]],
+	]],	
 	header_duration_time_format=[[
 	["hms", "truncate", ":"]
 	]],
@@ -477,7 +477,7 @@ function bind_keys(keys, name, func, opts)
 	end
 	
 	for i = 1, #keys do
-		if i == 1 then
+		if i == 1 then 
 			mp.add_forced_key_binding(keys[i], name, func, opts)
 		else
 			mp.add_forced_key_binding(keys[i], name .. i, func, opts)
@@ -603,7 +603,7 @@ function parse_list_item(str, properties) --1.3#add ability to parse the content
 
 	str = str:gsub("%%name%%", list_filename)
 		:gsub("%%path%%", list_filepath)
-		:gsub("%%title%%", list_filetitle)
+		:gsub("%%title%%", list_filetitle)		
 		:gsub("%%number%%", properties["index"]+1) --1.3# index +1 is the osd_index
 		:gsub("%%dt%%", properties["item"].found_datetime)
 		
@@ -759,7 +759,7 @@ function parse_header(str)
 				str = str:gsub(esc_string(s), "")
 			end
 		end
-	end
+	end	
 	
 	if #list_highlight_cursor > 0 then
 		str = str:gsub("%%highlight%%", #list_highlight_cursor)
@@ -811,7 +811,7 @@ function search_log_contents(arr_contents)
 	local search_query = ''
 	for search in search_string:gmatch("[^%s]+") do
 		search_query = search_query..'.-'..esc_string(search)
-	end
+	end	
 	local contents_string = ''
 
 	local search_arr_contents = {}
@@ -834,7 +834,7 @@ function search_log_contents(arr_contents)
 			end
 			if tonumber(arr_contents[i].found_remaining) > 0 then
 				contents_string = contents_string..format_time(arr_contents[i].found_remaining, o.list_remaining_time_format[3], o.list_remaining_time_format[2], o.list_remaining_time_format[1])
-			end
+			end			
 			if arr_contents[i].found_slot then
 				contents_string = contents_string..get_slot_keybind(tonumber(arr_contents[i].found_slot))
 			end
@@ -1262,7 +1262,7 @@ function display_list(filter, sort, action)
 		if list_pages[i][3] == 2 and filter == 'all' and o.main_list_keybind_twice_exits then
 			trigger_close_list = true
 		elseif list_pages[i][3] == 2 and list_pages[1][1] == filter then
-			trigger_close_list = true
+			trigger_close_list = true		
 		elseif list_pages[i][3] == 2 then
 			trigger_initial_list = true
 		end
@@ -1417,7 +1417,7 @@ function list_page_down(action)
 
 	if search_active and o.search_not_typing_smartly then
 		list_search_not_typing_mode(true)
-	end
+	end	
 end
 
 function list_highlight_all()
@@ -1428,7 +1428,7 @@ function list_highlight_all()
 		for i=1, #osd_log_contents do
 			if not has_value(list_highlight_cursor, i, 1) then
 				table.insert(list_highlight_cursor, {i, osd_log_contents[#osd_log_contents+1-i]})
-			end
+			end 
 		end
 		select(0)
 	else
@@ -1866,7 +1866,7 @@ function get_list_keybinds()
 		else
 			mp.remove_key_binding('open-list'..i)
 		end
-	end
+	end	
 	
 	if o.quickselect_0to9_keybind and o.list_show_amount <= 10 then
 		mp.add_forced_key_binding("1", "recent-1", function()load(list_start + 1) end)
@@ -2005,8 +2005,8 @@ function list_search_not_typing_mode(auto_triggered)
 		end
 	else
 		if search_string ~= '' then
-			search_active = 'not_typing'
-		else
+			search_active = 'not_typing' 
+		else 
 			search_active = false
 		end
 	end
@@ -2417,9 +2417,9 @@ function slot_remove(action)
 		display_list('all')
 		return
 	elseif list_cursor ~= #osd_log_contents + 1 then
-		select(0)
-	else
-		select(-1)
+		select(0) 
+	else 
+		select(-1) 
 	end
 end
 
@@ -2538,9 +2538,9 @@ function group_remove(action)
 		display_list('all')
 		return
 	elseif list_cursor ~= #osd_log_contents + 1 then
-		select(0)
-	else
-		select(-1)
+		select(0) 
+	else 
+		select(-1) 
 	end
 end
 
@@ -2557,10 +2557,10 @@ function group_add(index, action)
 		list_cursor = 0
 		select(list_cursor)
 	elseif list_cursor ~= #osd_log_contents + 1 then
-		select(0)
-	else
-		select(-1)
-	end
+		select(0) 
+	else 
+		select(-1) 
+	end	
 end
 --End of Group Feature--
 

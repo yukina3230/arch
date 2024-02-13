@@ -33,19 +33,19 @@ local options = {
     overlay_id = 42,
 
     -- Spawn thumbnailer on file load for faster initial thumbnails
-    spawn_first = true,
+    spawn_first = false,
 
     -- Close thumbnailer process after an inactivity period in seconds, 0 to disable
     quit_after_inactivity = 0,
 
     -- Enable on network playback
-    network = true,
+    network = false,
 
     -- Enable on audio playback
     audio = false,
 
     -- Enable hardware decoding
-    hwdec = true,
+    hwdec = false,
 
     -- Windows only: use native Windows API to write to pipe (requires LuaJIT)
     direct_io = false,

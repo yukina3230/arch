@@ -31,7 +31,7 @@ local user_opts = {
     scaleforcedwindow = 1.0,        -- scaling when rendered on a forced window
 
     -- interface settings --
-    hidetimeout = 0,                -- duration in ms until OSC hides if no mouse movement
+    hidetimeout = 2000,             -- duration in ms until OSC hides if no mouse movement
     fadeduration = 150,             -- duration of fade out in ms, 0 = no fade
     minmousemove = 0,               -- amount of pixels the mouse has to move for OSC to show
     scrollingSpeed = 40,            -- the speed of scrolling text in menus
@@ -40,22 +40,22 @@ local user_opts = {
     bottomhover = true,             -- if the osc should only display when hovering at the bottom
     raisesubswithosc = true,        -- whether to raise subtitles above the osc when it's shown
     thumbnailborder = 2,            -- the width of the thumbnail border
-    persistentprogress = true,      -- always show a small progress line at the bottom of the screen
-    persistentprogressheight = 0,   -- the height of the persistentprogress bar
-    persistentbuffer = true,        -- on web videos, show the buffer on the persistent progress line
+    persistentprogress = false,     -- always show a small progress line at the bottom of the screen
+    persistentprogressheight = 18,  -- the height of the persistentprogress bar
+    persistentbuffer = false,       -- on web videos, show the buffer on the persistent progress line
 
     -- title and chapter settings --
-    showtitle = false,		        -- show title in OSC
+    showtitle = true,		        -- show title in OSC
     showdescription = true,         -- show video description on web videos
     showwindowtitle = true,         -- show window title in borderless/fullscreen mode
-    titleBarStrip = false,          -- whether to make the title bar a singular bar instead of a black fade
+    titleBarStrip = true,           -- whether to make the title bar a singular bar instead of a black fade
     title = '${media-title}',       -- title shown on OSC - turn off dynamictitle for this option to apply
     dynamictitle = true,            -- change the title depending on if {media-title} and {filename} 
                                     -- differ (like with playing urls, audio or some media)
-    updatetitleyoutubestats = true, -- update the window/OSC title bar with YouTube video stats (views, likes, dislikes)
+    updatetitleyoutubestats = false,-- update the window/OSC title bar with YouTube video stats (views, likes, dislikes)
     font = 'mpv-osd-symbols',	    -- default osc font
                                     -- to be shown as OSC title
-    titlefontsize = 26,             -- the font size of the title text
+    titlefontsize = 28,             -- the font size of the title text
     chapterformat = 'Chapter: %s',  -- chapter print format for seekbar-hover. "no" to disable
     dateformat = "%Y-%m-%d",        -- how dates should be formatted, when read from metadata 
                                     -- (uses standard lua date formatting)
@@ -68,16 +68,16 @@ local user_opts = {
     seekbarfg_color = 'E39C42',     -- color of the seekbar progress and handle
     seekbarbg_color = 'FFFFFF',     -- color of the remaining seekbar
     seekbarkeyframes = false,       -- use keyframes when dragging the seekbar
-    seekbarhandlesize = 1.0,	    -- size ratio of the slider handle, range 0 ~ 1
+    seekbarhandlesize = 0.8,	    -- size ratio of the slider handle, range 0 ~ 1
     seekrange = true,		        -- show seekrange overlay
     seekrangealpha = 150,      	    -- transparency of seekranges
     iconstyle = 'round',            -- icon style, 'solid' or 'round'
-    hovereffect = false,            -- whether buttons have a glowing effect when hovered over
+    hovereffect = true,             -- whether buttons have a glowing effect when hovered over
 
     -- button settings --
     timetotal = true,          	    -- display total time instead of remaining time by default
     timems = false,                 -- show time as milliseconds by default
-    timefontsize = 20,              -- the font size of the time
+    timefontsize = 17,              -- the font size of the time
     jumpamount = 5,                 -- change the jump amount (in seconds by default)
     jumpiconnumber = true,          -- show different icon when jumpamount is 5, 10, or 30
     jumpmode = 'exact',             -- seek mode for jump buttons. e.g.
@@ -89,14 +89,14 @@ local user_opts = {
     compactmode = true,             -- replace the jump buttons with the chapter buttons, clicking the
                                     -- buttons will act as jumping, and shift clicking will act as
                                     -- skipping a chapter
-    showloop = true,                -- show the loop button
+    showloop = false,               -- show the loop button
     loopinpause = true,             -- activate looping by right clicking pause
     showontop = true,               -- show window on top button
-    showinfo = true,                -- show the info button
+    showinfo = false,               -- show the info button
     downloadbutton = true,          -- show download button for web videos
-    downloadpath = "~/Videos/mpv", -- the download path for videos
+    downloadpath = "~~desktop/mpv/downloads", -- the download path for videos
     showyoutubecomments = false,    -- EXPERIMENTAL - not ready
-    commentsdownloadpath = "~/Videos/mpv/comments", -- the download path for the comment JSON file
+    commentsdownloadpath = "~~desktop/mpv/downloads/comments", -- the download path for the comment JSON file
     ytdlpQuality = '-f bestvideo[vcodec^=avc][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' -- what quality of video the download button uses (max quality mp4 by default)
 }
 
@@ -3305,7 +3305,7 @@ function render()
     end
 
     -- autohide
-    if not (state.showtime == nil) and (get_hidetimeout() > 0) then
+    if not (state.showtime == nil) and (get_hidetimeout() >= 0) then
         local timeout = state.showtime + (get_hidetimeout()/1000) - now
         if timeout <= 0 then
             if (state.active_element == nil) and (user_opts.bottomhover or not (mouse_over_osc)) then
@@ -3619,6 +3619,16 @@ mp.add_key_binding("p", "pinwindow", function()
         end
     end
 end);
+
+mp.add_key_binding("ESC", 'toggle_osc',
+    function()
+        if (state.osc_visible == false) then
+            show_osc()
+            return
+        end
+        hide_osc()
+    end
+)
 
 mp.observe_property('fullscreen', 'bool',
     function(name, val)

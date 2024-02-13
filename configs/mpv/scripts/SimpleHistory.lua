@@ -10,7 +10,7 @@ local o = {
 --Changes are recommended to be made in the script-opts directory.
 
 	-----Script Settings----
-	auto_run_list_idle = 'none', --Auto run the list when opening mpv and there is no video / file loaded. 'none' for disabled. Or choose between: 'all', 'recents', 'distinct', 'protocols', 'fileonly', 'titleonly', 'timeonly', 'keywords'.
+	auto_run_list_idle = 'recents', --Auto run the list when opening mpv and there is no video / file loaded. 'none' for disabled. Or choose between: 'all', 'recents', 'distinct', 'protocols', 'fileonly', 'titleonly', 'timeonly', 'keywords'.
 	startup_idle_behavior = 'none', --The behavior when mpv launches and nothing is loaded. 'none' for disabled. 'resume' to automatically resume your last played item. 'resume-notime' to resume your last played item but starts from the beginning.
 	toggle_idlescreen = false, --hides OSC idle screen message when opening and closing menu (could cause unexpected behavior if multiple scripts are triggering osc-idlescreen off)
 	resume_offset = -0.65, --change to 0 so item resumes from the exact position, or decrease the value so that it gives you a little preview before loading the resume point
@@ -23,16 +23,16 @@ local o = {
 	[""]
 	]], --Paths / URLs / Websites / Files / Protocols / Extensions, that wont be added to history automatically, e.g.: ["c:\\users\\eisa01\\desktop", "c:\\users\\eisa01\\desktop\\*", "c:\\temp\\naruto-01.mp4", "youtube.com", "https://dailymotion.com/", "avi", "https://www.youtube.com/watch?v=e8YBesRKq_U", ".jpeg", "magnet:", "https://", "ftp"]
 	history_resume_keybind=[[
-	["ctrl+h", "ctrl+H"]
+	["ctrl+r", "ctrl+R"]
 	]], --Keybind that will be used to immediately load and resume last item when no video is playing. If video is playing it will resume to the last found position
 	history_load_last_keybind=[[
-	["alt+h", "alt+H"]
+	["alt+r", "alt+R"]
 	]], --Keybind that will be used to immediately load the last item without resuming when no video is playing. If video is playing then it will add into playlist
 	open_list_keybind=[[
-	[ ["h", "all"], ["H", "all"], ["ctrl+r", "recents"], ["ctrl+R", "recents"] ]
+	[ ["h", "all"], ["H", "all"], ["r", "recents"], ["R", "recents"] ]
 	]], --Keybind that will be used to open the list along with the specified filter. Available filters: 'all', 'recents', 'distinct', 'protocols', 'fileonly', 'titleonly', 'timeonly', 'keywords'.
 	list_filter_jump_keybind=[[
-	[ ["h", "all"], ["H", "all"], ["ctrl+r", "recents"], ["ctrl+R", "recents"], ["ctrl+d", "distinct"], ["ctrl+D", "distinct"], ["ctrl+f", "fileonly"], ["ctrl+F", "fileonly"] ]
+	[ ["h", "all"], ["H", "all"], ["r", "recents"], ["R", "recents"], ["d", "distinct"], ["D", "distinct"], ["f", "fileonly"], ["F", "fileonly"] ]
 	]], --Keybind that is used while the list is open to jump to the specific filter (it also enables pressing a filter keybind twice to close list). Available fitlers: 'all', 'recents', 'distinct', 'protocols', 'fileonly', 'titleonly', 'timeonly', 'keywords'.
 	
 	-----Incognito Settings----
@@ -101,16 +101,16 @@ local o = {
 	list_sliced_suffix = '...', --The text that indicates there are more items below.
 	quickselect_0to9_pre_text = false, --true enables pre text for showing quickselect keybinds before the list. false to disable
 	text_color = 'ffffff', --Text color for list in BGR hexadecimal
-	text_scale = 80, --Font size for the text of list
+	text_scale = 50, --Font size for the text of list
 	text_border = 0.7, --Black border size for the text of list
 	text_cursor_color = 'ffbf7f', --Text color of current cursor position in BGR hexadecimal
-	text_cursor_scale = 80, --Font size for text of current cursor position in list
+	text_cursor_scale = 50, --Font size for text of current cursor position in list
 	text_cursor_border = 0.7, --Black border size for text of current cursor position in list
 	text_highlight_pre_text = '✅ ', --Pre text for highlighted multi-select item
 	search_color_typing = 'ffffaa', --Search color when in typing mode
 	search_color_not_typing = '00bfff', --Search color when not in typing mode and it is active
 	header_color = '00bfff', --Header color in BGR hexadecimal
-	header_scale = 100, --Header text size for the list
+	header_scale = 55, --Header text size for the list
 	header_border = 0.8, --Black border size for the Header of list
 	header_text = '⌛ History [%cursor%/%total%]%prehighlight%%highlight%%afterhighlight%%prelistduration%%listduration%%afterlistduration%%prefilter%%filter%%afterfilter%%presort%%sort%%aftersort%%presearch%%search%%aftersearch%', --Text to be shown as header for the list
 	--Available header variables: %cursor%, %total%, %highlight%, %filter%, %search%, %listduration%, %listlength%, %listremaining%
@@ -522,7 +522,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listduration%%", '')
 		end
-	end
+	end	
 	if list_total_duration > 0 then
 		string = string:gsub("%%prelistduration%%", o.header_list_duration_pre_text)
 		:gsub("%%afterlistduration%%", o.header_list_duration_after_text)
@@ -539,7 +539,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listlength%%", '')
 		end
-	end
+	end	
 	if list_total_length > 0 then
 		string = string:gsub("%%prelistlength%%", o.header_list_length_pre_text)
 		:gsub("%%afterlistlength%%", o.header_list_length_after_text)
@@ -556,7 +556,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listremaining%%", '')
 		end
-	end
+	end	
 	if list_total_remaining > 0 then
 		string = string:gsub("%%prelistremaining%%", o.header_list_remaining_pre_text)
 		:gsub("%%afterlistremaining%%", o.header_list_remaining_after_text)
@@ -962,7 +962,7 @@ function display_list(filter, sort, action)
 		if list_pages[i][3] == 2 and filter == 'all' and o.main_list_keybind_twice_exits then
 			trigger_close_list = true
 		elseif list_pages[i][3] == 2 and list_pages[1][1] == filter then
-			trigger_close_list = true
+			trigger_close_list = true		
 		elseif list_pages[i][3] == 2 then
 			trigger_initial_list = true
 		end
@@ -1010,13 +1010,13 @@ function select(pos, action)
 					for i = pos, 1, -1 do
 						if not has_value(list_highlight_cursor, list_cursor-i, 1) then
 							table.insert(list_highlight_cursor, {list_cursor-i, list_contents[#list_contents+1+i - list_cursor]})
-						end
+						end 
 					end
 				else
 					for i = pos, -1, 1 do
 						if not has_value(list_highlight_cursor, list_cursor-i, 1) then
 							table.insert(list_highlight_cursor, {list_cursor-i, list_contents[#list_contents+1+i - list_cursor]})
-						end
+						end 
 					end
 				end
 				table.insert(list_highlight_cursor, {list_cursor, list_contents[#list_contents+1 - list_cursor]})
@@ -1095,7 +1095,7 @@ function list_page_up(action)
 
 	if search_active and o.search_not_typing_smartly then
 		list_search_not_typing_mode(true)
-	end
+	end	
 end
 
 function list_page_down(action)
@@ -1117,7 +1117,7 @@ function list_page_down(action)
 
 	if search_active and o.search_not_typing_smartly then
 		list_search_not_typing_mode(true)
-	end
+	end	
 end
 
 function list_highlight_all()
@@ -1128,7 +1128,7 @@ function list_highlight_all()
 		for i=1, #list_contents do
 			if not has_value(list_highlight_cursor, i, 1) then
 				table.insert(list_highlight_cursor, {i, list_contents[#list_contents+1-i]})
-			end
+			end 
 		end
 		select(0)
 	else
@@ -1564,7 +1564,7 @@ function get_list_keybinds()
 		else
 			mp.remove_key_binding('open-list'..i)
 		end
-	end
+	end	
 	
 	if o.quickselect_0to9_keybind and o.list_show_amount <= 10 then
 		mp.add_forced_key_binding("1", "recent-1", function()load(list_start + 1) end)

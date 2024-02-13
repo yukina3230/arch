@@ -26,10 +26,10 @@ local opts = {
     ytdl_ver = 'yt-dlp',
 
     --formatting / cursors
-    selected_and_active     = "▶  ",
-    selected_and_inactive   = "●  ",
-    unselected_and_active   = "▷ ",
-    unselected_and_inactive = "○ ",
+    selected_and_active     = '▶  ',
+    selected_and_inactive   = '●  ',
+    unselected_and_active   = '▷ ',
+    unselected_and_inactive = '○ ',
 
     --font size scales by window, if false requires larger font and padding sizes
     scale_playlist_by_window = true,
@@ -41,7 +41,7 @@ local opts = {
     --these styles will be used for the whole playlist. More specific styling will need to be hacked in
     --
     --(a monospaced font is recommended but not required)
-    style_ass_tags = "{\\sanserif\\fs22\\bord" .. mp.get_property('options/osd-border-size') .. "}",
+    style_ass_tags = '{\\fnmonospace\\fs25\\bord1}',
 
     -- Shift drawing coordinates. Required for mpv.net compatiblity
     shift_x = 0,
@@ -52,11 +52,11 @@ local opts = {
     text_padding_y = 10,
 
     --Screen dim when menu is open
-    curtain_opacity = 0,
+    curtain_opacity = 0.7,
 
     --how many seconds until the quality menu times out
     --setting this to 0 deactivates the timeout
-    menu_timeout = 0,
+    menu_timeout = 6,
 
     --use yt-dlp to fetch a list of available formats (overrides quality_strings)
     fetch_formats = true,
@@ -120,8 +120,8 @@ local opts = {
     --
     --Not all videos have all columns available.
     --Be careful, misspelled columns simply won't be displayed, there is no error.
-    columns_video = '-resolution,frame_rate,dynamic_range,bitrate_total,-codec_video',
-    columns_audio = 'audio_sample_rate,bitrate_total,-codec_audio',
+    columns_video = '-resolution,frame_rate,dynamic_range|language,bitrate_total,size,-codec_video,-codec_audio',
+    columns_audio = 'audio_sample_rate,bitrate_total|size,language,-codec_audio',
 
     --columns used for sorting, see "columns_video" for available columns
     --comma separated list, prefix column with "-" to reverse sorting order

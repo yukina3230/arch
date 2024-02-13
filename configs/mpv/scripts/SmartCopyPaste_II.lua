@@ -124,16 +124,16 @@ local o = {
 	list_sliced_suffix = '...', --The text that indicates there are more items below.
 	quickselect_0to9_pre_text = false, --true enables pre text for showing quickselect keybinds before the list. false to disable
 	text_color = 'ffffff', --Text color for list in BGR hexadecimal
-	text_scale = 80, --Font size for the text of list
+	text_scale = 50, --Font size for the text of list
 	text_border = 0.7, --Black border size for the text of list
 	text_cursor_color = 'ffbf7f', --Highlight color in BGR hexadecimal
-	text_cursor_scale = 80, --Font size for highlighted text in list
+	text_cursor_scale = 50, --Font size for highlighted text in list
 	text_cursor_border = 0.7, --Black border size for highlighted text in list
 	text_highlight_pre_text = '✅ ', --Pre text for highlighted multi-select item
 	search_color_typing = 'ffffaa', --Search color when in typing mode
 	search_color_not_typing = '56ffaa', --Search color when not in typing mode and it is active	
 	header_color = '56ffaa', --Header color in BGR hexadecimal
-	header_scale = 100, --Header text size for the list
+	header_scale = 55, --Header text size for the list
 	header_border = 0.8, --Black border size for the Header of list
 	header_text = '📋 Clipboard [%cursor%/%total%]%prehighlight%%highlight%%afterhighlight%%prefilter%%filter%%afterfilter%%presort%%sort%%aftersort%%presearch%%search%%aftersearch%', --Text to be shown as header for the list
 	--Available header variables: %cursor%, %total%, %highlight%, %filter%, %search%, %listduration%, %listlength%, %listremaining%
@@ -438,7 +438,7 @@ function bind_keys(keys, name, func, opts)
 	end
 	
 	for i = 1, #keys do
-		if i == 1 then
+		if i == 1 then 
 			mp.add_forced_key_binding(keys[i], name, func, opts)
 		else
 			mp.add_forced_key_binding(keys[i], name .. i, func, opts)
@@ -554,7 +554,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listduration%%", '')
 		end
-	end
+	end	
 	if list_total_duration > 0 then
 		string = string:gsub("%%prelistduration%%", o.header_list_duration_pre_text)
 		:gsub("%%afterlistduration%%", o.header_list_duration_after_text)
@@ -571,7 +571,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listlength%%", '')
 		end
-	end
+	end	
 	if list_total_length > 0 then
 		string = string:gsub("%%prelistlength%%", o.header_list_length_pre_text)
 		:gsub("%%afterlistlength%%", o.header_list_length_after_text)
@@ -588,7 +588,7 @@ function parse_header(string)
 		else
 			string = string:gsub("%%listremaining%%", '')
 		end
-	end
+	end	
 	if list_total_remaining > 0 then
 		string = string:gsub("%%prelistremaining%%", o.header_list_remaining_pre_text)
 		:gsub("%%afterlistremaining%%", o.header_list_remaining_after_text)
@@ -1032,7 +1032,7 @@ function display_list(filter, sort, action)
 		if list_pages[i][3] == 2 and filter == 'all' and o.main_list_keybind_twice_exits then
 			trigger_close_list = true
 		elseif list_pages[i][3] == 2 and list_pages[1][1] == filter then
-			trigger_close_list = true
+			trigger_close_list = true		
 		elseif list_pages[i][3] == 2 then
 			trigger_initial_list = true
 		end
@@ -1080,13 +1080,13 @@ function select(pos, action)
 					for i = pos, 1, -1 do
 						if not has_value(list_highlight_cursor, list_cursor-i, 1) then
 							table.insert(list_highlight_cursor, {list_cursor-i, list_contents[#list_contents+1+i - list_cursor]})
-						end
+						end 
 					end
 				else
 					for i = pos, -1, 1 do
 						if not has_value(list_highlight_cursor, list_cursor-i, 1) then
 							table.insert(list_highlight_cursor, {list_cursor-i, list_contents[#list_contents+1+i - list_cursor]})
-						end
+						end 
 					end
 				end
 				table.insert(list_highlight_cursor, {list_cursor, list_contents[#list_contents+1 - list_cursor]})
@@ -1634,7 +1634,7 @@ function get_list_keybinds()
 		else
 			mp.remove_key_binding('open-list'..i)
 		end
-	end
+	end	
 	
 	if o.quickselect_0to9_keybind and o.list_show_amount <= 10 then
 		mp.add_forced_key_binding("1", "recent-1", function()load(list_start + 1) end)
@@ -1757,8 +1757,8 @@ function list_search_not_typing_mode(auto_triggered)
 		end
 	else
 		if search_string ~= '' then
-			search_active = 'not_typing'
-		else
+			search_active = 'not_typing' 
+		else 
 			search_active = false
 		end
 	end
@@ -2276,7 +2276,7 @@ function parse_clipboard(text)
 						c_clip_file = string.match(c, '^\"(.*)\"$')
 					else
 						c_clip_file = c_protocols
-					end
+					end			
 					c_clip_extension = get_extension(c_clip_file)
 					table.insert(clip_table, {c_clip_file, c_clip_time, c_clip_extension})
 				end
@@ -2700,7 +2700,7 @@ function multipaste()
 	if triggered_multipaste[2] == true then
 		if osd_msg ~= '' then osd_msg = osd_msg..'\n' end
 		osd_msg = osd_msg..'Added Into Playlist '..#clip_table - file_ignored_total - file_subtitle_total..' item/s'
-	end
+	end	
 	if file_ignored_total > 0 then
 		if osd_msg ~= '' then osd_msg = osd_msg..'\n' end
 		osd_msg = osd_msg..'Ignored '..file_ignored_total.. ' Item/s'
@@ -2828,7 +2828,7 @@ function paste()
 				end
 			end
 		end
-	end
+	end	
 end
 
 

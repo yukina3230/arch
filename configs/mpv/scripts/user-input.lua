@@ -13,7 +13,7 @@ local opts = {
     font = "",
     -- Set the font size used for the REPL and the console. This will be
     -- multiplied by "scale."
-    font_size = 28,
+    font_size = 16,
 }
 
 options.read_options(opts, "user_input")

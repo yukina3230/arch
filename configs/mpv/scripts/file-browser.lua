@@ -15,7 +15,7 @@ local opt = require 'mp.options'
 
 local o = {
     --root directories
-    root = "~/,~/Videos/",
+    root = "~/",
 
     --characters to use as separators
     root_separators = ",;",
@@ -83,7 +83,7 @@ local o = {
     indent_icon = [[\h\h\h]],
 
     --enable addons
-    addons = true,
+    addons = false,
     addon_directory = "~~/script-modules/file-browser-addons",
 
     --directory to load external modules - currently just user-input-module
@@ -103,15 +103,15 @@ local o = {
     --force file-browser to use a specific text alignment (default: top-left)
     --uses ass tag alignment numbers: https://aegi.vmoe.info/docs/3.0/ASS_Tags/#index23h3
     --set to 0 to use the default mpv osd-align options
-    alignment = 0,
+    alignment = 7,
 
     --style settings
     font_bold_header = true,
     font_opacity_selection_marker = "99",
 
-    font_size_header = 26,
-    font_size_body = 22,
-    font_size_wrappers = 20,
+    font_size_header = 35,
+    font_size_body = 25,
+    font_size_wrappers = 16,
 
     font_name_header = "",
     font_name_body = "",
@@ -748,7 +748,7 @@ end
 --saves the directory and name of the currently playing file
 local function update_current_directory(_, filepath)
     --if we're in idle mode then we want to open the working directory
-    if filepath == nil then
+    if filepath == nil then 
         current_file.directory = API.fix_path( mp.get_property("working-directory", ""), true)
         current_file.name = nil
         current_file.path = nil
@@ -1538,7 +1538,7 @@ state.keybinds = {
     {'Shift+HOME',  'goto_root',    goto_root},
     {'Ctrl+r',      'reload',       function() cache:clear(); update() end},
     {'s',           'select_item',  toggle_selection},
-    {'Shift+s',     'select_mode',  toggle_select_mode},
+    {'S',           'select_mode',  toggle_select_mode},
     {'Ctrl+a',      'select_all',   select_all}
 }
 
@@ -1588,7 +1588,7 @@ local CUSTOM_KEYBIND_CODES = ""
 for key in pairs(code_fns) do CUSTOM_KEYBIND_CODES = CUSTOM_KEYBIND_CODES..key:lower()..key:upper() end
 local KEYBIND_CODE_PATTERN = ('%%%%([%s])'):format(API.ass_escape(CUSTOM_KEYBIND_CODES))
 
---substitutes the key codes for the
+--substitutes the key codes for the 
 local function substitute_codes(str, cmd, items, state)
     return string.gsub(str, KEYBIND_CODE_PATTERN, function(code)
         if type(code_fns[code]) == "string" then return code_fns[code] end
