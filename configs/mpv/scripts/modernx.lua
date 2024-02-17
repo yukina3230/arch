@@ -1849,10 +1849,10 @@ end
 function window_controls()
     local wc_geo = {
         x = 0,
-        y = 50,
+        y = 40,
         an = 1,
         w = osc_param.playresx,
-        h = 50
+        h = 40
     }
 
     local controlbox_w = window_control_box_width
