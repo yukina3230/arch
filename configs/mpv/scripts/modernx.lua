@@ -44,6 +44,7 @@ local user_opts = {
     persistentprogress = false,     -- always show a small progress line at the bottom of the screen
     persistentprogressheight = 17,  -- the height of the persistentprogress bar
     persistentbuffer = false,       -- on web videos, show the buffer on the persistent progress line
+    persistentprogresstoggle = true,-- enable toggling the persistentprogress bar
 
     -- title and chapter settings --
     showtitle = true,               -- show title in OSC
@@ -54,7 +55,7 @@ local user_opts = {
     title = '${media-title}',       -- title shown on OSC - turn off dynamictitle for this option to apply
     dynamictitle = true,            -- change the title depending on if {media-title} and {filename} 
                                     -- differ (like with playing urls, audio or some media)
-    updatetitleyoutubestats = false,-- update the window/OSC title bar with YouTube video stats (views, likes, dislikes)
+    updatetitleyoutubestats = true, -- update the window/OSC title bar with YouTube video stats (views, likes, dislikes)
     font = 'mpv-osd-symbols',       -- default osc font
                                     -- to be shown as OSC title
     titlefontsize = 28,             -- the font size of the title text
@@ -91,7 +92,7 @@ local user_opts = {
     compactmode = true,             -- replace the jump buttons with the chapter buttons, clicking the
                                     -- buttons will act as jumping, and shift clicking will act as
                                     -- skipping a chapter
-    showloop = false,               -- show the loop button
+    showloop = true,                -- show the loop button
     loopinpause = true,             -- activate looping by right clicking pause
     showontop = true,               -- show window on top button
     showinfo = false,               -- show the info button
@@ -101,19 +102,6 @@ local user_opts = {
     commentsdownloadpath = "~~desktop/mpv/downloads/comments", -- the download path for the comment JSON file
     ytdlpQuality = '-f bestvideo[vcodec^=avc][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' -- what quality of video the download button uses (max quality mp4 by default)
 }
-
-function dump(o)
-    if type(o) == 'table' then
-       local s = '{ '
-       for k,v in pairs(o) do
-          if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. dump(v) .. ','
-       end
-       return s .. '} '
-    else
-       return tostring(o)
-    end
- end 
 
 -- Icons for jump button depending on jumpamount 
 local jumpicons = { 
@@ -333,6 +321,7 @@ local state = {
     videoCantBeDownloaded = false,
     youtubeuploader = "",
     youtubecomments = {},
+    persistentprogresstoggle = user_opts.persistentprogress,
 }
 
 local thumbfast = {
@@ -341,6 +330,8 @@ local thumbfast = {
     disabled = true,
     available = false
 }
+
+local maxdescsize = 120
 
 local window_control_box_width = 138
 local tick_delay = 0.03
@@ -1137,6 +1128,7 @@ end
 
 function newfilereset()
     request_init()
+    state.downloadedOnce = false
     state.videoDescription = "Loading description..."
     state.fileSizeNormalised = "Approximating size..."
 end
@@ -1172,15 +1164,34 @@ function checktitle()
     local date = mp.get_property("filtered-metadata/by-key/Date")
 
     state.youtubeuploader = artist
-    state.ytdescription = mp.get_property_native('metadata').ytdl_description or ""
-
-    print(utils.to_string(mp.get_property_native('metadata')))
+    if mp.get_property_native('metadata') then
+        state.ytdescription = mp.get_property_native('metadata').ytdl_description or ""
+        print("Metadata: " .. utils.to_string(mp.get_property_native('metadata')))
+    else
+        print("Failed to load metadata")
+    end
 
     state.localDescriptionClick = title .. "\\N----------\\N"
     if (description ~= nil) then
-        description = string.gsub(description, '\n', '\\N')
-        description = string.gsub(description, '\r', '\\N') -- old youtube videos seem to use /r
-        state.localDescription = description:sub(1, 120)
+        description = description:gsub('\n', '\\N'):gsub('\r', '\\N') -- old youtube videos seem to use /r
+        
+        local utf8split, lastchar = splitUTF8(description, maxdescsize) -- account for CJK
+        local desc
+        if utf8split then
+            if #utf8split == #description then
+                desc = utf8split
+            else
+                desc = utf8split .. '...'
+            end
+        else
+            if #description > maxdescsize then
+                desc = description:sub(1, maxdescsize) .. '...'
+            else
+                desc = description:sub(1, maxdescsize)
+            end
+        end
+        
+        state.localDescription = desc
         state.localDescriptionClick = state.localDescriptionClick .. description .. "\\N----------"
         state.localDescriptionIsClickable = true
     end
@@ -1404,7 +1415,6 @@ function exec(args, callback)
         capture_stdout = true,
         capture_stderr = true
     }, callback)
-    msg.info("WEB: Download complete.")
     return ret.status
 end
 
@@ -1412,8 +1422,10 @@ function downloadDone(success, result, error)
     if success then
         show_message("\\N{\\an9}Download saved to " .. mp.command_native({"expand-path", user_opts.downloadpath}))
         state.downloadedOnce = true
+        msg.info("WEB: Download complete")
     else
         show_message("\\N{\\an9}WEB: Download failed - " .. (error or "Unknown error"))
+        msg.info("WEB: Download failed")
     end
     state.downloading = false
 end
@@ -1432,7 +1444,8 @@ function splitUTF8(str, maxLength)
         elseif byte >= 192 and byte <= 223 then
             charLength = 2
         elseif byte >= 224 and byte <= 239 then
-            charLength = 3
+            charLength = 3 
+            -- CJK
         elseif byte >= 240 and byte <= 247 then
             charLength = 4
         else
@@ -1470,8 +1483,8 @@ function exec_description(args, result)
 
         -- check if description exists, if it doesn't get rid of the extra "----------"
         local descriptionText = state.localDescriptionClick:match("\\N----------\\N(.-)\\N----------\\N")
-        state.ytdescription = state.ytdescription:gsub('\r', '\\N'):gsub('\n', '\\N')
-        state.localDescriptionClick = state.localDescriptionClick:gsub('<$\\N!desc!\\N$>', state.ytdescription)
+        state.ytdescription = state.ytdescription:gsub('\r', '\\N'):gsub('\n', '\\N'):gsub("%%", "%%%%")
+        state.localDescriptionClick = state.localDescriptionClick:gsub("<$\\N!desc!\\N$>", state.ytdescription)
         if (state.ytdescription == '' or state.ytdescription == '\\N' or state.ytdescription == 'NA' or #state.ytdescription < 4) then
             state.localDescriptionClick = state.localDescriptionClick:gsub("(.*)\\N----------\\N", "%1")
         end
@@ -1491,8 +1504,7 @@ function exec_description(args, result)
         state.localDescriptionClick = state.localDescriptionClick:gsub("Dislikes: NA\\N", "")
         state.localDescriptionClick = state.localDescriptionClick:gsub("NA", "")
 
-        local maxdescsize = 120
-        local utf8split, lastchar = splitUTF8(state.ytdescription, maxdescsize)
+        local utf8split, lastchar = splitUTF8(state.ytdescription, maxdescsize) -- account for CJK
         
         -- segment localDescriptionClick parts with " | "
         local beforeLastPattern, afterLastPattern = state.localDescriptionClick:match("(.*)\\N----------\\N(.*)")
@@ -1501,7 +1513,7 @@ function exec_description(args, result)
 
             if desc then
                 if utf8split then
-                    if #utf8split == #state.ytdescription then
+                    if #utf8split == #desc then
                         desc = utf8split
                     else
                         desc = utf8split .. '...'
@@ -1599,6 +1611,7 @@ function exec_filesize(args, result)
         state.fileSizeBytes = tonumber(fileSizeString)
         if type(state.fileSizeBytes) ~= "number" then
             state.fileSizeNormalised = "Unknown..."
+            -- state.videoCantBeDownloaded = true
         else
             state.fileSizeNormalised = "Size: ~" .. formatBytes(state.fileSizeBytes)
             msg.info("WEB: File size: " .. state.fileSizeBytes .. " B / " .. state.fileSizeNormalised)
@@ -2018,7 +2031,7 @@ layouts = function ()
     lo.slider.tooltip_style = osc_styles.Tooltip
     lo.slider.tooltip_an = 2
     
-    if (user_opts.persistentprogress) then
+    if (user_opts.persistentprogress or user_opts.persistentprogresstoggle) then
         lo = add_layout('persistentseekbar')
         lo.geometry = {x = refX, y = refY, an = 5, w = osc_geo.w, h = user_opts.persistentprogressheight}
         lo.style = osc_styles.SeekbarFg
@@ -2914,7 +2927,7 @@ function osc_init()
         end
 
     --persistent seekbar
-    if (user_opts.persistentprogress) then
+    if (user_opts.persistentprogress or user_opts.persistentprogresstoggle) then
         ne = new_element('persistentseekbar', 'slider')
         ne.enabled = not (mp.get_property('percent-pos') == nil)
         state.slider_element = ne.enabled and ne or nil  -- used for forced_title
@@ -3108,7 +3121,11 @@ function adjustSubtitles(visible)
     if visible and user_opts.raisesubswithosc and state.osc_visible == true and (state.fullscreen == false or user_opts.showfullscreen) then
         local w, h = mp.get_osd_size()
         if h > 0 then
-            mp.commandv('set', 'sub-pos', math.floor((osc_param.playresy - 175)/osc_param.playresy*100)) -- percentage
+            local subpos = math.floor((osc_param.playresy - 175)/osc_param.playresy*100)
+            if subpos < 0 then
+                subpos = 100 -- out of screen, default to original position
+            end
+            mp.commandv('set', 'sub-pos', subpos) -- percentage
         end
     elseif user_opts.raisesubswithosc then
         mp.commandv('set', 'sub-pos', 100)
@@ -3341,7 +3358,7 @@ function render()
     if state.osc_visible then
         render_elements(ass)
     end
-    if user_opts.persistentprogress then
+    if user_opts.persistentprogress or state.persistentprogresstoggle then
         render_persistentprogressbar(ass)
     end
 
@@ -3602,13 +3619,33 @@ if user_opts.keybindings then
     end
 
     -- extra key bindings
-    mp.add_key_binding("x", "cycleaudiotracks", function()
+    mp.add_key_binding("u", "cyclevideotracks", function()
+        set_track('video', 1) show_message(get_tracklist('video'))
+    end);
+    mp.add_key_binding("U", "cyclevideotracksbackwards", function()
+        set_track('video', -1) show_message(get_tracklist('video'))
+    end);
+    
+    mp.add_key_binding("j", "cycleaudiotracks", function()
         set_track('audio', 1) show_message(get_tracklist('audio'))
     end);
+    mp.add_key_binding("J", "cycleaudiotracksbackwards", function()
+        set_track('audio', -1) show_message(get_tracklist('audio'))
+    end);
 
-    mp.add_key_binding("c", "cyclecaptions", function()
+    mp.add_key_binding("n", "cyclecaptions", function()
         set_track('sub', 1) show_message(get_tracklist('sub'))
     end);
+    mp.add_key_binding("N", "cyclecaptionsbackwards", function()
+        set_track('sub', -1) show_message(get_tracklist('sub'))
+    end);
+
+    if (user_opts.persistentprogresstoggle) then
+        mp.add_key_binding("O", "persistenttoggle", function()
+            state.persistentprogresstoggle = not state.persistentprogresstoggle
+            print("Persistent progress bar toggled")
+        end);
+    end
 
     mp.add_key_binding("TAB", 'get_chapterlist', function() show_message(get_chapterlist()) end)
 
