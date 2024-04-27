@@ -56,7 +56,7 @@ local user_opts = {
     dynamictitle = true,            -- change the title depending on if {media-title} and {filename} 
                                     -- differ (like with playing urls, audio or some media)
     updatetitleyoutubestats = true, -- update the window/OSC title bar with YouTube video stats (views, likes, dislikes)
-    font = 'mpv-osd-symbols',       -- default osc font
+    font = 'mpv-osd-symbols',       -- mpv-osd-symbols = default osc font (or the one set in mpv.conf)
                                     -- to be shown as OSC title
     titlefontsize = 28,             -- the font size of the title text
     chapterformat = 'Chapter: %s',  -- chapter print format for seekbar-hover. "no" to disable
@@ -71,6 +71,8 @@ local user_opts = {
     seekbarfg_color = 'E39C42',     -- color of the seekbar progress and handle
     seekbarbg_color = 'FFFFFF',     -- color of the remaining seekbar
     seekbarkeyframes = false,       -- use keyframes when dragging the seekbar
+    automatickeyframemode = true,   -- set seekbarkeyframes based on video length to prevent laggy scrubbing on long videos 
+    automatickeyframelimit = 1800,  -- videos of above this length (in seconds) will have seekbarkeyframes on
     seekbarhandlesize = 0.8,        -- size ratio of the slider handle, range 0 ~ 1
     seekrange = true,               -- show seekrange overlay
     seekrangealpha = 150,           -- transparency of seekranges
@@ -80,7 +82,7 @@ local user_opts = {
     -- button settings --
     timetotal = true,               -- display total time instead of remaining time by default
     timems = false,                 -- show time as milliseconds by default
-    timefontsize = 17,              -- the font size of the time
+    timefontsize = 18,              -- the font size of the time
     jumpamount = 5,                 -- change the jump amount (in seconds by default)
     jumpiconnumber = true,          -- show different icon when jumpamount is 5, 10, or 30
     jumpmode = 'exact',             -- seek mode for jump buttons. e.g.
@@ -277,6 +279,7 @@ local state = {
     mouse_down_counter = 0,                 -- used for softrepeat
     active_element = nil,                   -- nil = none, 0 = background, 1+ = see elements[]
     active_event_source = nil,              -- the 'button' that issued the current event
+    touchingprogressbar = false,                 -- if the mouse is touching the progress bar
     rightTC_trem = not user_opts.timetotal, -- if the right timecode should display total or remaining time
     mp_screen_sizeX, mp_screen_sizeY,       -- last screen-resolution, to detect resolution changes to issue reINITs
     initREQ = false,                        -- is a re-init request pending?
@@ -462,15 +465,19 @@ end
 
 -- translates global (mouse) coordinates to value
 function get_slider_value_at(element, glob_pos)
+    if (element) then    
+        local val = scale_value(
+            element.slider.min.glob_pos, element.slider.max.glob_pos,
+            element.slider.min.value, element.slider.max.value,
+            glob_pos)
+    
+        return limit_range(
+            element.slider.min.value, element.slider.max.value,
+            val)
+    end
 
-    local val = scale_value(
-        element.slider.min.glob_pos, element.slider.max.glob_pos,
-        element.slider.min.value, element.slider.max.value,
-        glob_pos)
-
-    return limit_range(
-        element.slider.min.value, element.slider.max.value,
-        val)
+    -- fall back incase of loading errors
+    return 0
 end
 
 -- get value at current mouse position
@@ -837,7 +844,7 @@ function render_elements(master_ass)
     -- because thumbfast will render it above the thumbnail instead
     if thumbfast.disabled then
         local se, ae = state.slider_element, elements[state.active_element]
-        if user_opts.chapterformat ~= "no" and se and (ae == se or (not ae and mouse_hit(se))) then
+        if user_opts.chapterformat ~= "no" and state.touchingprogressbar then
             local dur = mp.get_property_number("duration", 0)
             if dur > 0 then
                 local possec = get_slider_value(se) * dur / 100 -- of mouse pos
@@ -943,6 +950,10 @@ function render_elements(master_ass)
                                 tx = tx + 10
                             end
                         end
+
+                        if (element.name == "seekbar") then
+                            state.touchingprogressbar = true
+                        end    
                         
                         -- thumbfast
                         if element.thumbnailable and not thumbfast.disabled then
@@ -978,14 +989,14 @@ function render_elements(master_ass)
 
                                 -- chapter title
                                 local se, ae = state.slider_element, elements[state.active_element]
-                                if user_opts.chapterformat ~= "no" and se and (ae == se or (not ae and mouse_hit(se))) then
+                                if user_opts.chapterformat ~= "no" and state.touchingprogressbar then
                                     local dur = mp.get_property_number("duration", 0)
                                     if dur > 0 then
                                         local possec = get_slider_value(se) * dur / 100 -- of mouse pos
                                         local ch = get_chapter(possec)
                                         if ch and ch.title and ch.title ~= "" then
                                             elem_ass:new_event()
-                                            elem_ass:pos((thumbX + thumbfast.width / 2) * r_w, thumbY * r_h - user_opts.timefontsize)
+                                            elem_ass:pos((thumbX + thumbfast.width / 2) * r_w, thumbY * r_h - user_opts.timefontsize / 2)
                                             elem_ass:an(an)
                                             elem_ass:append(slider_lo.tooltip_style)
                                             ass_append_alpha(elem_ass, slider_lo.alpha, 0)
@@ -1005,6 +1016,8 @@ function render_elements(master_ass)
                         elem_ass:append(tooltiplabel)
                     elseif element.thumbnailable and thumbfast.available then
                         mp.commandv("script-message-to", "thumbfast", "clear")
+                    else
+                        state.touchingprogressbar = false
                     end
                 end
             end
@@ -1138,6 +1151,13 @@ function startupevents()
     state.fileSizeNormalised = "Approximating size..."
     checktitle()
     checkWebLink()
+    if user_opts.automatickeyframemode then
+        if mp.get_property_number("duration", 0) > user_opts.automatickeyframelimit then
+            user_opts.seekbarkeyframes = true
+        else
+            user_opts.seekbarkeyframes = false
+        end
+    end
     destroyscrollingkeys() -- close description
 end
 
@@ -1145,13 +1165,7 @@ function checktitle()
     local mediatitle = mp.get_property("media-title")
 
     if (mp.get_property("filename") ~= mediatitle) and user_opts.dynamictitle then
-        if mp.get_property("path"):find('youtu%.?be') then
-            user_opts.title = "${media-title}" -- youtube videos
-        elseif mp.get_property("filename/no-ext") ~= mediatitle then
-            user_opts.title = "${media-title} | ${filename}" -- {filename/no-ext}
-        else
-            user_opts.title = "${filename}" -- audio with the same title (without file extension) and filename
-        end
+        user_opts.title = "${media-title}"
     end
 
     -- fake description using metadata
@@ -1166,99 +1180,101 @@ function checktitle()
     state.youtubeuploader = artist
     if mp.get_property_native('metadata') then
         state.ytdescription = mp.get_property_native('metadata').ytdl_description or ""
-        print("Metadata: " .. utils.to_string(mp.get_property_native('metadata')))
+        -- print("Metadata: " .. utils.to_string(mp.get_property_native('metadata')))
     else
-        print("Failed to load metadata")
+        -- print("Failed to load metadata")
     end
 
-    state.localDescriptionClick = title .. "\\N----------\\N"
-    if (description ~= nil) then
-        description = description:gsub('\n', '\\N'):gsub('\r', '\\N') -- old youtube videos seem to use /r
-        
-        local utf8split, lastchar = splitUTF8(description, maxdescsize) -- account for CJK
-        local desc
-        if utf8split then
-            if #utf8split == #description then
-                desc = utf8split
+    if user_opts.showdescription then
+        if (title) then state.localDescriptionClick = title .. "\\N----------\\N" end
+        if (description ~= nil) then
+            description = description:gsub('\n', '\\N'):gsub('\r', '\\N') -- old youtube videos seem to use /r
+            
+            local utf8split, lastchar = splitUTF8(description, maxdescsize) -- account for CJK
+            local desc
+            if utf8split then
+                if #utf8split == #description then
+                    desc = utf8split
+                else
+                    desc = utf8split .. '...'
+                end
             else
-                desc = utf8split .. '...'
+                if #description > maxdescsize then
+                    desc = description:sub(1, maxdescsize) .. '...'
+                else
+                    desc = description:sub(1, maxdescsize)
+                end
             end
-        else
-            if #description > maxdescsize then
-                desc = description:sub(1, maxdescsize) .. '...'
-            else
-                desc = description:sub(1, maxdescsize)
-            end
-        end
-        
-        state.localDescription = desc
-        state.localDescriptionClick = state.localDescriptionClick .. description .. "\\N----------"
-        state.localDescriptionIsClickable = true
-    end
-    if (artist ~= nil) then
-        if (state.localDescription == nil) then
-            state.localDescription = "By: " .. artist
-            state.localDescriptionClick = state.localDescriptionClick .. state.localDescription
+            
+            state.localDescription = desc
+            state.localDescriptionClick = state.localDescriptionClick .. description .. "\\N----------"
             state.localDescriptionIsClickable = true
-        else
-            state.localDescriptionClick = state.localDescriptionClick .. "\\NBy: " .. artist
-            state.localDescription = state.localDescription .. " | By: " .. artist
         end
-    end
-    if (album ~= nil) then
-        if (state.localDescription == nil) then -- only metadata
-            state.localDescription = "Album: " .. album
-            state.localDescriptionClick = state.localDescriptionClick .. state.localDescription
-            state.localDescriptionIsClickable = true
-        else -- append to other metadata
-            if (state.localDescriptionClick ~= nil) then 
-                state.localDescriptionClick = state.localDescriptionClick .. " - " .. album
-            else
-                state.localDescriptionClick = album
-                state.localDescriptionIsClickable = true
-            end
-            state.localDescription = state.localDescription .. " - " .. album
-        end
-    end
-    if (date ~= nil) then
-        local datenormal = normaliseDate(date)
-        local datetext = "Year"
-        if (#datenormal > 4) then datetext = "Date" end
-        if (state.localDescription == nil) then -- only metadata
-            state.localDescription = datetext .. ": " .. datenormal
-            state.localDescriptionClick = state.localDescriptionClick .. state.localDescription
-            state.localDescriptionIsClickable = true
-        else -- append to other metadata
-            if (state.localDescriptionClick ~= nil) then
-                state.localDescriptionClick = state.localDescriptionClick .. "\\N" .. datetext .. ": " .. datenormal
-            else
-                state.localDescriptionClick = datenormal
-                state.localDescriptionIsClickable = true
-            end
-            state.localDescription = state.localDescription .. " | " ..  datetext .. ": " .. datenormal
-        end
-    end
-
-    local function format_file_size(file_size)
-        local units = {"bytes", "KB", "MB", "GB", "TB"}
-        local unit_index = 1
-        while file_size >= 1024 and unit_index < #units do
-            file_size = file_size / 1024
-            unit_index = unit_index + 1
-        end
-        return string.format("%.2f %s", file_size, units[unit_index])
-    end
-
-    if (user_opts.showfilesize) then
-        file_size = mp.get_property_native("file-size")
-        if (file_size ~= nil) then
-            file_size = format_file_size(file_size)
-            if (state.localDescription == nil) then -- only metadata
-                state.localDescription = "Size: " .. file_size
+        if (artist ~= nil) then
+            if (state.localDescription == nil) then
+                state.localDescription = "By: " .. artist
                 state.localDescriptionClick = state.localDescriptionClick .. state.localDescription
                 state.localDescriptionIsClickable = true
             else
-                state.localDescriptionClick = state.localDescriptionClick .. "\\NSize: " .. file_size
+                state.localDescriptionClick = state.localDescriptionClick .. "\\NBy: " .. artist
+                state.localDescription = state.localDescription .. " | By: " .. artist
+            end
+        end
+        if (album ~= nil) then
+            if (state.localDescription == nil) then -- only metadata
+                state.localDescription = "Album: " .. album
+                state.localDescriptionClick = state.localDescriptionClick .. state.localDescription
+                state.localDescriptionIsClickable = true
+            else -- append to other metadata
+                if (state.localDescriptionClick ~= nil) then 
+                    state.localDescriptionClick = state.localDescriptionClick .. " - " .. album
+                else
+                    state.localDescriptionClick = album
+                    state.localDescriptionIsClickable = true
+                end
+                state.localDescription = state.localDescription .. " - " .. album
+            end
+        end
+        if (date ~= nil) then
+            local datenormal = normaliseDate(date)
+            local datetext = "Year"
+            if (#datenormal > 4) then datetext = "Date" end
+            if (state.localDescription == nil) then -- only metadata
+                state.localDescription = datetext .. ": " .. datenormal
+                state.localDescriptionClick = state.localDescriptionClick .. state.localDescription
+                state.localDescriptionIsClickable = true
+            else -- append to other metadata
+                if (state.localDescriptionClick ~= nil) then
+                    state.localDescriptionClick = state.localDescriptionClick .. "\\N" .. datetext .. ": " .. datenormal
+                else
+                    state.localDescriptionClick = datenormal
+                    state.localDescriptionIsClickable = true
+                end
+                state.localDescription = state.localDescription .. " | " ..  datetext .. ": " .. datenormal
+            end
+        end
+
+        local function format_file_size(file_size)
+            local units = {"bytes", "KB", "MB", "GB", "TB"}
+            local unit_index = 1
+            while file_size >= 1024 and unit_index < #units do
+                file_size = file_size / 1024
+                unit_index = unit_index + 1
+            end
+            return string.format("%.2f %s", file_size, units[unit_index])
+        end
+
+        if (user_opts.showfilesize) then
+            file_size = mp.get_property_native("file-size")
+            if (file_size ~= nil) then
+                file_size = format_file_size(file_size)
+                if (state.localDescription == nil) then -- only metadata
+                    state.localDescription = "Size: " .. file_size
+                    state.localDescriptionClick = state.localDescriptionClick .. state.localDescription
+                    state.localDescriptionIsClickable = true
+                else
+                    state.localDescriptionClick = state.localDescriptionClick .. "\\NSize: " .. file_size
+                end
             end
         end
     end
@@ -2523,15 +2539,16 @@ function osc_init()
     ne.tooltipF = function ()
         local msg = texts.off
         if not (get_track('audio') == 0) then
-            msg = (texts.audio .. ' [' .. get_track('audio') .. ' ∕ ' .. #tracks_osc.audio .. '] ')
+            msg = (texts.audio .. ' [' .. get_track('audio') .. ' ∕ ' .. #tracks_osc.audio .. ']')
             local prop = mp.get_property('current-tracks/audio/title')
             if not prop then
                 prop = mp.get_property('current-tracks/audio/lang')
                 if not prop then
                     prop = texts.na
+                else
+                    msg = msg .. ' [' .. prop .. ']'
                 end
             end
-            msg = msg .. '[' .. prop .. ']'
             return msg
         end
         if not ne.enabled then
@@ -2564,12 +2581,13 @@ function osc_init()
     ne.tooltipF = function ()
         local msg = texts.off
         if not (get_track('sub') == 0) then
-            msg = (texts.subtitle .. ' [' .. get_track('sub') .. ' ∕ ' .. #tracks_osc.sub .. '] ')
+            msg = (texts.subtitle .. ' [' .. get_track('sub') .. ' ∕ ' .. #tracks_osc.sub .. ']')
             local prop = mp.get_property('current-tracks/sub/lang')
             if not prop then
                 prop = texts.na
+            else
+                msg = msg .. ' [' .. prop .. ']'
             end
-            msg = msg .. '[' .. prop .. ']'
             prop = mp.get_property('current-tracks/sub/title')
             if prop then
                 msg = msg .. ' ' .. prop
@@ -3024,9 +3042,9 @@ function osc_init()
     ne = new_element('tc_left', 'button')
     ne.content = function ()
     if (state.fulltime) then
-        return (mp.get_property_osd('playback-time/full'))
+        return mp.get_property_osd('playback-time/full'):gsub('-', '')
     else
-        return (mp.get_property_osd('playback-time'))
+        return mp.get_property_osd('playback-time'):gsub('-', '')
     end
     end
     ne.eventresponder["mbtn_left_up"] = function ()
@@ -3643,6 +3661,7 @@ if user_opts.keybindings then
     if (user_opts.persistentprogresstoggle) then
         mp.add_key_binding("O", "persistenttoggle", function()
             state.persistentprogresstoggle = not state.persistentprogresstoggle
+            tick()
             print("Persistent progress bar toggled")
         end);
     end
@@ -3662,8 +3681,7 @@ if user_opts.keybindings then
         end
     end);
 
-    mp.add_key_binding("ESC", 'toggle_osc',
-    function()
+    mp.add_key_binding("ESC", 'toggle_osc', function()
         if (state.osc_visible == false) then
             show_osc()
             return
