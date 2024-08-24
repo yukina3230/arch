@@ -1,0 +1,15 @@
+[[language]]
+name = "rust"
+
+[language.debugger]
+name = "lldb-dap"
+transport = "stdio"
+command = "lldb-dap"
+
+[[language.debugger.templates]]
+name = "binary"
+request = "launch"
+completion = [{ name = "binary", completion = "filename" }]
+args = { program = "{0}", initCommands = [
+    "command script import /usr/local/etc/lldb_dap_rustc_primer.py",
+] }

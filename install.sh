@@ -45,6 +45,10 @@ sudo unzip "~/arch/fonts/P22 Typewriter.zip" -d /usr/share/fonts/TTF/
 sudo rm -f "/usr/share/fonts/TTF/Impact.TTF"
 sudo unzip "~/arch/fonts/Impact.zip" -d /usr/share/fonts/TTF/
 
+# Helix
+sudo mv ~/arch/configs/helix/lldb_dap_rustc_primer.py /usr/local/etc/
+cp -r ~/arch/configs/helix/ ~/.config/
+
 # Activities Icon, GDM Logo & Cursors
 #sudo cp ~/arch/icons/archlinux-icon.svg /usr/share/icons/
 sudo cp ~/arch/icons/archlinux.svg /usr/share/icons/
