@@ -7,15 +7,11 @@ mkdir ~/Temps/
 mkdir ~/Projects/
 mkdir ~/Applications/
 mkdir ~/Documents/Ebooks/
+mkdir ~/Documents/Books/
 mkdir ~/Documents/Journals/
-mkdir ~/Documents/Novels/
 mkdir ~/Documents/Keys/
-mkdir ~/Documents/Cookies/
-mkdir ~/Downloads/General/
-mkdir ~/Downloads/Compressed/
-mkdir ~/Downloads/Programs/
+mkdir ~/Documents/Configs/
 mkdir ~/Downloads/Torrents/
-mkdir ~/Pictures/Icons/
 mkdir ~/Pictures/Artworks/
 mkdir ~/Pictures/Wallpapers/
 mkdir ~/Pictures/Memes/
@@ -49,14 +45,12 @@ sudo unzip "~/arch/fonts/Impact.zip" -d /usr/share/fonts/TTF/
 sudo mv ~/arch/configs/helix/lldb_dap_rustc_primer.py /usr/local/etc/
 cp -r ~/arch/configs/helix/ ~/.config/
 
-# Activities Icon, GDM Logo & Cursors
-#sudo cp ~/arch/icons/archlinux-icon.svg /usr/share/icons/
-sudo cp ~/arch/icons/archlinux.svg /usr/share/icons/
-sudo cp ~/arch/configs/gdm/gdm /etc/dconf/profile/
-sudo mkdir /etc/dconf/db/gdm.d/
-sudo cp ~/arch/configs/gdm/01-logo /etc/dconf/db/gdm.d/
-sudo dconf update
-sudo cp ~/arch/configs/cursors/index.theme /usr/share/icons/default/
+# GDM Configs
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Qogir-cursors'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.sound event-sounds 'false'
+sudo -u gdm dbus-launch gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'nothing'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click 'true'
 
 # Set GNOME Not Responding Timeout
 gsettings set org.gnome.mutter check-alive-timeout 10000
