@@ -23,11 +23,13 @@ sudo sed -i '$a XCURSOR_THEME=Qogir-cursors' /etc/environment
 
 # Aliases
 alias -s lock="xdg-screensaver lock"
+alias -s logout="gnome-session-quit --logout --no-prompt"
 alias -s suspend="systemctl suspend"
 alias -s update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias -s update-init="sudo mkinitcpio -p linux"
 alias -s session-type="echo $XDG_SESSION_TYPE"
 alias -s kernel-version="uname -sr"
+alias -s reset-layout="gsettings reset org.gnome.shell app-picker-layout"
 
 # Fonts
 #sudo unzip "$HOME/arch/fonts/Bookerly.zip" -d /usr/share/fonts/TTF/
@@ -46,6 +48,7 @@ sudo mv ~/arch/configs/helix/lldb_dap_rustc_primer.py /usr/local/etc/
 cp -r ~/arch/configs/helix/ ~/.config/
 
 # GDM Configs
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-name 'Inter 12'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Qogir-cursors'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.sound event-sounds 'false'
