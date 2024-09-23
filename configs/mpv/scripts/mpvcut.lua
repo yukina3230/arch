@@ -17,7 +17,6 @@ local o = {
 	-- File size target (MB)
 	compresssize = 24.00,
 	resolution = 720, -- Target resolution to compress to
-	aggressiveness = 0.5, -- Increase this to further compress
 
 	-- Web videos/cache
 	usecacheforwebvideos = true,
@@ -157,19 +156,20 @@ ACTIONS.COPY = function(d)
 	}, function() print("Saved clip!") end)
 end
 
-averageBitrate = 9999999999999
+averageBitrate = -1
 avgCount = 1
 
 function resetBitrate()
-	averageBitrate = 9999999999999
+	averageBitrate = -1
 	avgCount = 1
 end
 
 function getBitrate()
 	local video_bitrate = mp.get_property_number("video-bitrate")
 	if video_bitrate then
+		video_bitrate = video_bitrate / 1000
 		avgCount = avgCount + 1
-		if averageBitrate == 9999999999999 then
+		if averageBitrate == -1 then
 			averageBitrate = video_bitrate
 		else
 			averageBitrate = ((avgCount-1) * averageBitrate + video_bitrate) / avgCount
@@ -181,18 +181,21 @@ mp.register_event("file-loaded", resetBitrate)
 mp.add_periodic_timer(2, getBitrate)
 
 ACTIONS.COMPRESS = function(d)
-	local target_bitrate = (o.compresssize * 8192) / d.duration -- Video bitrate (kilobytes)
+	local target_bitrate = ((o.compresssize * 8192) / d.duration * 0.9) -- Video bitrate (kilobytes)
 	msg.info("Initial bitrate: " .. target_bitrate)
 	local max_bitrate = target_bitrate
 	local video_bitrate = averageBitrate
-	if video_bitrate then -- the average bitrate system is to stop small cuts from becoming too big
-		max_bitrate = video_bitrate / 900 -- account for 10% error
+	if video_bitrate and video_bitrate ~= -1 then -- the average bitrate system is to stop small cuts from becoming too big
+		max_bitrate = video_bitrate
 		msg.info("Max bitrate: " .. max_bitrate)
 		if target_bitrate > max_bitrate then
 			target_bitrate = max_bitrate
 		end
 	end
-	msg.info("Adjusted bitrate: " .. target_bitrate)
+	if target_bitrate > 128 then
+		target_bitrate = target_bitrate - 128 -- minus audio bitrate
+	end
+	msg.info("Using bitrate: " .. target_bitrate)
 
 	local fileextrasuffix = "_FROM_" .. d.start_time_hms .. "_TO_" .. d.end_time_hms .. " (compress)"
 	local resultpath = utils.join_path(d.indir, d.infile_noext .. fileextrasuffix .. d.ext)
@@ -212,23 +215,25 @@ ACTIONS.COMPRESS = function(d)
 		"-c:a", "copy",
 		resultpath
 	}
-	if (videoheight > o.resolution) then
-		resline = "scale=trunc(oh*a/2)*2:" .. o.resolution
-		target_bitrate = (target_bitrate * ((o.resolution / videoheight)) + target_bitrate) / 2 
-		args = {
-			"ffmpeg",
-			"-nostdin", "-y",
-			"-loglevel", "error",
-			"-ss", d.start_time,
-			"-t", d.duration,
-			"-i", d.inpath,
-			"-vf", resline,
-			"-pix_fmt", "yuv420p",
-			"-c:v", "libx264",
-			"-b:v", target_bitrate .. "k",
-			"-c:a", "copy",
-			resultpath
-		}
+	if (videoheight) then
+		if (videoheight > o.resolution) then
+			resline = "scale=trunc(oh*a/2)*2:" .. o.resolution
+			target_bitrate = target_bitrate
+			args = {
+				"ffmpeg",
+				"-nostdin", "-y",
+				"-loglevel", "error",
+				"-ss", d.start_time,
+				"-t", d.duration,
+				"-i", d.inpath,
+				"-vf", resline,
+				"-pix_fmt", "yuv420p",
+				"-c:v", "libx264",
+				"-b:v", target_bitrate .. "k",
+				"-c:a", "copy",
+				resultpath
+			}
+		end
 	end
 
 	print("Saving clip...")

@@ -1,1 +1,1 @@
-# My Arch Linux script and configurations
+# My Arch Linux script for configurations

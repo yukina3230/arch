@@ -40,6 +40,7 @@ local user_opts = {
     donttimeoutonpause = false,     -- whether to disable the hide timeout on pause
     bottomhover = true,             -- if the osc should only display when hovering at the bottom
     raisesubswithosc = true,        -- whether to raise subtitles above the osc when it's shown
+    raisesubamount = 175,           -- how much subtitles rise when the osc is shown
     thumbnailborder = 2,            -- the width of the thumbnail border
     persistentprogress = false,     -- always show a small progress line at the bottom of the screen
     persistentprogressheight = 17,  -- the height of the persistentprogress bar
@@ -98,6 +99,7 @@ local user_opts = {
     showontop = true,               -- show window on top button
     showinfo = false,               -- show the info button
     downloadbutton = true,          -- show download button for web videos
+    screenshotbutton = false,        -- show screenshot button
     downloadpath = "~~desktop/mpv/downloads", -- the download path for videos
     showyoutubecomments = false,    -- EXPERIMENTAL - not ready
     commentsdownloadpath = "~~desktop/mpv/downloads/comments", -- the download path for the comment JSON file
@@ -136,6 +138,7 @@ local icons = {
   downloading = '\239\134\185',
   ontopon = '\239\142\150',
   ontopoff = '\239\142\149',
+  screenshot = '\239\135\168'
 }
 
 local emoticon = {
@@ -172,6 +175,7 @@ local language = {
         hideinfo = 'Hide info',
         fullscreen = 'Fullscreen',
         exitfullscreen = 'Exit fullscreen',
+        screenshot = 'Screenshot'
     },
     ['chs'] = {
         welcome = '{\\fs24\\1c&H0&\\1c&HFFFFFF&}将文件或URL放在这里播放',  -- this text appears when mpv starts
@@ -1461,7 +1465,7 @@ function checkcomments()
 end
 
 function loadSetOfComments(startIndex) 
-    if (state.jsoncomments < 1) then
+    if (#state.jsoncomments < 1) then
         return
     end
 
@@ -1903,7 +1907,11 @@ function show_description(text)
     duration = 10
     if (state.isWebVideo and user_opts.showyoutubecomments) then
         if (state.commentsParsed and user_opts.showyoutubecomments) then
-            state.commentsAdditionalText = '\\N----------\\NPress LEFT/RIGHT to view comments\\N' .. state.maxCommentPages .. ' pages (' .. #state.jsoncomments .. ' comments)'
+            local pageText = "pages"
+            if state.maxCommentPages == 1 then
+                pageText = "page"
+            end
+            state.commentsAdditionalText = '\\N----------\\NPress LEFT/RIGHT to view comments\\N' .. state.maxCommentPages .. ' ' .. pageText .. ' (' .. #state.jsoncomments .. ' comments)'
             text = text .. state.commentsAdditionalText
         else
             text = text .. '\\N----------\\NComments loading...'
@@ -1932,10 +1940,22 @@ function show_description(text)
             state.message_text = state.localDescriptionClick .. state.commentsAdditionalText
             resetDescTimer()
             request_tick()
+            state.scrolledlines = 25
         else
             destroyscrollingkeys()
         end
     end) -- close menu using ESC
+
+    local function returnMessageText()
+        local totalCommentCount = #state.jsoncomments
+        local firstCommentCount = (state.commentsPage - 1) * commentsperpage + 1
+        local lastCommentCount = (state.commentsPage) * commentsperpage
+        if lastCommentCount > totalCommentCount then
+            lastCommentCount = totalCommentCount
+        end
+        loadSetOfComments(firstCommentCount)
+        return 'Comments\\NPage ' .. state.commentsPage .. '/' .. state.maxCommentPages .. ' (' .. firstCommentCount .. '/' .. #state.jsoncomments .. ')\\N----------' .. state.commentDescription:gsub('\n', '\\N') ..  '\\N----------\\NEnd of page\\NPage ' .. state.commentsPage .. '/' .. state.maxCommentPages .. ' (' .. lastCommentCount .. '/' .. totalCommentCount .. ')'
+    end
     
     state.commentsPage = 0
     if (state.isWebVideo and user_opts.showyoutubecomments) then
@@ -1945,12 +1965,10 @@ function show_description(text)
                 if (state.commentsPage == 0) then
                     state.message_text = state.localDescriptionClick .. state.commentsAdditionalText
                 elseif (state.commentsPage > 0) then
-                    loadSetOfComments((state.commentsPage - 1) * commentsperpage + 1)
-                    state.message_text = 'Comments | Page ' .. state.commentsPage .. '/' .. state.maxCommentPages .. ' (' .. (state.commentsPage - 1) * commentsperpage + 1 .. '/' .. #state.jsoncomments .. ')\\N----------' .. state.commentDescription:gsub('\n', '\\N')
+                    state.message_text = returnMessageText()
                 else
                     state.commentsPage = state.maxCommentPages
-                    loadSetOfComments((state.commentsPage - 1) * commentsperpage + 1)
-                    state.message_text = 'Comments | Page ' .. state.commentsPage .. '/' .. state.maxCommentPages .. ' (' .. (state.commentsPage - 1) * commentsperpage + 1 .. '/' .. #state.jsoncomments .. ')\\N----------' .. state.commentDescription:gsub('\n', '\\N')
+                    state.message_text = returnMessageText()
                 end
                 state.scrolledlines = 25
             end
@@ -1964,8 +1982,7 @@ function show_description(text)
                     state.commentsPage = 0
                     state.message_text = state.localDescriptionClick .. state.commentsAdditionalText
                 else
-                    loadSetOfComments((state.commentsPage - 1) * commentsperpage + 1)
-                    state.message_text = 'Comments | Page ' .. state.commentsPage .. '/' .. state.maxCommentPages .. ' (' .. (state.commentsPage - 1) * commentsperpage + 1 .. '/' .. #state.jsoncomments .. ')\\N----------' .. state.commentDescription:gsub('\n', '\\N')    
+                    state.message_text = returnMessageText()
                 end
                 state.scrolledlines = 25
             end
@@ -2277,6 +2294,7 @@ layouts = function ()
     local showloop = user_opts.showloop
     local showinfo = user_opts.showinfo
     local showontop = user_opts.showontop
+    local showscreenshot = user_opts.screenshotbutton
 
     if user_opts.compactmode then
         user_opts.showjump = false
@@ -2406,7 +2424,7 @@ layouts = function ()
 
     if showontop then
         lo = add_layout('tog_ontop')
-        lo.geometry = {x = osc_geo.w - 127 + (showloop and 0 or 50), y = refY - 40, an = 5, w = 24, h = 24}
+        lo.geometry = {x = osc_geo.w - 127 + (showloop and 0 or 45), y = refY - 40, an = 5, w = 24, h = 24}
         lo.style = osc_styles.Ctrl3
         lo.visible = (osc_param.playresx >= 700 - outeroffset)
     end
@@ -2420,14 +2438,21 @@ layouts = function ()
 
     if showinfo then
         lo = add_layout('tog_info')
-        lo.geometry = {x = osc_geo.w - 172 + (showloop and 0 or 50) + (showontop and 0 or 50), y = refY - 40, an = 5, w = 24, h = 24}
+        lo.geometry = {x = osc_geo.w - 172 + (showloop and 0 or 45) + (showontop and 0 or 45), y = refY - 40, an = 5, w = 24, h = 24}
         lo.style = osc_styles.Ctrl3
         lo.visible = (osc_param.playresx >= 500 - outeroffset)
     end
 
+    if showscreenshot then
+        lo = add_layout('screenshot')
+        lo.geometry = {x = osc_geo.w - 217 + (showloop and 0 or 45) + (showontop and 0 or 45) + (showinfo and 0 or 45), y = refY - 40, an = 5, w = 24, h = 24}
+        lo.style = osc_styles.Ctrl3
+        lo.visible = (osc_param.playresx >= 300 - outeroffset)
+    end
+
     if user_opts.downloadbutton then
         lo = add_layout('download')
-        lo.geometry = {x = osc_geo.w - 217 + (showloop and 0 or 50) + (showontop and 0 or 50) + (showinfo and 0 or 50), y = refY - 40, an = 5, w = 24, h = 24}
+        lo.geometry = {x = osc_geo.w - 262 + (showloop and 0 or 45) + (showontop and 0 or 45) + (showinfo and 0 or 45) + (showscreenshot and 0 or 45), y = refY - 40, an = 5, w = 24, h = 24}
         lo.style = osc_styles.Ctrl3
         lo.visible = (osc_param.playresx >= 400 - outeroffset)
     end
@@ -2906,7 +2931,7 @@ function osc_init()
             return (icons.download)
         end
     end
-    ne.visible = (osc_param.playresx >= 900 - outeroffset - (user_opts.showloop and 0 or 100) - (user_opts.showontop and 0 or 100) - (user_opts.showinfo and 0 or 100)) and state.isWebVideo
+    ne.visible = (osc_param.playresx >= 1100 - outeroffset - (user_opts.showloop and 0 or 100) - (user_opts.showontop and 0 or 100) - (user_opts.showinfo and 0 or 100) - (user_opts.showscreenshot and 0 or 100)) and state.isWebVideo
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
         local msg = state.fileSizeNormalised
@@ -2978,6 +3003,20 @@ function osc_init()
             else
                 show_message("\\N{\\an9}Can't be downloaded")
             end
+        end
+
+    --screenshot
+    ne = new_element('screenshot', 'button')
+    ne.content = icons.screenshot
+    ne.visible = (osc_param.playresx >= 900 - outeroffset - (user_opts.showloop and 0 or 100) - (user_opts.showontop and 0 or 100) - (user_opts.showinfo and 0 or 100))
+    ne.tooltip_style = osc_styles.Tooltip
+    ne.tooltipF = texts.screenshot
+    ne.eventresponder['mbtn_left_up'] =
+        function ()
+            local tempSubPosition = mp.get_property('sub-pos')
+            mp.commandv('set', 'sub-pos', 100)
+            mp.command('screenshot') -- this takes screenshots with subs, remove video to take screenshots without subs
+            mp.commandv('set', 'sub-pos', tempSubPosition)
         end
 
     --tog_info
@@ -3355,7 +3394,7 @@ function adjustSubtitles(visible)
     if visible and user_opts.raisesubswithosc and state.osc_visible == true and (state.fullscreen == false or user_opts.showfullscreen) then
         local w, h = mp.get_osd_size()
         if h > 0 then
-            local subpos = math.floor((osc_param.playresy - 175)/osc_param.playresy*100)
+            local subpos = math.floor((osc_param.playresy - user_opts.raisesubamount)/osc_param.playresy*100)
             if subpos < 0 then
                 subpos = 100 -- out of screen, default to original position
             end
