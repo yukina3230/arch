@@ -171,11 +171,10 @@ local language = {
         loopdisable = 'Disable looping',
         mute = 'Mute',
         unmute = 'Unmute',
-        info = 'Show info',
-        hideinfo = 'Hide info',
+        screenshot = 'Screenshot',
+        info = 'Info',
         fullscreen = 'Fullscreen',
-        exitfullscreen = 'Exit fullscreen',
-        screenshot = 'Screenshot'
+        exitfullscreen = 'Exit fullscreen'
     },
     ['chs'] = {
         welcome = '{\\fs24\\1c&H0&\\1c&HFFFFFF&}将文件或URL放在这里播放',  -- this text appears when mpv starts
@@ -321,7 +320,6 @@ local state = {
     isWebVideo = false,
     path = "",                               -- used for yt-dlp downloading
     downloading = false,
-    show_info = false,
     fileSizeBytes = 0,
     fileSizeNormalised = "Approximating size...",
     localDescription = nil,
@@ -3024,18 +3022,9 @@ function osc_init()
     ne.content = icons.info
     ne.visible = (osc_param.playresx >= 800 - outeroffset - (user_opts.showloop and 0 or 100) - (user_opts.showontop and 0 or 100))
     ne.tooltip_style = osc_styles.Tooltip
-    ne.tooltipF = function ()
-        local msg = texts.info
-        if (state.show_info) then
-            msg = texts.hideinfo
-        end
-        return msg
-    end
+    ne.tooltipF = texts.info
     ne.eventresponder['mbtn_left_up'] =
-        function ()
-            mp.commandv('script-binding', 'stats/display-stats-toggle')
-            state.show_info = not state.show_info
-        end
+        function () mp.commandv('script-binding', 'stats/display-stats-toggle') end
 
     --tog_ontop
     ne = new_element('tog_ontop', 'button')

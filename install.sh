@@ -42,7 +42,7 @@ gsettings set org.gnome.mutter check-alive-timeout 10000
 gsettings set org.gnome.desktop.sound event-sounds false
 
 # Grub
-sudo unzip "~/arch/themes/grub/arch.zip" -d /usr/share/grub/themes/
+#sudo unzip "~/arch/themes/grub/arch-linux.zip" -d /usr/share/grub/themes/
 sudo cp ~/arch/configs/grub/grub /etc/default/
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
@@ -77,5 +77,5 @@ sudo cp ~/arch/configs/zram/zram-generator.conf /etc/systemd/
 cp -a ~/arch/templates/. ~/Templates/
 
 # Samples
-cp ~/arch/configs/sample/hack ~/.hack
-sudo cp ~/arch/configs/sample/amogus.cow /usr/share/cows/
+cp ~/arch/samples/hack ~/.hack
+sudo cp ~/arch/samples/amogus.cow /usr/share/cowsay/cows/
