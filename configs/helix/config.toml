@@ -2,3 +2,6 @@ theme = "dark_plus"
 
 [editor.lsp]
 display-inlay-hints = true
+
+[editor.soft-wrap]
+enable = true

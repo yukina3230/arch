@@ -28,6 +28,7 @@ sudo unzip "~/arch/fonts/P22 Typewriter.zip" -d /usr/share/fonts/TTF/
 #sudo unzip "~/arch/fonts/Impact.zip" -d /usr/share/fonts/TTF/
 
 # GDM
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface clock-format '12h'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-name 'Inter 12'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Qogir-cursors'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
