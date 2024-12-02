@@ -61,6 +61,9 @@ sudo cp ~/arch/configs/pacman/pacman.conf /etc/
 # Paru
 cp -r ~/arch/configs/paru/ ~/.config/
 
+# Zellij
+cp -r ~/arch/configs/zellij/ ~/.config/
+
 # Helix
 sudo cp ~/arch/configs/helix/lldb_dap_rustc_primer.py /usr/local/etc/
 cp -r ~/arch/configs/helix/ ~/.config/
