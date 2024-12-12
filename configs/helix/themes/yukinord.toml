@@ -1,0 +1,192 @@
+# Author: Yukina <yukinohana3230@gmail.com>
+# Source: https://github.com/yukina3230/yukinord_helix
+# Inspired by https://github.com/nordtheme/visual-studio-code and https://github.com/marlosirapuan/vscode-theme-nord-deep.
+
+"attribute" = { fg = "nord4" }
+"type" = { fg = "nord14" }
+"type.builtin" = { fg = "nord14" }
+"type.parameter" = { fg = "nord14", modifiers = ["italic"] }
+"type.enum" = { fg = "nord14" }
+"type.enum.variant" = { fg = "nord14", modifiers = ["bold"] }
+"constructor" = { fg = "nord14", modifiers = ["bold"] }
+"constant" = { fg = "nord4", modifiers = ["bold"] }
+"constant.builtin" = { fg = "nord8" }
+"constant.builtin.boolean" = { fg = "nord8" }
+"constant.character" = { fg = "nord12" }
+"constant.character.escape" = { fg = "nord13" }
+"constant.numeric" = { fg = "nord13" }
+"constant.numeric.integer" = { fg = "nord13" }
+"constant.numeric.float" = { fg = "nord13" }
+"string" = { fg = "nord12" }
+"string.regexp" = { fg = "nord13" }
+"string.special" = { fg = "nord13" }
+"string.special.path" = { fg = "nord13" }
+"string.special.url" = { fg = "nord13" }
+"string.special.symbol" = { fg = "nord13" }
+"comment" = { fg = "nord4_alt" }
+"comment.line" = { fg = "nord4_alt" }
+"comment.block" = { fg = "nord4_alt" }
+"comment.block.documentation" = { fg = "nord4_alt" }
+"variable" = { fg = "nord4" }
+"variable.builtin" = { fg = "nord8" }
+"variable.parameter" = { fg = "nord4" }
+"variable.other" = { fg = "nord4" }
+"variable.other.member" = { fg = "nord4" }
+"variable.other.member.private" = { fg = "nord4" }
+"label" = { fg = "nord8" }
+"punctuation" = { fg = "nord4" }
+"punctuation.delimiter" = { fg = "nord4" }
+"punctuation.bracket" = { fg = "nord4" }
+"punctuation.special" = { fg = "nord4" }
+"keyword" = { fg = "nord8" }
+"keyword.control" = { fg = "nord15" }
+"keyword.control.conditional" = { fg = "nord15" }
+"keyword.control.repeat" = { fg = "nord15" }
+"keyword.control.import" = { fg = "nord15" }
+"keyword.control.return" = { fg = "nord15" }
+"keyword.control.exception" = { fg = "nord15" }
+"keyword.operator" = { fg = "nord15" }
+"keyword.directive" = { fg = "nord15" }
+"keyword.function" = { fg = "nord8" }
+"keyword.storage" = { fg = "nord8" }
+"keyword.storage.type" = { fg = "nord8" }
+"keyword.storage.modifier" = { fg = "nord8" }
+"operator" = { fg = "nord4" }
+"function" = { fg = "nord13" }
+"function.builtin" = { fg = "nord13" }
+"function.method" = { fg = "nord13" }
+"function.method.private" = { fg = "nord13" }
+"function.macro" = { fg = "nord13", modifiers = ["bold"] }
+"function.special" = { fg = "nord13" }
+"tag" = { fg = "nord8" }
+"tag.builtin" = { fg = "nord8" }
+"namespace" = { fg = "nord14" }
+"special" = { fg = "nord12" }
+"markup" = {}
+"markup.heading" = { fg = "nord8" }
+"markup.heading.marker" = { fg = "nord8" }
+"markup.heading.marker.1" = { fg = "nord8" }
+"markup.heading.marker.2" = { fg = "nord8" }
+"markup.heading.marker.3" = { fg = "nord8" }
+"markup.heading.marker.4" = { fg = "nord8" }
+"markup.heading.marker.5" = { fg = "nord8" }
+"markup.heading.marker.6" = { fg = "nord8" }
+"markup.list" = { fg = "nord4" }
+"markup.list.unnumbered" = { fg = "nord4" }
+"markup.list.numbered" = { fg = "nord4" }
+"markup.list.checked" = { fg = "nord4" }
+"markup.list.unchecked" = { fg = "nord4" }
+"markup.bold" = { fg = "nord4", modifiers = ["bold"] }
+"markup.italic" = { fg = "nord4", modifiers = ["italic"] }
+"markup.strikethrough" = { fg = "nord4", modifiers = ["crossed_out"] }
+"markup.link" = { fg = "nord9" }
+"markup.link.url" = { fg = "nord9" }
+"markup.link.label" = { fg = "nord12" }
+"markup.link.text" = { fg = "nord12" }
+"markup.quote" = { fg = "nord4" }
+"markup.raw" = { fg = "nord4" }
+"markup.raw.inline" = { fg = "nord4", bg = "nord0" }
+"markup.raw.block" = { fg = "nord4", bg = "nord0" }
+"diff" = {}
+"diff.plus" = { fg = "nord14" }
+"diff.plus.gutter" = { fg = "nord14" }
+"diff.minus" = { fg = "nord11" }
+"diff.minus.gutter" = { fg = "nord11" }
+"diff.delta" = { fg = "nord13" }
+"diff.delta.moved" = { fg = "nord13" }
+"diff.delta.conflict" = { fg = "nord13" }
+"diff.delta.gutter" = { fg = "nord13" }
+"markup.normal" = {}
+"markup.normal.completion" = {}
+"markup.normal.hover" = {}
+"markup.heading.completion" = {}
+"markup.heading.hover" = {}
+"markup.raw.inline.completion" = {}
+"markup.raw.inline.hover" = {}
+"ui.background" = { bg = "nord0_alt" }
+"ui.background.separator" = { bg = "nord0_alt" }
+"ui.cursor" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.normal" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.insert" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.select" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.match" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.primary" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.primary.normal" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.primary.insert" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.primary.select" = { fg = "nord0", bg = "nord6" }
+"ui.debug.breakpoint" = { fg = "nord11" }
+"ui.debug.active" = { fg = "nord13" }
+"ui.gutter" = { bg = "nord0_alt" }
+"ui.gutter.selected" = { bg = "nord0_alt" }
+"ui.highlight.frameline" = { bg = "nord13_alt" }
+"ui.linenr" = { fg = "nord3_alt" }
+"ui.linenr.selected" = { fg = "nord6" }
+"ui.statusline" = { fg = "nord5", bg = "nord0" }
+"ui.statusline.inactive" = { fg = "nord5", bg = "nord0" }
+"ui.statusline.normal" = { fg = "nord0_alt", bg = "nord8" }
+"ui.statusline.insert" = { fg = "nord0_alt", bg = "nord13" }
+"ui.statusline.select" = { fg = "nord0_alt", bg = "nord15" }
+"ui.statusline.separator" = { fg = "nord5" }
+"ui.bufferline" = { fg = "nord5", bg = "nord0" }
+"ui.bufferline.active" = { fg = "nord0_alt", bg = "nord8" }
+"ui.bufferline.background" = { bg = "nord0" }
+"ui.popup" = { bg = "nord0" }
+"ui.popup.info" = { bg = "nord0" }
+"ui.window" = { fg = "nord0", bg = "nord0" }
+"ui.help" = { bg = "nord0" }
+"ui.text" = { fg = "nord5" }
+"ui.text.focus" = { fg = "nord8", bg = "nord9_alt" }
+"ui.text.inactive" = { fg = "nord4_alt" }
+"ui.text.info" = { fg = "nord5" }
+"ui.virtual.ruler" = { bg = "nord0" }
+"ui.virtual.whitespace" = { fg = "nord3" }
+"ui.virtual.indent-guide" = { fg = "nord1" }
+"ui.virtual.inlay-hint" = { fg = "nord9", bg = "nord0", modifiers = ["italic"] }
+"ui.virtual.inlay-hint.parameter" = { fg = "nord9", bg = "nord0", modifiers = [ "italic" ] }
+"ui.virtual.inlay-hint.type" = { fg = "nord9", bg = "nord0", modifiers = [ "italic" ] }
+"ui.virtual.wrap" = { fg = "nord10" }
+"ui.virtual.jump-label" = { fg = "nord7", bg = "nord0", modifiers = [ "bold", "italic" ] }
+"ui.menu" = { bg = "nord0" }
+"ui.menu.selected" = { fg = "nord8", bg = "nord9_alt" }
+"ui.menu.scroll" = { fg = "nord6", bg = "nord3" }
+"ui.selection" = { bg = "nord2" }
+"ui.selection.primary" = { bg = "nord2" }
+"ui.highlight" = { bg = "nord2" }
+"ui.cursorline.primary" = { bg = "nord2" }
+"ui.cursorline.secondary" = { bg = "nord2" }
+"ui.cursorcolumn.primary" = { bg = "nord2" }
+"ui.cursorcolumn.secondary" = { bg = "nord2" }
+"warning" = { fg = "nord13" }
+"error" = { fg = "nord11" }
+"info" = { fg = "nord8" }
+"hint" = { fg = "nord9" }
+"diagnostic" = {}
+"diagnostic.hint" = { underline = { color = "nord9", style = "curl" } }
+"diagnostic.info" = { underline = { color = "nord8", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "nord13", style = "curl" } }
+"diagnostic.error" = { underline = { color = "nord11", style = "curl" } }
+"diagnostic.unnecessary" = { modifiers = ["dim"] }
+"diagnostic.deprecated" = { modifiers = ["crossed_out"] }
+
+[palette]
+nord0 = "#2e3440"
+nord0_alt = "#1d2129"
+nord1 = "#3b4252"
+nord2 = "#434c5e"
+nord3 = "#4c566a"
+nord3_alt = "#616e88"
+nord4 = "#d8dee9"
+nord4_alt = "#8e929c"
+nord5 = "#e5e9f0"
+nord6 = "#eceff4"
+nord7 = "#8fbcbb"
+nord8 = "#88c0d0"
+nord9 = "#81a1c1"
+nord9_alt = "#3b4857"
+nord10 = "#5e81ac"
+nord11 = "#bf616a"
+nord12 = "#d08770"
+nord13 = "#ebcb8b"
+nord13_alt = "#5b5447"
+nord14 = "#a3be8c"
+nord15 = "#b48ead"
