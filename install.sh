@@ -65,6 +65,7 @@ cp -r ~/arch/configs/paru/ ~/.config/
 cp -r ~/arch/configs/zellij/ ~/.config/
 
 # Helix
+sudo ln -s $(which helix) /usr/bin/hx
 sudo cp ~/arch/configs/helix/lldb_dap_rustc_primer.py /usr/local/etc/
 cp -r ~/arch/configs/helix/ ~/.config/
 
