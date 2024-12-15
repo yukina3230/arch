@@ -1,20 +1,18 @@
--- mpv-osc-modern by maoiscat
--- email:valarmor@163.com
--- https://github.com/maoiscat/mpv-osc-modern
+-- ModernX (https://github.com/zydezu/ModernZ)
+--
+-- This script is a result of the original mpv-osc-modern by maoiscat 
+-- and it's subsequent forks:
+--   * cyl0/ModernX
+--   * dexeonify/ModernX
 
--- fork by cyl0 - https://github.com/cyl0/ModernX/
-
--- further fork by zydezu
-
--- added some changes from dexeonify - https://github.com/dexeonify/mpv-config#difference-between-upstream-modernx
-
-local assdraw = require 'mp.assdraw'
-local msg = require 'mp.msg'
-local utils = require 'mp.utils'
+local assdraw = require "mp.assdraw"
+local msg = require "mp.msg"
+local opt = require "mp.options"
+local utils = require "mp.utils"
 
 -- Parameters
 -- default user option values
--- change them using osc.conf
+-- change them using modernx.conf
 local user_opts = {
     -- general settings --
     language = 'en',                -- en:English, chs:Chinese, pl:Polish, jp:Japanese
@@ -54,12 +52,13 @@ local user_opts = {
     showfilesize = true,            -- show the current file's size in the description
     titleBarStrip = true,           -- whether to make the title bar a singular bar instead of a black fade
     title = '${media-title}',       -- title shown on OSC - turn off dynamictitle for this option to apply
+    windowcontrols_title = "${media-title}",    -- same as title but for windowcontrols
     dynamictitle = true,            -- change the title depending on if {media-title} and {filename} 
                                     -- differ (like with playing urls, audio or some media)
-    updatetitleyoutubestats = true, -- update the window/OSC title bar with YouTube video stats (views, likes, dislikes)
     font = 'mpv-osd-symbols',       -- mpv-osd-symbols = default osc font (or the one set in mpv.conf)
                                     -- to be shown as OSC title
     titlefontsize = 30,             -- the font size of the title text
+    dynamictimeformat = true,      -- don't show hh on times less than 1 hour
     chapterformat = 'Chapter: %s',  -- chapter print format for seekbar-hover. "no" to disable
     dateformat = "%Y-%m-%d",        -- how dates should be formatted, when read from metadata (uses standard lua date formatting)
     osc_color = '#000000',           -- accent of the OSC and the title bar, in Hex color format
@@ -69,8 +68,8 @@ local user_opts = {
     descriptionBoxAlpha = 100,      -- alpha of the description background box
 
     -- seekbar settings --
-    seekbarfg_color = '#429CE3',     -- color of the seekbar progress and handle, in Hex color format
-    seekbarbg_color = '#FFFFFF',     -- color of the remaining seekbar, in Hex color format
+    seekbarfg_color = '#429CE3',    -- color of the seekbar progress and handle, in Hex color format
+    seekbarbg_color = '#FFFFFF',    -- color of the remaining seekbar, in Hex color format
     seekbarkeyframes = false,       -- use keyframes when dragging the seekbar
     automatickeyframemode = true,   -- set seekbarkeyframes based on video length to prevent laggy scrubbing on long videos 
     automatickeyframelimit = 600,   -- videos of above this length (in seconds) will have seekbarkeyframes on
@@ -101,59 +100,15 @@ local user_opts = {
     downloadbutton = true,          -- show download button for web videos
     screenshotbutton = false,        -- show screenshot button
     downloadpath = "~~desktop/mpv/downloads", -- the download path for videos
-    showyoutubecomments = false,    -- EXPERIMENTAL - not ready
-    commentsdownloadpath = "~~desktop/mpv/downloads/comments", -- the download path for the comment JSON file
     ytdlpQuality = '' -- optional parameteres for yt-dlp downloading, eg: '-f bestvideo[vcodec^=avc][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
-}
-
-
-
--- Icons for jump button depending on jumpamount 
-local jumpicons = { 
-    [5] = {'\239\142\177', '\239\142\163'}, 
-    [10] = {'\239\142\175', '\239\142\161'}, 
-    [30] = {'\239\142\176', '\239\142\162'}, 
-    default = {'\239\142\178    ', '\239\142\178'}, -- second icon is mirrored in layout() 
-} 
-
-local icons = {
-  previous = '\239\142\181',
-  next = '\239\142\180',
-  play = '\239\142\170',
-  pause = '\239\142\167',
-  replay = '\239\142\178', -- copied private use character
-  backward = '\239\142\160',
-  forward = '\239\142\159',
-  audio = '\239\142\183',
-  volume = '\239\142\188',
-  volumelow = '\239\142\185',
-  volumemute = '\239\142\187',
-  sub = '\239\140\164',
-  minimize = '\239\133\172',
-  fullscreen = '\239\133\173',  
-  loopoff = '\239\142\173',
-  loopon = '\239\142\174', 
-  info = '\239\135\183',
-  download = '\239\136\160',
-  downloading = '\239\134\185',
-  ontopon = '\239\142\150',
-  ontopoff = '\239\142\149',
-  screenshot = '\239\135\168'
-}
-
-local emoticon = {
-    view = "👁️",
-    comment = "💬",
-    like = "👍",
-    dislike = "👎"
 }
 
 -- Localization
 local language = {
     ['en'] = {
-        welcome = '{\\fs24\\1c&H0&\\1c&HFFFFFF&}Drop files or URLs to play here.',  -- this text appears when mpv starts
+        welcome = 'Drop files or URLs here to play',  -- this text appears when mpv starts
         off = 'OFF',
-        na = 'n/a',
+        na = 'Not available',
         none = 'None available',
         video = 'Video',
         audio = 'Audio',
@@ -162,85 +117,44 @@ local language = {
         noaudio = 'No audio tracks available',
         track = ' tracks:',
         playlist = 'Playlist',
-        nolist = 'Empty playlist.',
+        nolist = 'Playlist is empty',
         chapter = 'Chapter',
-        nochapter = 'No chapters.',
+        nochapter = 'No chapters available',
         ontop = 'Pin window',
         ontopdisable = 'Unpin window',
-        loopenable = 'Enable looping',
-        loopdisable = 'Disable looping',
+        loopenable = 'Enable loop',
+        loopdisable = 'Disable loop',
+        screenshot = "Screenshot",
+        statsinfo = "Information",
         mute = 'Mute',
         unmute = 'Unmute',
-        screenshot = 'Screenshot',
-        info = 'Info',
         fullscreen = 'Fullscreen',
-        exitfullscreen = 'Exit fullscreen'
-    },
-    ['chs'] = {
-        welcome = '{\\fs24\\1c&H0&\\1c&HFFFFFF&}将文件或URL放在这里播放',  -- this text appears when mpv starts
-        off = '关闭',
-        na = 'n/a',
-        none = '无数据',
-        video = '视频',
-        audio = '音频',
-        subtitle = '字幕',
-        nosub = "没有字幕", -- please check these translations
-        noaudio = "不提供音轨", -- please check these translations
-        track = '：',
-        playlist = '播放列表',
-        nolist = '无列表信息',
-        chapter = '章节',
-        nochapter = '无章节信息',
-        ontop = '启用窗口停留在顶层',  -- please check these translations
-        ontopdisable = '禁用停留在顶层的窗口',  -- please check these translations
-        loopenable = '启用循环功能',
-        loopdisable = '禁用循环功能',
-    },
-    ['pl'] = {
-        welcome = '{\\fs24\\1c&H0&\\1c&HFFFFFF&}Upuść plik lub łącze URL do odtworzenia.',  -- this text appears when mpv starts
-        off = 'WYŁ.',
-        na = 'n/a',
-        none = 'nic',
-        video = 'Wideo',
-        audio = 'Audio',
-        subtitle = 'Napisy',
-        nosub = 'Brak dostępnych napisów', -- please check these translations
-        noaudio = 'Brak dostępnych ścieżek dźwiękowych', -- please check these translations
-        track = ' ścieżki:',
-        playlist = 'Lista odtwarzania',
-        nolist = 'Lista odtwarzania pusta.',
-        chapter = 'Rozdział',
-        nochapter = 'Brak rozdziałów.',
-        ontop = 'Przypnij okno do góry',
-        ontopdisable = 'Odepnij okno od góry',
-        loopenable = 'Włączenie zapętlenia',
-        loopdisable = 'Wyłączenie zapętlenia',
-    },
-    ['jp'] = {
-        welcome = '{\\fs24\\1c&H0&\\1c&HFFFFFF&}ファイルやURLのリンクをここにドロップすると再生されます。',  -- this text appears when mpv starts
-        off = 'OFF',
-        na = 'n/a',
-        none = 'なし',
-        video = 'ビデオ',
-        audio = 'オーディオ',
-        subtitle = 'サブタイトル',
-        nosub = '字幕はありません',
-        noaudio = 'オーディオトラックはありません',
-        track = 'トラック:',
-        playlist = 'プレイリスト',
-        nolist = '空のプレイリスト.',
-        chapter = 'チャプター',
-        nochapter = '利用可能なチャプターはありません.',
-        ontop = 'ピンウィンドウをトップに表示',
-        ontopdisable = 'ウィンドウを上からアンピンする',
-        loopenable = 'ループON',
-        loopdisable = 'ループOFF',
+        exitfullscreen = 'Exit fullscreen',
     }
 }
+
 -- read options from config and command-line
-(require 'mp.options').read_options(user_opts, 'modernx', function(list) update_options(list) end)
+opt.read_options(user_opts, 'modernx', function(list) update_options(list) end)
 -- apply lang opts
-local texts = language[user_opts.language]
+local texts = language[user_opts.language] or language["en"]
+
+local thumbfast = {
+    width = 0,
+    height = 0,
+    disabled = true,
+    available = false
+}
+
+local tick_delay = 0.01 -- 100FPS
+local window_control_box_width = 138
+local maxdescsize = 125
+local commentsperpage = 25
+local is_december = os.date("*t").month == 12
+
+local function osc_color_convert(color)
+    return color:sub(6,7) .. color:sub(4,5) ..  color:sub(2,3)
+end
+
 local osc_param = {                         -- calculated by osc_init()
     playresy = 0,                           -- canvas size Y
     playresx = 0,                           -- canvas size X
@@ -249,11 +163,42 @@ local osc_param = {                         -- calculated by osc_init()
     areas = {},
 }
 
-local iconfont = user_opts.iconstyle == 'round' and 'Material-Design-Iconic-Round' or 'Material-Design-Iconic-Font'
+local icons = {
+    play = "\239\142\170",
+    pause = "\239\142\167",
+    replay = "\239\142\178",
+    previous = "\239\142\181",
+    next = "\239\142\180",
+    rewind = "\239\142\160",
+    forward = "\239\142\159",
 
-local function osc_color_convert(color)
-    return color:sub(6,7) .. color:sub(4,5) ..  color:sub(2,3)
-end
+    audio = "\239\142\183",
+    subtitle = "\239\140\164",
+    volume_mute = "\239\142\187",
+    volume_quiet = "\239\142\186",
+    volume_low = "\239\142\185",
+    volume_high = "\239\142\188",
+
+    download = "\239\136\160",
+    downloading = "\239\134\185",
+    loop_off = "\239\142\174",
+    loop_on = "\239\142\173",
+    info = "\239\135\183",
+    ontop_on = "\239\143\154",
+    ontop_off = "\239\143\155",
+    screenshot = "\239\135\168",
+    fullscreen = "\239\133\173",
+    fullscreen_exit = "\239\133\172",
+
+    jumpicons = {
+        [5] = {"\239\142\177", "\239\142\163"},
+        [10] = {"\239\142\175", "\239\142\161"},
+        [30] = {"\239\142\176", "\239\142\162"},
+        default = {"\239\142\178", "\239\142\178"}, -- second icon is mirrored in layout()
+    },
+}
+
+local iconfont = user_opts.iconstyle == "round" and "Material-Design-Iconic-Round" or "Material-Design-Iconic-Font"
 
 local osc_styles = {
     TransBg = "{\\blur100\\bord" .. user_opts.OSCfadealpha .. "\\1c&H000000&\\3c&H" .. osc_color_convert(user_opts.osc_color) .. "&}",
@@ -275,6 +220,31 @@ local osc_styles = {
     elementDown = '{\\1c&H999999&}',
     elementHover = "{\\blur5\\2c&HFFFFFF&}",
     wcBar = "{\\1c&H" .. osc_color_convert(user_opts.osc_color) .. "}",
+}
+
+local logo_lines = {
+    -- White border
+    "{\\c&HE5E5E5&\\p6}m 895 10 b 401 10 0 410 0 905 0 1399 401 1800 895 1800 1390 1800 1790 1399 1790 905 1790 410 1390 10 895 10 {\\p0}",
+    -- Purple fill
+    "{\\c&H682167&\\p6}m 925 42 b 463 42 87 418 87 880 87 1343 463 1718 925 1718 1388 1718 1763 1343 1763 880 1763 418 1388 42 925 42{\\p0}",
+    -- Darker fill
+    "{\\c&H430142&\\p6}m 1605 828 b 1605 1175 1324 1456 977 1456 631 1456 349 1175 349 828 349 482 631 200 977 200 1324 200 1605 482 1605 828{\\p0}",
+    -- White fill
+    "{\\c&HDDDBDD&\\p6}m 1296 910 b 1296 1131 1117 1310 897 1310 676 1310 497 1131 497 910 497 689 676 511 897 511 1117 511 1296 689 1296 910{\\p0}",
+    -- Triangle
+    "{\\c&H691F69&\\p6}m 762 1113 l 762 708 b 881 776 1000 843 1119 911 1000 978 881 1046 762 1113{\\p0}",
+}
+
+local santa_hat_lines = {
+    -- Pompoms
+    "{\\c&HC0C0C0&\\p6}m 500 -323 b 491 -322 481 -318 475 -311 465 -312 456 -319 446 -318 434 -314 427 -304 417 -297 410 -290 404 -282 395 -278 390 -274 387 -267 381 -265 377 -261 379 -254 384 -253 397 -244 409 -232 425 -228 437 -228 446 -218 457 -217 462 -216 466 -213 468 -209 471 -205 477 -203 482 -206 491 -211 499 -217 508 -222 532 -235 556 -249 576 -267 584 -272 584 -284 578 -290 569 -305 550 -312 533 -309 523 -310 515 -316 507 -321 505 -323 503 -323 500 -323{\\p0}",
+    "{\\c&HE0E0E0&\\p6}m 315 -260 b 286 -258 259 -240 246 -215 235 -210 222 -215 211 -211 204 -188 177 -176 172 -151 170 -139 163 -128 154 -121 143 -103 141 -81 143 -60 139 -46 125 -34 129 -17 132 -1 134 16 142 30 145 56 161 80 181 96 196 114 210 133 231 144 266 153 303 138 328 115 373 79 401 28 423 -24 446 -73 465 -123 483 -174 487 -199 467 -225 442 -227 421 -232 402 -242 384 -254 364 -259 342 -250 322 -260 320 -260 317 -261 315 -260{\\p0}",
+    -- Main cap
+    "{\\c&H0000F0&\\p6}m 1151 -523 b 1016 -516 891 -458 769 -406 693 -369 624 -319 561 -262 526 -252 465 -235 479 -187 502 -147 551 -135 588 -111 1115 165 1379 232 1909 761 1926 800 1952 834 1987 858 2020 883 2053 912 2065 952 2088 1000 2146 962 2139 919 2162 836 2156 747 2143 662 2131 615 2116 567 2122 517 2120 410 2090 306 2089 199 2092 147 2071 99 2034 64 1987 5 1928 -41 1869 -86 1777 -157 1712 -256 1629 -337 1578 -389 1521 -436 1461 -476 1407 -509 1343 -507 1284 -515 1240 -519 1195 -521 1151 -523{\\p0}",
+    -- Cap shadow
+    "{\\c&H0000AA&\\p6}m 1657 248 b 1658 254 1659 261 1660 267 1669 276 1680 284 1689 293 1695 302 1700 311 1707 320 1716 325 1726 330 1735 335 1744 347 1752 360 1761 371 1753 352 1754 331 1753 311 1751 237 1751 163 1751 90 1752 64 1752 37 1767 14 1778 -3 1785 -24 1786 -45 1786 -60 1786 -77 1774 -87 1760 -96 1750 -78 1751 -65 1748 -37 1750 -8 1750 20 1734 78 1715 134 1699 192 1694 211 1689 231 1676 246 1671 251 1661 255 1657 248 m 1909 541 b 1914 542 1922 549 1917 539 1919 520 1921 502 1919 483 1918 458 1917 433 1915 407 1930 373 1942 338 1947 301 1952 270 1954 238 1951 207 1946 214 1947 229 1945 239 1939 278 1936 318 1924 356 1923 362 1913 382 1912 364 1906 301 1904 237 1891 175 1887 150 1892 126 1892 101 1892 68 1893 35 1888 2 1884 -9 1871 -20 1859 -14 1851 -6 1854 9 1854 20 1855 58 1864 95 1873 132 1883 179 1894 225 1899 273 1908 362 1910 451 1909 541{\\p0}",
+    -- Brim and tip pompom
+    "{\\c&HF8F8F8&\\p6}m 626 -191 b 565 -155 486 -196 428 -151 387 -115 327 -101 304 -47 273 2 267 59 249 113 219 157 217 213 215 265 217 309 260 302 285 283 373 264 465 264 555 257 608 252 655 292 709 287 759 294 816 276 863 298 903 340 972 324 1012 367 1061 394 1125 382 1167 424 1213 462 1268 482 1322 506 1385 546 1427 610 1479 662 1510 690 1534 725 1566 752 1611 796 1664 830 1703 880 1740 918 1747 986 1805 1005 1863 991 1897 932 1916 880 1914 823 1945 777 1961 725 1979 673 1957 622 1938 575 1912 534 1862 515 1836 473 1790 417 1755 351 1697 305 1658 266 1633 216 1593 176 1574 138 1539 116 1497 110 1448 101 1402 77 1371 37 1346 -16 1295 15 1254 6 1211 -27 1170 -62 1121 -86 1072 -104 1027 -128 976 -133 914 -130 851 -137 794 -162 740 -181 679 -168 626 -191 m 2051 917 b 1971 932 1929 1017 1919 1091 1912 1149 1923 1214 1970 1254 2000 1279 2027 1314 2066 1325 2139 1338 2212 1295 2254 1238 2281 1203 2287 1158 2282 1116 2292 1061 2273 1006 2229 970 2206 941 2167 938 2138 918{\\p0}",
 }
 
 -- internal states, do not touch
@@ -331,29 +301,8 @@ local state = {
     localDescriptionIsClickable = false,
     videoCantBeDownloaded = false,
     youtubeuploader = "",
-    youtubecomments = {},
-    commentsParsed = false,
-    currentCommentIndex = 0,
-    commentsPage = 0,
-    maxCommentPages = 0,
-    commentsAdditionalText = "",
     persistentprogresstoggle = user_opts.persistentprogress,
 }
-
-local thumbfast = {
-    width = 0,
-    height = 0,
-    disabled = true,
-    available = false
-}
-
-local maxdescsize = 125
-local commentsperpage = 25
-
-local window_control_box_width = 138
-local tick_delay = 0.01 -- 100FPS
-
-local is_december = os.date("*t").month == 12
 
 --- Automatically disable OSC
 local builtin_osc_enabled = mp.get_property_native('osc')
@@ -949,13 +898,13 @@ function render_elements(master_ass)
 
                         local tx = get_virt_mouse_pos()
                         if (slider_lo.adjust_tooltip) then
-                            if (an == 2) then
-                                if (sliderpos < (s_min + 3)) then
+                            if an == 2 then
+                                if sliderpos < (s_min + 3) then
                                     an = an - 1
-                                elseif (sliderpos > (s_max - 3)) then
+                                elseif sliderpos > (s_max - 3) then
                                     an = an + 1
                                 end
-                            elseif (sliderpos > (s_max-s_min)/2) then
+                            elseif (sliderpos > (s_max+s_min)/2) then
                                 an = an + 1
                                 tx = tx - 5
                             else
@@ -1039,11 +988,11 @@ function render_elements(master_ass)
             local buttontext
             if type(element.content) == 'function' then
                 buttontext = element.content() -- function objects
-            elseif not (element.content == nil) then
+            elseif element.content ~= nil then
                 buttontext = element.content -- text objects
             end
-            buttontext = buttontext:gsub(':%((.?.?.?)%) unknown ', ':%(%1%)')  --gsub('%) unknown %(\'', '')
-
+            buttontext = buttontext:gsub(":%((.?.?.?)%) unknown ", ":%(%1%)")  --gsub('%) unknown %(\'', '')
+            
             local maxchars = element.layout.button.maxchars
             if not (maxchars == nil) and (#buttontext > maxchars) then
                 local max_ratio = 1.25  -- up to 25% more chars while shrinking
@@ -1341,11 +1290,6 @@ end
 function checkWebLink()
     state.isWebVideo = false
     state.downloading = false
-    state.youtubecomments = {}
-    state.commentsParsed = false
-    state.currentCommentIndex = 0
-    state.commentsPage = 0
-    state.maxCommentPages = 0
 
     local path = mp.get_property("path")
     if not path then return nil end
@@ -1372,25 +1316,6 @@ function checkWebLink()
             exec_filesize(command)
         end
 
-        -- Youtube Return Dislike API
-        state.dislikes = ""
-        if path:find('youtu%.?be') and (user_opts.showdescription or user_opts.updatetitleyoutubestats) then
-            msg.info("WEB: Loading dislike count...")
-            local filename = mp.get_property_osd("filename")
-            local pattern = "v=([^&]+)"
-            local match = string.match(filename, pattern)
-            if match then
-                exec_dislikes({"curl","https://returnyoutubedislikeapi.com/votes?videoId=" .. match})
-            else
-                local _, _, videoID = string.find(filename, "([%w_-]+)%?si=")
-                if videoID then
-                    exec_dislikes({"curl","https://returnyoutubedislikeapi.com/votes?videoId=" .. videoID})
-                else
-                    msg.info("WEB: Failed to fetch dislikes")
-                end
-            end
-        end
-
         if user_opts.showdescription then
             msg.info("WEB: Loading video description...")
             local uploader = (state.youtubeuploader and '<$\\N!uploader!\\N$>') or "%(uploader)s"
@@ -1398,135 +1323,11 @@ function checkWebLink()
             local command = { 
                 "yt-dlp",
                 "--no-download", 
-                "-O \\N----------\\N" .. description .. "\\N----------\\NUploader: " .. uploader .. "\nUploaded: %(upload_date>".. user_opts.dateformat ..")s\nViews: %(view_count)s\nComments: %(comment_count)s\nLikes: %(like_count)s", 
+                "-O \\N----------\\N" .. description .. "\\N----------\\NUploader: " .. uploader .. "\nUploaded: %(upload_date>".. user_opts.dateformat ..")s", 
                 path
             }
             exec_description(command)
         end
-
-        if user_opts.showyoutubecomments then
-            msg.info("WEB: Downloading comments...")
-            checkcomments()
-        end
-    end
-end
-
-function checkcomments()
-    function file_exists(file)
-        local f = io.open(file, "rb")
-        if f then f:close() end
-        return f ~= nil
-    end              
-
-    function lines_from(file)
-        if not file_exists(file) then return {} end
-        local lines = {}
-        for line in io.lines(file) do 
-            lines[#lines + 1] = line
-        end
-        return lines
-    end         
-
-    local ret = mp.command_native_async({
-        name = "subprocess",
-        args = { 
-            "yt-dlp",
-            "--skip-download",
-            "--write-comments",
-            "-o%(id)s",
-            "-P " .. mp.command_native({"expand-path", user_opts.commentsdownloadpath}),
-            state.path 
-        },
-        capture_stdout = true,
-        capture_stderr = true
-    }, function() 
-        msg.info("WEB: Downloaded comments")
-
-        local filename = mp.command_native({"expand-path", user_opts.commentsdownloadpath .. '/'}) .. mp.get_property("filename"):gsub("watch%?v=", ""):match("^[^%?&]+") .. ".info.json"
-        print(filename)
-
-        if file_exists(filename) then
-            msg.info("WEB: Reading comments file...")
-            local lines = lines_from(filename)
-            state.jsoncomments = utils.parse_json(lines[1]).comments
-        else
-            msg.info("WEB: Error opening comments file")
-            return
-        end
-        state.maxCommentPages = math.ceil(#state.jsoncomments / commentsperpage)
-        if (#state.jsoncomments > 0) then
-            state.commentsParsed = true
-        else
-            user_opts.showyoutubecomments = false -- prevent crash when viewing comments
-        end
-        if state.showingDescription then
-            show_description(state.localDescriptionClick)
-        end
-        msg.info("WEB: Read and parsed comments")
-    end )
-end
-
-function loadSetOfComments(startIndex) 
-    if (#state.jsoncomments < 1) then
-        return
-    end
-
-    state.commentDescription = ""
-    for i=startIndex, #state.jsoncomments do
-        if i > startIndex + (commentsperpage - 1) then
-            state.currentCommentIndex = i
-            break
-        end
-
-        local comment = state.jsoncomments[i]
-        local commentconstruction = comment.author
-
-        local linebreak = ''
-        if (i ~= startIndex) then
-            linebreak = '\\N'
-        end
-        if (comment.parent ~= "root") then
-            commentconstruction = linebreak .. "\\N | " .. commentconstruction  .. " (Replying) | "
-        else
-            if (linebreak == '\\N') then
-                commentconstruction = linebreak .. '-----\\N' .. commentconstruction .. ' | '
-            else
-                commentconstruction = '\\N' .. commentconstruction .. ' | '
-            end
-        end
-
-        if (comment._time_text) then
-            commentconstruction = commentconstruction .. comment._time_text
-        end
-        if (comment.is_favorited) then
-            commentconstruction = commentconstruction .. (comment.is_favorited and ' | Favorited ♡\\N')
-        end
-        if (comment.is_pinned) then
-            commentconstruction = commentconstruction .. (comment.is_pinned and ' | Pinned 📌\\N')
-        else
-            commentconstruction = commentconstruction .. '\\N'
-        end
-
-        local replyPad = ""
-        if (comment.parent ~= "root") then
-            replyPad = " | "
-            commentconstruction = commentconstruction .. replyPad .. comment.text:gsub('\n', '\\N' .. replyPad)
-        else
-            commentconstruction = commentconstruction .. comment.text
-        end
-
-        if (comment.like_count) then
-            local likeText = " likes"
-            if (comment.like_count == 1) then
-                likeText = " like"
-            end
-            commentconstruction = commentconstruction .. '\\N' .. replyPad .. comment.like_count .. likeText
-        else
-            commentconstruction = commentconstruction ..  '\\N' .. replyPad ..  "0 likes"
-        end
-        -- print(commentconstruction)
-        state.youtubecomments[i] = commentconstruction
-        state.commentDescription = state.commentDescription .. commentconstruction
     end
 end
 
@@ -1603,12 +1404,8 @@ function exec_description(args, result)
             return 
         end
 
-        state.localDescriptionClick = mp.get_property("media-title", "") .. string.gsub(string.gsub(val.stdout, '\r', '\\N') .. state.dislikes, '\n', '\\N')
-        if (state.dislikes == "") then
-            state.localDescriptionClick = mp.get_property("media-title", "") .. string.gsub(string.gsub(val.stdout, '\r', '\\N'), '\n', '\\N')
-            state.localDescriptionClick = state.localDescriptionClick:sub(1, #state.localDescriptionClick - 2)
-        end
-        addLikeCountToTitle()
+        state.localDescriptionClick = mp.get_property("media-title", "") .. string.gsub(string.gsub(val.stdout, '\r', '\\N'), '\n', '\\N')
+        state.localDescriptionClick = state.localDescriptionClick:sub(1, #state.localDescriptionClick - 2)
 
         -- check if description exists, if it doesn't get rid of the extra "----------"
         local descriptionText = state.localDescriptionClick:match("\\N----------\\N(.-)\\N----------\\N")
@@ -1623,23 +1420,8 @@ function exec_description(args, result)
             state.localDescriptionClick = state.localDescriptionClick:gsub("Uploader: <$\\N!uploader!\\N$>", "Uploader: ")
         end
 
-        if (state.localDescriptionClick:match('Views: (%d+)')) then
-            state.localDescriptionClick = state.localDescriptionClick:gsub(state.localDescriptionClick:match('Views: (%d+)'), commas(state.localDescriptionClick:match('Views: (%d+)')))
-        end
-        if (state.localDescriptionClick:match('Likes: (%d+)')) then
-            state.localDescriptionClick = state.localDescriptionClick:gsub(state.localDescriptionClick:match('Likes: (%d+)'), commas(state.localDescriptionClick:match('Likes: (%d+)')))
-        end
-        if (state.localDescriptionClick:match('Comments: (%d+)')) then
-            state.localDescriptionClick = state.localDescriptionClick:gsub(state.localDescriptionClick:match('Comments: (%d+)'), commas(state.localDescriptionClick:match('Comments: (%d+)')))
-        end
-
         state.localDescriptionClick = state.localDescriptionClick:gsub("Uploader: NA\\N", "")
         state.localDescriptionClick = state.localDescriptionClick:gsub("Uploaded: NA\\N", "")
-        state.localDescriptionClick = state.localDescriptionClick:gsub("Views: NA\\N", "")
-        state.localDescriptionClick = state.localDescriptionClick:gsub("Comments: NA\\N", "")
-        state.localDescriptionClick = state.localDescriptionClick:gsub("Likes: NA\\N", "")
-        state.localDescriptionClick = state.localDescriptionClick:gsub("Likes: NA", "")
-        state.localDescriptionClick = state.localDescriptionClick:gsub("Dislikes: NA\\N", "")
         -- state.localDescriptionClick = state.localDescriptionClick:gsub("NA", "")
 
         local utf8split, lastchar = splitUTF8(state.ytdescription, maxdescsize) -- account for CJK
@@ -1666,7 +1448,6 @@ function exec_description(args, result)
                     end
                 end
 
-                afterLastPattern = afterLastPattern:gsub("Views:", emoticon.view):gsub("Comments:", emoticon.comment):gsub("Likes:", emoticon.like):gsub("Dislikes:", emoticon.dislike)  -- replace with icons
                 tempDesc = desc  .. "\\N----------\\N" .. afterLastPattern:gsub("\\N", " | ")            
                 tempDesc = tempDesc:gsub("\\N----------\\N", " | ")
             else
@@ -1687,65 +1468,6 @@ function exec_description(args, result)
         end
         msg.info("WEB: Loaded video description")
     end)
-end
-
-function exec_dislikes(args, result)
-    local ret = mp.command_native_async({
-        name = "subprocess",
-        args = args,
-        capture_stdout = true,
-        capture_stderr = true
-    }, function(res, val, err)
-        local dislikes = val.stdout
-        dislikes = commas(dislikes:match('"dislikes":(%d+)'))
-        state.dislikecount = dislikes
-
-        if dislikes then
-            state.dislikes = "Dislikes: " .. dislikes
-            msg.info("WEB: Fetched dislike count")
-        else
-            state.dislikes = ""
-        end
-
-        if (not state.descriptionLoaded) then
-            if state.localDescriptionClick then
-                state.localDescriptionClick = state.localDescriptionClick .. '\\N' .. state.dislikes
-            else
-                state.localDescriptionClick = state.dislikes
-            end
-            state.videoDescription = state.localDescriptionClick
-        else
-            addLikeCountToTitle()
-        end
-    end)
-end
-
-function commas(number)
-    if number == nil then return '' end
-
-    return tostring(number) -- Make sure the "number" is a string
-       :reverse() -- Reverse the string
-       :gsub('%d%d%d', '%0,') -- insert one comma after every 3 numbers
-       :gsub(',$', '') -- Remove a trailing comma if present
-       :reverse() -- Reverse the string again
-       :sub(1) -- a little hack to get rid of the second return value 😜
- end
-
-function addLikeCountToTitle()
-    if (user_opts.showdescription and user_opts.updatetitleyoutubestats) then
-        state.viewcount = commas(state.localDescriptionClick:match('Views: (%d+)')) 
-        state.likecount = commas(state.localDescriptionClick:match('Likes: (%d+)'))
-        if (state.viewcount ~= '' and state.likecount ~= '' and state.dislikecount) then
-            mp.set_property("title", mp.get_property("media-title") .. 
-            " | " .. emoticon.view .. state.viewcount .. 
-            " | " .. emoticon.like .. state.likecount .. 
-            " | " .. emoticon.dislike .. state.dislikecount)
-        elseif (state.viewcount ~= '' and state.likecount ~= '') then
-            mp.set_property("title", mp.get_property("media-title") .. 
-            " | " .. emoticon.view .. state.viewcount .. 
-            " | " .. emoticon.like .. state.likecount)
-        end    
-    end
 end
 
 function format_file_size(file_size)
@@ -1881,8 +1603,6 @@ function destroyscrollingkeys()
     unbind_keys("DOWN WHEEL_DOWN", "move_down")
     unbind_keys("ENTER MBTN_LEFT", "select")
     unbind_keys("ESC MBTN_RIGHT", "close")
-    unbind_keys("LEFT", "comments_left")
-    unbind_keys("RIGHT", "comments_right")
 end
 
 function checkDesc()
@@ -1907,18 +1627,6 @@ end
 
 function show_description(text)
     duration = 10
-    if (state.isWebVideo and user_opts.showyoutubecomments) then
-        if (state.commentsParsed and user_opts.showyoutubecomments) then
-            local pageText = "pages"
-            if state.maxCommentPages == 1 then
-                pageText = "page"
-            end
-            state.commentsAdditionalText = '\\N----------\\NPress LEFT/RIGHT to view comments\\N' .. state.maxCommentPages .. ' ' .. pageText .. ' (' .. #state.jsoncomments .. ' comments)'
-            text = text .. state.commentsAdditionalText
-        else
-            text = text .. '\\N----------\\NComments loading...'
-        end
-    end
     text = string.gsub(text, '\n', '\\N')
 
     -- enable scrolling of menu --
@@ -1937,61 +1645,8 @@ function show_description(text)
     end, { repeatable = true })
     bind_keys("ENTER", "select", destroyscrollingkeys)
     bind_keys("ESC", "close", function()
-        if (state.commentsPage > 0) then
-            state.commentsPage = 0
-            state.message_text = state.localDescriptionClick .. state.commentsAdditionalText
-            resetDescTimer()
-            request_tick()
-            state.scrolledlines = 25
-        else
-            destroyscrollingkeys()
-        end
+        destroyscrollingkeys()
     end) -- close menu using ESC
-
-    local function returnMessageText()
-        local totalCommentCount = #state.jsoncomments
-        local firstCommentCount = (state.commentsPage - 1) * commentsperpage + 1
-        local lastCommentCount = (state.commentsPage) * commentsperpage
-        if lastCommentCount > totalCommentCount then
-            lastCommentCount = totalCommentCount
-        end
-        loadSetOfComments(firstCommentCount)
-        return 'Comments\\NPage ' .. state.commentsPage .. '/' .. state.maxCommentPages .. ' (' .. firstCommentCount .. '/' .. #state.jsoncomments .. ')\\N----------' .. state.commentDescription:gsub('\n', '\\N') ..  '\\N----------\\NEnd of page\\NPage ' .. state.commentsPage .. '/' .. state.maxCommentPages .. ' (' .. lastCommentCount .. '/' .. totalCommentCount .. ')'
-    end
-    
-    state.commentsPage = 0
-    if (state.isWebVideo and user_opts.showyoutubecomments) then
-        bind_keys("LEFT", "comments_left", function() 
-            if (state.commentsParsed) then
-                state.commentsPage = state.commentsPage - 1
-                if (state.commentsPage == 0) then
-                    state.message_text = state.localDescriptionClick .. state.commentsAdditionalText
-                elseif (state.commentsPage > 0) then
-                    state.message_text = returnMessageText()
-                else
-                    state.commentsPage = state.maxCommentPages
-                    state.message_text = returnMessageText()
-                end
-                state.scrolledlines = 25
-            end
-            resetDescTimer()
-            request_tick()
-        end)
-        bind_keys("RIGHT", "comments_right", function() 
-            if (state.commentsParsed) then
-                state.commentsPage = state.commentsPage + 1
-                if (state.commentsPage > state.maxCommentPages) then
-                    state.commentsPage = 0
-                    state.message_text = state.localDescriptionClick .. state.commentsAdditionalText
-                else
-                    state.message_text = returnMessageText()
-                end
-                state.scrolledlines = 25
-            end
-            resetDescTimer()
-            request_tick()
-        end)
-    end
 
     state.message_text = text
 
@@ -2162,7 +1817,7 @@ function window_controls()
     if user_opts.showwindowtitle then
         ne = new_element("windowtitle", "button")
         ne.content = function ()
-            local title = mp.command_native({"expand-text", mp.get_property('title')})
+            local title = mp.command_native({"expand-text", user_opts.windowcontrols_title})
             -- escape ASS, and strip newlines and trailing slashes
             title = title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")
             local titleval = not (title == "") and title or "mpv video"
@@ -2567,7 +2222,11 @@ function osc_init()
             title = string.gsub(title, '\\N', ' ')
             return not (title == "") and title or "error"
         else
-            return string.gsub(state.localDescription, '\\N', ' ')
+            if(state.localDescription == nil) then
+                return ""
+            else
+                return string.gsub(state.localDescription, '\\N', ' ')
+            end
         end
     end
     ne.eventresponder['mbtn_left_up'] =
@@ -2621,7 +2280,6 @@ function osc_init()
     --play control buttons
     --playpause
     ne = new_element('playpause', 'button')
-
     ne.content = function ()
         if mp.get_property("eof-reached") == "yes" then
             return (icons.replay)
@@ -2656,16 +2314,16 @@ function osc_init()
     if user_opts.showjump then
         local jumpamount = user_opts.jumpamount
         local jumpmode = user_opts.jumpmode
-        local icons = jumpicons.default
+        local tempicons = icons.jumpicons.default
         if user_opts.jumpiconnumber then
-            icons = jumpicons[jumpamount] or jumpicons.default
+            tempicons = icons.jumpicons[jumpamount] or icons.jumpicons.default
         end
 
         --jumpback
         ne = new_element('jumpback', 'button')
 
         ne.softrepeat = true
-        ne.content = icons[1]
+        ne.content = tempicons[1]
         ne.eventresponder['mbtn_left_down'] =
             function () mp.commandv('seek', -jumpamount, jumpmode) end
         ne.eventresponder['mbtn_right_down'] =
@@ -2678,7 +2336,7 @@ function osc_init()
         ne = new_element('jumpfrwd', 'button')
 
         ne.softrepeat = true
-        ne.content = icons[2]
+        ne.content = tempicons[2]
         ne.eventresponder['mbtn_left_down'] =
             function () mp.commandv('seek', jumpamount, jumpmode) end
         ne.eventresponder['mbtn_right_down'] =
@@ -2695,7 +2353,7 @@ function osc_init()
     ne = new_element('skipback', 'button')
     ne.visible = (osc_param.playresx >= 400 - nojumpoffset*10)
     ne.softrepeat = true
-    ne.content = icons.backward
+    ne.content = icons.rewind
     ne.enabled = (have_ch) or compactmode -- disables button when no chapters available.
     ne.eventresponder['mbtn_left_down'] =
         function () 
@@ -2804,7 +2462,7 @@ function osc_init()
     ne.enabled = (#tracks_osc.sub > 0)
     ne.off = (get_track('sub') == 0)
     ne.visible = (osc_param.playresx >= 600 - outeroffset)
-    ne.content = icons.sub
+    ne.content = icons.subtitle
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
         local msg = texts.off
@@ -2846,12 +2504,14 @@ function osc_init()
     ne.content = function ()
         local volume = mp.get_property_number("volume", 0)
         if state.mute then
-            return icons.volumemute
+            return icons.volume_mute
         else
-            if volume > 70 then
-                return icons.volume
+            if volume >= 75 then
+                return icons.volume_high
+            elseif volume >= 25 then
+                return icons.volume_low
             else
-                return icons.volumelow
+                return icons.volume_quiet
             end
         end
     end
@@ -2881,13 +2541,7 @@ function osc_init()
     
     --tog_fs
     ne = new_element('tog_fs', 'button')
-    ne.content = function ()
-        if (state.fullscreen) then
-            return (icons.minimize)
-        else
-            return (icons.fullscreen)
-        end
-    end
+    ne.content = function () return state.fullscreen and icons.fullscreen_exit or icons.fullscreen end
     ne.visible = (osc_param.playresx >= 250)
     ne.tooltip_style = osc_styles.Tooltip
     ne.tooltipF = function ()
@@ -2904,9 +2558,9 @@ function osc_init()
     ne = new_element('tog_loop', 'button')
     ne.content = function ()
         if (state.looping) then
-            return (icons.loopon)
+            return (icons.loop_on)
         else
-            return (icons.loopoff)
+            return (icons.loop_off)
         end
     end
     ne.visible = (osc_param.playresx >= 600 - outeroffset)
@@ -3026,7 +2680,7 @@ function osc_init()
     ne.content = icons.info
     ne.visible = (osc_param.playresx >= 800 - outeroffset - (user_opts.showloop and 0 or 100) - (user_opts.showontop and 0 or 100))
     ne.tooltip_style = osc_styles.Tooltip
-    ne.tooltipF = texts.info
+    ne.tooltipF = texts.statsinfo
     ne.eventresponder['mbtn_left_up'] =
         function () mp.commandv('script-binding', 'stats/display-stats-toggle') end
 
@@ -3034,9 +2688,9 @@ function osc_init()
     ne = new_element('tog_ontop', 'button')
     ne.content = function ()
         if mp.get_property('ontop') == 'no' then
-            return (icons.ontopon)
+            return (icons.ontop_on)
         else
-            return (icons.ontopoff)
+            return (icons.ontop_off)
         end
     end
     ne.tooltip_style = osc_styles.Tooltip
@@ -3093,7 +2747,7 @@ function osc_init()
         local duration = mp.get_property_number('duration', nil)
         if not ((duration == nil) or (pos == nil)) then
             possec = duration * (pos / 100)
-            return mp.format_time(possec)
+            return format_time(possec, true)
         else
             return ''
         end
@@ -3286,43 +2940,79 @@ function osc_init()
         return tostring(mp.get_property_number('volume'))
     end
     
-    -- tc_left (current pos)
-    ne = new_element('tc_left', 'button')
-    ne.content = function ()
-    if (state.fulltime) then
-        return mp.get_property_osd('playback-time/full'):gsub('-', '')
-    else
-        return mp.get_property_osd('playback-time'):gsub('-', '')
+    -- Helper function to format time
+    function format_time(seconds, dontincludems)
+        if not seconds then return "--:--" end
+        
+        local hours = math.floor(seconds / 3600)
+        local minutes = math.floor((seconds % 3600) / 60)
+        local whole_seconds = math.floor(seconds % 60)
+        local milliseconds = state.tc_ms and math.floor((seconds % 1) * 1000) or nil
+
+        -- Format string templates
+        local format_with_ms = hours > 0 and "%02d:%02d:%02d.%03d" or "%02d:%02d.%03d"
+        local format_without_ms = hours > 0 and "%02d:%02d:%02d" or "%02d:%02d"
+
+        if state.tc_ms and not dontincludems then
+            if user_opts.dynamictimeformat then
+                return string.format(format_with_ms, 
+                    hours > 0 and hours or minutes,
+                    hours > 0 and minutes or whole_seconds,
+                    hours > 0 and whole_seconds or milliseconds,
+                    hours > 0 and milliseconds or nil)
+            else
+                return string.format(format_with_ms, 
+                    hours > 0 and hours or minutes,
+                    hours > 0 and minutes or whole_seconds,
+                    hours > 0 and whole_seconds or milliseconds,
+                    hours > 0 and milliseconds or nil)
+            end
+        else
+            if user_opts.dynamictimeformat then
+                return string.format(format_without_ms,
+                    hours > 0 and hours or minutes,
+                    hours > 0 and minutes or whole_seconds,
+                    hours > 0 and whole_seconds or nil)
+            else
+                return string.format("%02d:%02d:%02d", 
+                    hours,
+                    minutes,
+                    whole_seconds)
+            end
+        end
     end
+
+    -- Current position time display
+    ne = new_element("tc_left", "button")
+    ne.content = function()
+        local playback_time = mp.get_property_number("playback-time", 0)
+        return format_time(playback_time, false)
     end
-    ne.eventresponder["mbtn_left_up"] = function ()
-        state.fulltime = not state.fulltime
+    ne.eventresponder["mbtn_left_up"] = function()
+        state.tc_ms = not state.tc_ms
         request_init()
     end
 
-    -- tc_right (total/remaining time)
-    ne = new_element('tc_right', 'button')
+    -- Total/remaining time display
+    ne = new_element("tc_right", "button")
     ne.visible = (mp.get_property_number("duration", 0) > 0)
-    ne.content = function ()
-        if (mp.get_property_number('duration', 0) <= 0) then return '--:--:--' end
-        if (state.rightTC_trem) then
-        if (state.fulltime) then
-            return ('-'..mp.get_property_osd('playtime-remaining/full'))
-        else
-            return ('-'..mp.get_property_osd('playtime-remaining'))
-        end
-        else
-        if (state.fulltime) then
-            return (mp.get_property_osd('duration/full'))
-        else
-            return (mp.get_property_osd('duration'))
-        end
-
-        end
+    ne.content = function()
+        local duration = mp.get_property_number("duration", 0)
+        if duration <= 0 then return "--:--" end
+        
+        local time_to_display = state.rightTC_trem and 
+            mp.get_property_number("playtime-remaining", 0) or 
+            duration
+            
+        local prefix = state.rightTC_trem and 
+            (user_opts.unicodeminus and UNICODE_MINUS or "-") or 
+            ""
+            
+        return prefix .. format_time(time_to_display, false)
     end
-    ne.eventresponder['mbtn_left_up'] =
-        function () state.rightTC_trem = not state.rightTC_trem end
-
+    ne.eventresponder["mbtn_left_up"] = function()
+        state.rightTC_trem = not state.rightTC_trem
+    end
 
     -- load layout
     layouts()
@@ -3719,31 +3409,6 @@ function process_event(source, what)
     request_tick()
 end
 
-local logo_lines = {
-    -- White border
-    "{\\c&HE5E5E5&\\p6}m 895 10 b 401 10 0 410 0 905 0 1399 401 1800 895 1800 1390 1800 1790 1399 1790 905 1790 410 1390 10 895 10 {\\p0}",
-    -- Purple fill
-    "{\\c&H682167&\\p6}m 925 42 b 463 42 87 418 87 880 87 1343 463 1718 925 1718 1388 1718 1763 1343 1763 880 1763 418 1388 42 925 42{\\p0}",
-    -- Darker fill
-    "{\\c&H430142&\\p6}m 1605 828 b 1605 1175 1324 1456 977 1456 631 1456 349 1175 349 828 349 482 631 200 977 200 1324 200 1605 482 1605 828{\\p0}",
-    -- White fill
-    "{\\c&HDDDBDD&\\p6}m 1296 910 b 1296 1131 1117 1310 897 1310 676 1310 497 1131 497 910 497 689 676 511 897 511 1117 511 1296 689 1296 910{\\p0}",
-    -- Triangle
-    "{\\c&H691F69&\\p6}m 762 1113 l 762 708 b 881 776 1000 843 1119 911 1000 978 881 1046 762 1113{\\p0}",
-}
-
-local santa_hat_lines = {
-    -- Pompoms
-    "{\\c&HC0C0C0&\\p6}m 500 -323 b 491 -322 481 -318 475 -311 465 -312 456 -319 446 -318 434 -314 427 -304 417 -297 410 -290 404 -282 395 -278 390 -274 387 -267 381 -265 377 -261 379 -254 384 -253 397 -244 409 -232 425 -228 437 -228 446 -218 457 -217 462 -216 466 -213 468 -209 471 -205 477 -203 482 -206 491 -211 499 -217 508 -222 532 -235 556 -249 576 -267 584 -272 584 -284 578 -290 569 -305 550 -312 533 -309 523 -310 515 -316 507 -321 505 -323 503 -323 500 -323{\\p0}",
-    "{\\c&HE0E0E0&\\p6}m 315 -260 b 286 -258 259 -240 246 -215 235 -210 222 -215 211 -211 204 -188 177 -176 172 -151 170 -139 163 -128 154 -121 143 -103 141 -81 143 -60 139 -46 125 -34 129 -17 132 -1 134 16 142 30 145 56 161 80 181 96 196 114 210 133 231 144 266 153 303 138 328 115 373 79 401 28 423 -24 446 -73 465 -123 483 -174 487 -199 467 -225 442 -227 421 -232 402 -242 384 -254 364 -259 342 -250 322 -260 320 -260 317 -261 315 -260{\\p0}",
-    -- Main cap
-    "{\\c&H0000F0&\\p6}m 1151 -523 b 1016 -516 891 -458 769 -406 693 -369 624 -319 561 -262 526 -252 465 -235 479 -187 502 -147 551 -135 588 -111 1115 165 1379 232 1909 761 1926 800 1952 834 1987 858 2020 883 2053 912 2065 952 2088 1000 2146 962 2139 919 2162 836 2156 747 2143 662 2131 615 2116 567 2122 517 2120 410 2090 306 2089 199 2092 147 2071 99 2034 64 1987 5 1928 -41 1869 -86 1777 -157 1712 -256 1629 -337 1578 -389 1521 -436 1461 -476 1407 -509 1343 -507 1284 -515 1240 -519 1195 -521 1151 -523{\\p0}",
-    -- Cap shadow
-    "{\\c&H0000AA&\\p6}m 1657 248 b 1658 254 1659 261 1660 267 1669 276 1680 284 1689 293 1695 302 1700 311 1707 320 1716 325 1726 330 1735 335 1744 347 1752 360 1761 371 1753 352 1754 331 1753 311 1751 237 1751 163 1751 90 1752 64 1752 37 1767 14 1778 -3 1785 -24 1786 -45 1786 -60 1786 -77 1774 -87 1760 -96 1750 -78 1751 -65 1748 -37 1750 -8 1750 20 1734 78 1715 134 1699 192 1694 211 1689 231 1676 246 1671 251 1661 255 1657 248 m 1909 541 b 1914 542 1922 549 1917 539 1919 520 1921 502 1919 483 1918 458 1917 433 1915 407 1930 373 1942 338 1947 301 1952 270 1954 238 1951 207 1946 214 1947 229 1945 239 1939 278 1936 318 1924 356 1923 362 1913 382 1912 364 1906 301 1904 237 1891 175 1887 150 1892 126 1892 101 1892 68 1893 35 1888 2 1884 -9 1871 -20 1859 -14 1851 -6 1854 9 1854 20 1855 58 1864 95 1873 132 1883 179 1894 225 1899 273 1908 362 1910 451 1909 541{\\p0}",
-    -- Brim and tip pompom
-    "{\\c&HF8F8F8&\\p6}m 626 -191 b 565 -155 486 -196 428 -151 387 -115 327 -101 304 -47 273 2 267 59 249 113 219 157 217 213 215 265 217 309 260 302 285 283 373 264 465 264 555 257 608 252 655 292 709 287 759 294 816 276 863 298 903 340 972 324 1012 367 1061 394 1125 382 1167 424 1213 462 1268 482 1322 506 1385 546 1427 610 1479 662 1510 690 1534 725 1566 752 1611 796 1664 830 1703 880 1740 918 1747 986 1805 1005 1863 991 1897 932 1916 880 1914 823 1945 777 1961 725 1979 673 1957 622 1938 575 1912 534 1862 515 1836 473 1790 417 1755 351 1697 305 1658 266 1633 216 1593 176 1574 138 1539 116 1497 110 1448 101 1402 77 1371 37 1346 -16 1295 15 1254 6 1211 -27 1170 -62 1121 -86 1072 -104 1027 -128 976 -133 914 -130 851 -137 794 -162 740 -181 679 -168 626 -191 m 2051 917 b 1971 932 1929 1017 1919 1091 1912 1149 1923 1214 1970 1254 2000 1279 2027 1314 2066 1325 2139 1338 2212 1295 2254 1238 2281 1203 2287 1158 2282 1116 2292 1061 2273 1006 2229 970 2206 941 2167 938 2138 918{\\p0}",
-}
-
 -- called by mpv on every frame
 function tick()
     if (not state.enabled) then return end
@@ -3763,6 +3428,7 @@ function tick()
         local line_prefix = ('{\\rDefault\\an7\\1a&H00&\\bord0\\shad0\\pos(%f,%f)}'):format(icon_x, icon_y)
 
         local ass = assdraw.ass_new()
+
         -- mpv logo
         if user_opts.welcomescreen then
             for i, line in ipairs(logo_lines) do
@@ -3783,7 +3449,7 @@ function tick()
             ass:new_event()
             ass:pos(display_w / 2, icon_y + 65)
             ass:an(8)
-            ass:append(texts.welcome)
+            ass:append("{\\fs22\\1c&H0&\\1c&HFFFFFF&}" .. texts.welcome)
         end
         set_osd(display_w, display_h, ass.text)
 
@@ -3844,8 +3510,6 @@ function enable_osc(enable)
         state.showhide_enabled = false
     end
 end
-
-validate_user_opts()
 
 mp.register_event('start-file', newfilereset)
 mp.register_event("file-loaded", startupevents)

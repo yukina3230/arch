@@ -4,7 +4,6 @@
 -- Project: SmartCopyPaste
 -- Version: 3.2.1
 
-
 local o = {
 ---------------------------USER CUSTOMIZATION SETTINGS---------------------------
 --These settings are for users to manually change some options.
@@ -189,12 +188,6 @@ end
 function get_path()
 	local path = mp.get_property('path')
 	if not path then return end
-
-	if string.find(path, "https://") then
-        path = string.gsub(path, "ytdl://", "") -- Strip possible ytdl:// prefix
-    else
-        path = string.gsub(path, "ytdl://", "https://") -- Strip possible ytdl:// prefix and replace with "https://" if there it isn't there already
-    end
 	
 	local title = mp.get_property('media-title'):gsub("\"", "")
 	

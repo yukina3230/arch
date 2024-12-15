@@ -1,7 +1,4 @@
 local settings = {
-
-  -- #### FUNCTIONALITY SETTINGS
-
   --navigation keybindings force override only while playlist is visible
   --if "no" then you can display the playlist by any of the navigation keys
   dynamic_binds = true,
@@ -129,8 +126,6 @@ local settings = {
   --allow the playlist cursor to loop from end to start and vice versa
   loop_cursor = true,
 
-  --youtube-dl executable for title resolving if enabled, probably "youtube-dl" or "yt-dlp", can be absolute path
-  youtube_dl_executable = "youtube-dl",
 
   -- allow playlistmanager to write watch later config when navigating between files
   allow_write_watch_later_config = true,
@@ -139,10 +134,11 @@ local settings = {
   reset_cursor_on_close = true,
   reset_cursor_on_open = true,
 
-  --####  VISUAL SETTINGS
-
   --prefer to display titles for following files: "all", "url", "none". Sorting still uses filename.
   prefer_titles = "url",
+
+  --youtube-dl executable for title resolving if enabled, probably "youtube-dl" or "yt-dlp", can be absolute path
+  youtube_dl_executable = "yt-dlp",
 
   --call youtube-dl to resolve the titles of urls in the playlist
   resolve_url_titles = false,
@@ -173,7 +169,7 @@ local settings = {
   --\\q2 style is recommended since filename wrapping may lead to unexpected rendering
   --\\an7 style is recommended to align to top left otherwise, osd-align-x/y is respected
   style_ass_tags = "{\\q2\\an7}",
-  --paddings for left right and top bottom, depends on alignment 
+  --paddings for left right and top bottom
   text_padding_x = 30,
   text_padding_y = 60,
   
@@ -463,7 +459,6 @@ function on_file_loaded()
     title_table[path] = media_title
   end
 
-
   strippedname = stripfilename(mp.get_property('media-title'))
   if settings.show_title_on_file_load then
     mp.commandv('show-text', strippedname)
@@ -527,6 +522,28 @@ local filename_replace_functions = {
   hex_to_char = function(x) return string.char(tonumber(x, 16)) end
 }
 
+-- from http://lua-users.org/wiki/LuaUnicode
+local UTF8_PATTERN = '[%z\1-\127\194-\244][\128-\191]*'
+
+-- return a substring based on utf8 characters
+-- like string.sub, but negative index is not supported
+local function utf8_sub(s, i, j)
+  if i > j then
+    return s
+  end
+
+  local t = {}
+  local idx = 1
+  for char in s:gmatch(UTF8_PATTERN) do
+    if i <= idx and idx <= j then
+      local width = #char > 2 and 2 or 1
+      idx = idx + width
+      t[#t + 1] = char
+    end
+  end
+  return table.concat(t)
+end
+
 --strip a filename based on its extension or protocol according to rules in settings
 function stripfilename(pathfile, media_title)
   if pathfile == nil then return '' end
@@ -546,8 +563,9 @@ function stripfilename(pathfile, media_title)
       end
     end
   end
-  if settings.slice_longfilenames and tmp:len()>settings.slice_longfilenames_amount+5 then
-    tmp = tmp:sub(1, settings.slice_longfilenames_amount).." ..."
+  local tmp_clip = utf8_sub(tmp, 1, settings.slice_longfilenames_amount)
+  if settings.slice_longfilenames and tmp ~= tmp_clip then
+    tmp = tmp_clip .. "..."
   end
   return tmp
 end
@@ -574,17 +592,10 @@ function get_name_from_index(i, notitle)
   local name = mp.get_property('playlist/'..i..'/filename')
 
   local should_use_title = settings.prefer_titles == 'all' or is_protocol(name) and settings.prefer_titles == 'url'
-  --check if file has a media title stored or as property
-  if not title and should_use_title then
-    local mtitle = mp.get_property('media-title')
-    if i == pos and mp.get_property('filename') ~= mtitle then
-      if not title_table[name] then
-        title_table[name] = mtitle
-      end
-      title = mtitle
-    elseif title_table[name] then
-      title = title_table[name]
-    end
+  
+  --check if file has a media title stored
+  if not title and should_use_title and title_table[name] then
+    title = title_table[name]
   end
 
   --if we have media title use a more conservative strip
@@ -653,9 +664,15 @@ function parse_filename_by_index(index)
   return parse_filename(template, get_name_from_index(index), index)
 end
 
+function is_terminal_mode()
+  local width, height, aspect_ratio = mp.get_osd_size()
+  return width == 0 and height == 0 and aspect_ratio == 0
+end
+
 function draw_playlist()
   refresh_globals()
   local ass = assdraw.ass_new()
+  local terminaloutput = ""
 	
   local _, _, a = mp.get_osd_size()
   local h = 720
@@ -672,6 +689,18 @@ function draw_playlist()
   end
 	
   ass:append(settings.style_ass_tags)
+
+  -- add \clip style
+  -- make both left and right follow text_padding_x
+  --      both top and bottom follow text_padding_y
+  local border_size = mp.get_property_number('osd-border-size')
+  if settings.style_ass_tags ~= nil then
+    local bord = tonumber(settings.style_ass_tags:match('\\bord(%d+%.?%d*)'))
+    if bord ~= nil then border_size = bord end
+  end
+  ass:append(string.format('{\\clip(%f,%f,%f,%f)}',
+    settings.text_padding_x - border_size,         settings.text_padding_y - border_size,
+    w - 1 - settings.text_padding_x + border_size, h - 1 - settings.text_padding_y + border_size))
 
   -- align from mpv.conf
   local align_x = mp.get_property("osd-align-x")
@@ -705,7 +734,9 @@ function draw_playlist()
   ass:pos(pos_x, pos_y)
 
   if settings.playlist_header ~= "" then
-    ass:append(parse_header(settings.playlist_header).."\\N")
+    local header = parse_header(settings.playlist_header)
+    ass:append(header.."\\N")
+    terminaloutput = terminaloutput..header.."\n"
   end
 
   -- (visible index, playlist index) pairs of playlist entries that should be rendered
@@ -739,16 +770,28 @@ function draw_playlist()
   for display_index, playlist_index in pairs(visible_indices) do
     if display_index == 1 and playlist_index ~= 1 then
       ass:append(settings.playlist_sliced_prefix.."\\N")
+      terminaloutput = terminaloutput..settings.playlist_sliced_prefix.."\n"
     elseif display_index == settings.showamount and playlist_index ~= plen then
       ass:append(settings.playlist_sliced_suffix)
+      terminaloutput = terminaloutput..settings.playlist_sliced_suffix.."\n"
     else
       -- parse_filename_by_index expects 0 based index
-      ass:append(parse_filename_by_index(playlist_index - 1).."\\N")
+      local fname = parse_filename_by_index(playlist_index - 1)
+      ass:append(fname.."\\N")
+      terminaloutput = terminaloutput..fname.."\n"
     end
   end
 
-  playlist_overlay.data = ass.text
-  playlist_overlay:update()
+  if is_terminal_mode() then
+    local timeout_setting = settings.playlist_display_timeout
+    local timeout = timeout_setting == 0 and 2147483 or timeout_setting
+    -- TODO: probably have to strip ass tags from terminal output
+    -- would maybe be possible to use terminal color output instead
+    mp.osd_message(terminaloutput, timeout)
+  else
+    playlist_overlay.data = ass.text
+    playlist_overlay:update()
+  end
 end
 
 local peek_display_timer = nil
@@ -904,25 +947,43 @@ function movedown()
   showplaylist()
 end
 
+
 function movepageup()
   refresh_globals()
   if plen == 0 or cursor == 0 then return end
+  local offset = settings.showamount % 2 == 0 and 1 or 0
+  local last_file_that_doesnt_scroll = math.ceil(settings.showamount / 2)
+  local reverse_cursor = plen - cursor
+  local files_to_jump = math.max(last_file_that_doesnt_scroll + offset - reverse_cursor, 0) + settings.showamount - 2
   local prev_cursor = cursor
-  cursor = cursor - settings.showamount
-  if cursor < 0 then cursor = 0 end
-  if selection then mp.commandv("playlist-move", prev_cursor, cursor) end
+  cursor = cursor - files_to_jump
+  if cursor < last_file_that_doesnt_scroll then
+    cursor = 0
+  end
+  if selection then
+    mp.commandv("playlist-move", prev_cursor, cursor)
+  end
   showplaylist()
 end
 
 function movepagedown()
   refresh_globals()
-  if plen == 0 or cursor == plen-1 then return end
+  if plen == 0 or cursor == plen - 1 then return end
+  local last_file_that_doesnt_scroll = math.ceil(settings.showamount / 2) - 1
+  local files_to_jump = math.max(last_file_that_doesnt_scroll - cursor, 0) + settings.showamount - 2
   local prev_cursor = cursor
-  cursor = cursor + settings.showamount
-  if cursor >= plen then cursor = plen-1 end
-  if selection then mp.commandv("playlist-move", prev_cursor, cursor+1) end
+  cursor = cursor + files_to_jump
+
+  local cursor_on_last_page = plen - (settings.showamount - 3)
+  if cursor > cursor_on_last_page then
+    cursor = plen - 1
+  end
+  if selection then
+    mp.commandv("playlist-move", prev_cursor, cursor + 1)
+  end
   showplaylist()
 end
+
 
 function movebegin()
   refresh_globals()
@@ -1364,7 +1425,10 @@ function remove_keybinds()
   keybindstimer = mp.add_periodic_timer(settings.playlist_display_timeout, remove_keybinds)
   keybindstimer:kill()
   playlist_overlay.data = ""
-  playlist_overlay:update()
+  playlist_overlay:remove()
+  if is_terminal_mode() then
+    mp.osd_message("")
+  end
   playlist_visible = false
   if settings.reset_cursor_on_close then
     resetcursor()
@@ -1405,6 +1469,7 @@ mp.observe_property('playlist-count', "number", function(_, plcount)
   refresh_UI()
   resolve_titles()
 end)
+mp.observe_property('osd-dimensions', 'native', refresh_UI)
 
 
 url_request_queue = {}
@@ -1475,10 +1540,10 @@ function resolve_titles()
       and not requested_titles[filename]
     then
       requested_titles[filename] = true
-      if filename:match('^https?://') then
+      if filename:match('^https?://') and settings.resolve_url_titles then
         url_titles_to_fetch.push(filename)
         added_urls = true
-      elseif settings.prefer_titles == "all" then
+      elseif settings.prefer_titles == "all" and settings.resolve_local_titles then
         local_titles_to_fetch.push(filename)
         added_local = true
       end
@@ -1521,6 +1586,7 @@ function resolve_ytdl_title(filename)
           local title = (is_playlist and '[playlist]: ' or '') .. json['title']
           msg.verbose(filename .. " resolved to '" .. title .. "'")
           title_table[filename] = title
+          mp.set_property_native('user-data/playlistmanager/titles', title_table)
           refresh_UI()
         else
           msg.error("Failed parsing json, reason: "..(err or "unknown"))
@@ -1561,6 +1627,7 @@ function resolve_ffprobe_title(filename)
         if title then
           msg.verbose(filename .. " resolved to '" .. title .. "'")
           title_table[filename] = title
+          mp.set_property_native('user-data/playlistmanager/titles', title_table)
           refresh_UI()
         end
       else
