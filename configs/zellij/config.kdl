@@ -269,12 +269,26 @@ load_plugins {
 //   - true
 //   - false (Default)
 // 
-// simplified_ui true
+simplified_ui true
  
 // Choose the theme that is specified in the themes section.
 // Default: default
 // 
-theme "ao"
+themes {
+    default {
+        fg "#d8dee9"
+        bg "#445a77"
+        black "#2e3440"
+        red "#2e3440"
+        green "#88c0d0"
+        yellow "#ebcb8b"
+        blue "#81a1c1"
+        magenta "#b48ead"
+        cyan "#88c0d0"
+        white "#d8dee9"
+        orange "#d8dee9"
+    }
+}
  
 // Choose the base input mode of zellij.
 // Default: normal
@@ -357,7 +371,7 @@ default_mode "normal"
 // copy_command "wl-copy"                    // wayland
 // copy_command "pbcopy"                     // osx
 // 
-// copy_command "pbcopy"
+copy_command "wl-copy"
  
 // Choose the destination for copied text
 // Allows using the primary selection buffer (on x11/wayland) instead of the system clipboard.
@@ -371,7 +385,7 @@ default_mode "normal"
 // Enable automatic copying (and clearing) of selection when releasing mouse
 // Default: true
 // 
-// copy_on_select true
+copy_on_select false
  
 // Path to the default editor to use to edit pane scrollbuffer
 // Default: $EDITOR or $VISUAL

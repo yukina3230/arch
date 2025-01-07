@@ -109,7 +109,7 @@
 "ui.cursor.normal" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.insert" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.select" = { fg = "nord0", bg = "nord6" }
-"ui.cursor.match" = { fg = "nord0", bg = "nord6" }
+"ui.cursor.match" = { bg = "nord10" }
 "ui.cursor.primary" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.primary.normal" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.primary.insert" = { fg = "nord0", bg = "nord6" }
@@ -118,7 +118,6 @@
 "ui.debug.active" = { fg = "nord13" }
 "ui.gutter" = { bg = "nord0_alt" }
 "ui.gutter.selected" = { bg = "nord0_alt" }
-"ui.highlight.frameline" = { bg = "nord13_alt" }
 "ui.linenr" = { fg = "nord3_alt" }
 "ui.linenr.selected" = { fg = "nord6" }
 "ui.statusline" = { fg = "nord5", bg = "nord0" }
@@ -132,12 +131,16 @@
 "ui.bufferline.background" = { bg = "nord0" }
 "ui.popup" = { bg = "nord0" }
 "ui.popup.info" = { bg = "nord0" }
+"ui.picker.header" = { fg = "nord8" }
+"ui.picker.header.column" = { fg = "nord8" }
+"ui.picker.header.column.active" = { fg = "nord12" }
 "ui.window" = { fg = "nord0", bg = "nord0" }
 "ui.help" = { bg = "nord0" }
 "ui.text" = { fg = "nord5" }
 "ui.text.focus" = { fg = "nord8", bg = "nord9_alt" }
 "ui.text.inactive" = { fg = "nord4_alt" }
 "ui.text.info" = { fg = "nord5" }
+"ui.text.directory" = { fg = "nord8" }
 "ui.virtual.ruler" = { bg = "nord0" }
 "ui.virtual.whitespace" = { fg = "nord3" }
 "ui.virtual.indent-guide" = { fg = "nord1" }
@@ -149,20 +152,21 @@
 "ui.menu" = { bg = "nord0" }
 "ui.menu.selected" = { fg = "nord8", bg = "nord9_alt" }
 "ui.menu.scroll" = { fg = "nord6", bg = "nord3" }
-"ui.selection" = { bg = "nord2" }
-"ui.selection.primary" = { bg = "nord2" }
-"ui.highlight" = { bg = "nord2" }
+"ui.selection" = {}
+"ui.selection.primary" = { bg = "nord10_alt" }
+"ui.highlight" = { bg = "nord10_alt" }
+"ui.highlight.frameline" = { bg = "nord13_alt" }
 "ui.cursorline.primary" = { bg = "nord2" }
 "ui.cursorline.secondary" = { bg = "nord2" }
 "ui.cursorcolumn.primary" = { bg = "nord2" }
 "ui.cursorcolumn.secondary" = { bg = "nord2" }
 "warning" = { fg = "nord13" }
 "error" = { fg = "nord11" }
-"info" = { fg = "nord8" }
+"info" = { fg = "nord7" }
 "hint" = { fg = "nord9" }
 "diagnostic" = {}
 "diagnostic.hint" = { underline = { color = "nord9", style = "curl" } }
-"diagnostic.info" = { underline = { color = "nord8", style = "curl" } }
+"diagnostic.info" = { underline = { color = "nord7", style = "curl" } }
 "diagnostic.warning" = { underline = { color = "nord13", style = "curl" } }
 "diagnostic.error" = { underline = { color = "nord11", style = "curl" } }
 "diagnostic.unnecessary" = { modifiers = ["dim"] }
@@ -184,6 +188,7 @@ nord8 = "#88c0d0"
 nord9 = "#81a1c1"
 nord9_alt = "#3b4857"
 nord10 = "#5e81ac"
+nord10_alt = "#445a77"
 nord11 = "#bf616a"
 nord12 = "#d08770"
 nord13 = "#ebcb8b"

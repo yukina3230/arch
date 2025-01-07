@@ -1,14 +1,18 @@
 theme = "yukinord"
 
 [editor]
-color-modes = true
+completion-timeout = 5
 bufferline = "always"
+color-modes = true
+popup-border = "all"
+end-of-line-diagnostics = "hint"
 
 [editor.statusline]
 left = ["mode", "spacer", "version-control", "read-only-indicator", "file-name", "diagnostics", "workspace-diagnostics", "spinner"]
 right = ["selections", "primary-selection-length", "position", "position-percentage", "total-line-numbers", "file-encoding", "file-line-ending", "file-type"]
 
 [editor.lsp]
+display-messages = true
 display-inlay-hints = true
 
 [editor.indent-guides]

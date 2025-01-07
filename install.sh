@@ -61,6 +61,9 @@ sudo cp ~/arch/configs/pacman/pacman.conf /etc/
 # Paru
 cp -r ~/arch/configs/paru/ ~/.config/
 
+# Alacritty
+cp -r ~/arch/configs/alacritty/ ~/.config/
+
 # Zellij
 cp -r ~/arch/configs/zellij/ ~/.config/
 
