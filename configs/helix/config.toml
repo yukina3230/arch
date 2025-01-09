@@ -20,3 +20,6 @@ render = true
 
 [editor.soft-wrap]
 enable = true
+
+[editor.inline-diagnostics]
+cursor-line = "hint"

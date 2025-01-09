@@ -61,7 +61,7 @@
 "tag" = { fg = "nord8" }
 "tag.builtin" = { fg = "nord8" }
 "namespace" = { fg = "nord14" }
-"special" = { fg = "nord12" }
+"special" = { fg = "nord4" }
 "markup" = {}
 "markup.heading" = { fg = "nord8" }
 "markup.heading.marker" = { fg = "nord8" }
@@ -109,7 +109,7 @@
 "ui.cursor.normal" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.insert" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.select" = { fg = "nord0", bg = "nord6" }
-"ui.cursor.match" = { bg = "nord10" }
+"ui.cursor.match" = { fg = "nord0", bg = "nord9" }
 "ui.cursor.primary" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.primary.normal" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.primary.insert" = { fg = "nord0", bg = "nord6" }
@@ -131,9 +131,9 @@
 "ui.bufferline.background" = { bg = "nord0" }
 "ui.popup" = { bg = "nord0" }
 "ui.popup.info" = { bg = "nord0" }
-"ui.picker.header" = { fg = "nord8" }
-"ui.picker.header.column" = { fg = "nord8" }
-"ui.picker.header.column.active" = { fg = "nord12" }
+"ui.picker.header" = {}
+"ui.picker.header.column" = { fg = "nord5", modifiers = ["underlined"] }
+"ui.picker.header.column.active" = { fg = "nord8", modifiers = [ "bold", "underlined" ] }
 "ui.window" = { fg = "nord0", bg = "nord0" }
 "ui.help" = { bg = "nord0" }
 "ui.text" = { fg = "nord5" }
