@@ -54,9 +54,9 @@ local options = {
     mpv_path = "mpv"
 }
 
-mp.utils = require "mp.utils"
-mp.options = require "mp.options"
-mp.options.read_options(options, "thumbfast")
+mp.utils = require("mp.utils")
+mp.options = require("mp.options")
+mp.options.read_options(options)
 
 local properties = {}
 local pre_0_30_0 = mp.command_native_async == nil

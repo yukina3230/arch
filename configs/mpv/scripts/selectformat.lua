@@ -4,8 +4,6 @@
 -- Version: 1.0.3
 -- License: MIT
 
-local script_name = "selectformat"
-
 -- ====================
 -- = requires
 -- ====================
@@ -80,7 +78,7 @@ local function istable(v) end
 -- ====================
 
 local opts = {
-	prioritize_proto = true,
+	prioritize_proto = false,
 	prefix_header = "  ", -- a non-breaking space followed by a space
 	prefix_norm = "  ", -- a non-breaking space followed by a space
 	prefix_cursor = "● ",
@@ -89,9 +87,9 @@ local opts = {
 	header_separator = "─",
 	menu_pos_x = 7,
 	menu_pos_y = 7,
-	ass_style = "{\\fnmonospace\\fs7}",
+	ass_style = "{\\fnmonospace\\fs8}",
 }
-mp.options.read_options(opts, script_name)
+mp.options.read_options(opts)
 
 -- ====================
 -- = keys
@@ -353,6 +351,7 @@ function menu_draw()
 		".",
 		opts.header_separator
 	)
+	
 
 	ass:pos(opts.menu_pos_x, opts.menu_pos_y)
 	ass:append(opts.ass_style)
@@ -641,14 +640,14 @@ function format_sort_fn(a, b)
 		}
 	else
 		params = {
-			"fps",
-			"dynamic_range",
-			"vcodec",
-			"acodec",
 			"tbr",
 			"vbr",
 			"abr",
 			"asr",
+			"fps",
+			"dynamic_range",
+			"vcodec",
+			"acodec",
 			"protocol",
 		}
 	end
