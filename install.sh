@@ -61,6 +61,9 @@ sudo cp ~/arch/configs/pacman/pacman.conf /etc/
 # Paru
 cp -r ~/arch/configs/paru/ ~/.config/
 
+# Cargo
+cp ~/arch/configs/cargo/config.toml ~/.cargo/
+
 # Alacritty
 cp -r ~/arch/configs/alacritty/ ~/.config/
 
