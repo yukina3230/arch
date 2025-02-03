@@ -3972,10 +3972,10 @@ if user_opts.key_bindings then
         set_track("audio", -1) show_message(get_tracklist("audio"))
     end);
 
-    mp.add_key_binding("c", "cyclecaptions", function()
+    mp.add_key_binding("s", "cyclecaptions", function()
         set_track("sub", 1) show_message(get_tracklist("sub"))
     end);
-    mp.add_key_binding("C", "cyclecaptionsbackwards", function()
+    mp.add_key_binding("S", "cyclecaptionsbackwards", function()
         set_track("sub", -1) show_message(get_tracklist("sub"))
     end);
 

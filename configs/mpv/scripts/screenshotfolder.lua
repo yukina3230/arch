@@ -8,7 +8,8 @@
 local options = {
     save_as_time_stamp = true,
     file_ext = "jpg",
-    include_YouTube_ID = true
+    include_YouTube_ID = true,
+    screenshot_path = "~~desktop/mpv/screenshots/"
 }
 (require "mp.options").read_options(options)
 
@@ -17,7 +18,7 @@ local count = 0
 
 local function set_file_dir()
     count = 0
-    mp.set_property("screenshot-directory", "~~desktop/mpv/screenshots/" .. title .. "/")
+    mp.set_property("screenshot-directory", options.screenshot_path .. title .. "/")
     if options.save_as_time_stamp then
         mp.set_property("screenshot-template", "%tX")
     end
