@@ -4,6 +4,8 @@
 -- Version: 1.0.3
 -- License: MIT
 
+local script_name = "selectformat"
+
 -- ====================
 -- = requires
 -- ====================
@@ -78,7 +80,7 @@ local function istable(v) end
 -- ====================
 
 local opts = {
-	prioritize_proto = false,
+	prioritize_proto = true,
 	prefix_header = "  ", -- a non-breaking space followed by a space
 	prefix_norm = "  ", -- a non-breaking space followed by a space
 	prefix_cursor = "● ",
@@ -87,9 +89,9 @@ local opts = {
 	header_separator = "─",
 	menu_pos_x = 7,
 	menu_pos_y = 7,
-	ass_style = "{\\fnmonospace\\fs8}",
+	ass_style = "{\\fnmonospace\\fs7}",
 }
-mp.options.read_options(opts)
+mp.options.read_options(opts, script_name)
 
 -- ====================
 -- = keys
@@ -351,7 +353,6 @@ function menu_draw()
 		".",
 		opts.header_separator
 	)
-	
 
 	ass:pos(opts.menu_pos_x, opts.menu_pos_y)
 	ass:append(opts.ass_style)
@@ -640,14 +641,14 @@ function format_sort_fn(a, b)
 		}
 	else
 		params = {
-			"tbr",
-			"vbr",
-			"abr",
-			"asr",
 			"fps",
 			"dynamic_range",
 			"vcodec",
 			"acodec",
+			"tbr",
+			"vbr",
+			"abr",
+			"asr",
 			"protocol",
 		}
 	end
@@ -693,7 +694,7 @@ function format_sort_fn(a, b)
 	return a.format_id > b.format_id
 end
 
--- rate the given parameter value based on it's precedence
+-- rate the given parameter value based on its precedence
 function get_param_precedence(param, value)
 	-- orders of precedence.
 	-- each item in any of the categories is a list of lua patterns.

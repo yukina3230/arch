@@ -449,6 +449,7 @@ local state = {
     showingDescription = false,
     scrolledlines = 25,
     youtubeuploader = "",
+    is_live = false,
 
     message_text = nil, -- TODO: needs to be removed
     message_hide_timer = nil, -- TODO: needs to be removed
@@ -708,7 +709,7 @@ end
 -- Tracklist Management
 --
 
-local nicetypes = {video = texts.video, audio = texts.audio, sub = texts.subtitle}
+local valid_types = {video = texts.video, audio = texts.audio, sub = texts.subtitle}
 local tracks_osc, tracks_mpv
 
 -- updates the OSC internal playlists, should be run each time the track-layout changes
@@ -738,7 +739,7 @@ end
 
 -- return a nice list of tracks of the given type (video, audio, sub)
 function get_tracklist(type)
-    local message = nicetypes[type] .. texts.track
+    local message = valid_types[type] .. texts.track
     if not tracks_osc or #tracks_osc[type] == 0 then
         message = texts.none
     else
@@ -1412,10 +1413,13 @@ function checktitle()
     state.ytdescription = ""
     state.youtubeuploader = artist
 
-    print(dumptable(mp.get_property_native("metadata")))
-    if mp.get_property_native('metadata') then
-        state.ytdescription = mp.get_property_native('metadata').ytdl_description or description or ""
-        state.ytdescription = state.ytdescription:gsub('\r', '\\N'):gsub('\n', '\\N'):gsub("%%", "%%%%")
+    local metadata = mp.get_property_native("metadata")
+    print(dumptable(metadata))
+    if metadata then
+        state.ytdescription = metadata.ytdl_description or description or ""
+        state.ytdescription = state.ytdescription:gsub('\r', '\\N'):gsub('\n', '\\N'):gsub("%%", "%%")
+
+        state.is_live = metadata.ytdl_is_live
     else
         print("Failed to load metadata")
     end
@@ -1429,7 +1433,6 @@ function checktitle()
 
                 if #utf8split ~= #state.ytdescription then
                     local tmp = utf8split:gsub("[,%.%s]+$", "")
-
                     utf8split = tmp .. "..."
                 end
                 utf8split = utf8split:match("^(.-)%s*$")
@@ -2058,7 +2061,7 @@ function window_controls()
             -- escape ASS, and strip newlines and trailing slashes
             title = title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")
             local titleval = not (title == "") and title or "mpv video"
-            return titleval
+            return (state.is_live and "LIVE • " or "") .. titleval
         end
         lo = add_layout('window_title')
 
@@ -3002,6 +3005,7 @@ local function osc_init()
         end
         return msg
     end
+    ne.nothingavailable = ""
     ne.eventresponder['mbtn_left_up'] =
         function ()
             mp.commandv('cycle', 'mute')
@@ -3885,7 +3889,6 @@ function tick()
             state.showhide_enabled = false
         end
 
-
     elseif (state.fullscreen and user_opts.show_fullscreen)
         or (not state.fullscreen and user_opts.show_windowed) then
 
@@ -3935,7 +3938,7 @@ mp.observe_property('seeking', nil, function()
 end)
 
 if user_opts.key_bindings then
-    local function changeChapter(number)
+    local function change_chapter(number)
         mp.commandv("add", "chapter", number)
         reset_timeout()
         show_message(get_chapterlist())
@@ -3951,10 +3954,10 @@ if user_opts.key_bindings then
         destroyscrollingkeys()
     end);
     mp.add_key_binding("shift+left", "prevchapter", function()
-        changeChapter(-1)
+        change_chapter(-1)
     end);
     mp.add_key_binding("shift+right", "nextchapter", function()
-        changeChapter(1)
+        change_chapter(1)
     end);
 
     -- extra key bindings

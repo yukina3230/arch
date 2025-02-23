@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Mines
+Comment=Mine-finding puzzle
+Exec=mines
+Icon=mines
+StartupNotify=false
+Categories=Game;LogicGame;
+Terminal=false

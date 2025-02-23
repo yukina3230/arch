@@ -27,6 +27,12 @@ sudo unzip "~/arch/fonts/P22 Typewriter.zip" -d /usr/share/fonts/TTF/
 #sudo rm -f "/usr/share/fonts/TTF/Impact.TTF"
 #sudo unzip "~/arch/fonts/Impact.zip" -d /usr/share/fonts/TTF/
 
+# Binaries
+## puzzles-mines 20241230-1
+sudo cp ~/arch/bin/mines/mines /usr/bin/
+sudo cp ~/arch/bin/mines/mines.desktop /usr/share/applications/
+sudo cp ~/arch/bin/mines/mines.svg /usr/share/pixmaps/
+
 # GDM
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface clock-format '12h'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-name 'Inter 12'

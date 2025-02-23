@@ -54,9 +54,9 @@ local options = {
     mpv_path = "mpv"
 }
 
-mp.utils = require("mp.utils")
-mp.options = require("mp.options")
-mp.options.read_options(options)
+mp.utils = require "mp.utils"
+mp.options = require "mp.options"
+mp.options.read_options(options, "thumbfast")
 
 local properties = {}
 local pre_0_30_0 = mp.command_native_async == nil
@@ -68,9 +68,9 @@ function subprocess(args, async, callback)
 
     if not pre_0_30_0 then
         if async then
-            return mp.command_native_async({name = "subprocess", playback_only = true, args = args}, callback)
+            return mp.command_native_async({name = "subprocess", playback_only = true, args = args, env = "PATH="..os.getenv("PATH")}, callback)
         else
-            return mp.command_native({name = "subprocess", playback_only = false, capture_stdout = true, args = args})
+            return mp.command_native({name = "subprocess", playback_only = false, capture_stdout = true, args = args, env = "PATH="..os.getenv("PATH")})
         end
     else
         if async then
