@@ -79,6 +79,9 @@ cp -r ~/arch/configs/zellij/ ~/.config/
 # Fish
 cp -r ~/arch/configs/fish/ ~/.config/
 
+# Yazi
+cp -r ~/arch/configs/yazi/ ~/.config/
+
 # Helix
 sudo ln -s $(which helix) /usr/bin/hx
 sudo cp ~/arch/configs/helix/lldb_dap_rustc_primer.py /usr/local/etc/
