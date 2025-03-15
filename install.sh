@@ -49,14 +49,16 @@ gsettings set org.gnome.mutter check-alive-timeout 10000
 gsettings set org.gnome.desktop.sound event-sounds false
 
 # Grub
-#sudo unzip "~/arch/themes/grub/arch-linux.zip" -d /usr/share/grub/themes/
+#sudo unzip "~/arch/configs/grub/arch-linux.zip" -d /usr/share/grub/themes/
 sudo cp ~/arch/configs/grub/grub /etc/default/
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # Plymouth
-#sudo unzip "~/arch/themes/plymouth/archlinux.zip" -d /usr/share/plymouth/themes/
+sudo cp ~/arch/configs/plymouth/plymouthd.conf /etc/plymouth/
+
+# Mkinitcpio
 sudo cp ~/arch/configs/mkinitcpio/mkinitcpio.conf /etc/
-sudo plymouth-set-default-theme -R archlinux
+sudo mkinitcpio -p linux
 
 # Reflector
 sudo cp ~/arch/configs/reflector/reflector.conf /etc/xdg/reflector/
