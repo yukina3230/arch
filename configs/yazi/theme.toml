@@ -58,16 +58,16 @@ syntect_theme = ""
 # : Mode {{{
 
 [mode]
-normal_main = { fg = "#4c566a", bg = "#88c0d0", bold = true }
-normal_alt  = { fg = "#d8dee9", bg = "#4c566a" }
+normal_main = { fg = "#2e3440", bg = "#88c0d0", bold = true }
+normal_alt  = { fg = "#d8dee9", bg = "#2e3440" }
 
 # Select mode
-select_main = { fg = "#4c566a", bg = "#b48ead", bold = true }
-select_alt  = { fg = "#d8dee9", bg = "#4c566a" }
+select_main = { fg = "#2e3440", bg = "#b48ead", bold = true }
+select_alt  = { fg = "#d8dee9", bg = "#2e3440" }
 
 # Unset mode
-unset_main = { fg = "#4c566a", bg = "#bf616a", bold = true }
-unset_alt  = { fg = "#d8dee9", bg = "#4c566a" }
+unset_main = { fg = "#2e3440", bg = "#bf616a", bold = true }
+unset_alt  = { fg = "#d8dee9", bg = "#2e3440" }
 
 # : }}}
 

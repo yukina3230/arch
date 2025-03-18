@@ -61,7 +61,7 @@
 "tag" = { fg = "nord8" }
 "tag.builtin" = { fg = "nord8" }
 "namespace" = { fg = "nord14" }
-"special" = { fg = "nord4" }
+"special" = { fg = "nord8" }
 "markup" = {}
 "markup.heading" = { fg = "nord8" }
 "markup.heading.marker" = { fg = "nord8" }
