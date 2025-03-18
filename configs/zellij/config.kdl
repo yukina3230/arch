@@ -286,19 +286,11 @@ themes {
         }
         text_selected {
             base "#d8dee9"
-            background "#2e3440"
-            emphasis_0 "#d08770"
-            emphasis_1 "#ebcb8b"
-            emphasis_2 "#a3be8c"
-            emphasis_3 "#b48ead"
-        }
-        ribbon_selected {
-            base "#1d2129"
-            background "#88c0d0"
-            emphasis_0 "#1d2129"
-            emphasis_1 "#1d2129"
-            emphasis_2 "#1d2129"
-            emphasis_3 "#1d2129"
+            background "#445a77"
+            emphasis_0 0
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
         }
         ribbon_unselected {
             base "#d8dee9"
@@ -308,17 +300,17 @@ themes {
             emphasis_2 "#d8dee9"
             emphasis_3 "#d8dee9"
         }
+        ribbon_selected {
+            base "#1d2129"
+            background "#88c0d0"
+            emphasis_0 "#1d2129"
+            emphasis_1 "#1d2129"
+            emphasis_2 "#1d2129"
+            emphasis_3 "#1d2129"
+        }
         table_title {
             base "#d8dee9"
             background 0
-            emphasis_0 "#d08770"
-            emphasis_1 "#ebcb8b"
-            emphasis_2 "#a3be8c"
-            emphasis_3 "#b48ead"
-        }
-        table_cell_selected {
-            base "#d8dee9"
-            background "#2e3440"
             emphasis_0 "#d08770"
             emphasis_1 "#ebcb8b"
             emphasis_2 "#a3be8c"
@@ -332,7 +324,7 @@ themes {
             emphasis_2 "#a3be8c"
             emphasis_3 "#b48ead"
         }
-        list_selected {
+        table_cell_selected {
             base "#d8dee9"
             background "#2e3440"
             emphasis_0 "#d08770"
@@ -341,6 +333,14 @@ themes {
             emphasis_3 "#b48ead"
         }
         list_unselected {
+            base "#d8dee9"
+            background "#2e3440"
+            emphasis_0 "#d08770"
+            emphasis_1 "#ebcb8b"
+            emphasis_2 "#a3be8c"
+            emphasis_3 "#b48ead"
+        }
+        list_selected {
             base "#d8dee9"
             background "#2e3440"
             emphasis_0 "#d08770"
