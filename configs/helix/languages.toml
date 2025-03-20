@@ -52,10 +52,6 @@ request = "attach"
 completion = [ { name = "lldb connect url", default = "connect://localhost:3333" }, { name = "file", completion = "filename" }, "pid" ]
 args = { attachCommands = [ "platform select remote-gdb-server", "platform connect {0}", "file {1}", "attach {2}" ] }
 
-[[grammar]]
-name = "rust"
-source = { git = "https://github.com/tree-sitter/tree-sitter-rust", rev = "1f63b33efee17e833e0ea29266dd3d713e27e321" }
-
 [language-server.rust-analyzer]
 command = "rustup"
 args = ["run", "stable", "rust-analyzer"]
@@ -68,10 +64,11 @@ name = "c"
 scope = "source.c"
 injection-regex = "c"
 file-types = ["c", "h"]
+auto-format = true
 comment-token = "//"
 block-comment-tokens = { start = "/*", end = "*/" }
 language-servers = [ "clangd" ]
-indent = { tab-width = 2, unit = "  " }
+indent = { tab-width = 4, unit = "    " }
 
 [language.debugger]
 name = "lldb-dap"
@@ -95,20 +92,17 @@ name = "gdbserver attach"
 request = "attach"
 completion = [ { name = "lldb connect url", default = "connect://localhost:3333" }, { name = "file", completion = "filename" }, "pid" ]
 args = { console = "internalConsole", attachCommands = [ "platform select remote-gdb-server", "platform connect {0}", "file {1}", "attach {2}" ] }
-
-[[grammar]]
-name = "c"
-source = { git = "https://github.com/tree-sitter/tree-sitter-c", rev = "7175a6dd5fc1cee660dce6fe23f6043d75af424a" }
 
 [[language]]
 name = "cpp"
 scope = "source.cpp"
 injection-regex = "cpp"
 file-types = ["cc", "hh", "c++", "cpp", "hpp", "h", "ipp", "tpp", "cxx", "hxx", "ixx", "txx", "ino", "C", "H", "cu", "cuh", "cppm", "h++", "ii", "inl", { glob = ".hpp.in" }, { glob = ".h.in" }]
+auto-format = true
 comment-token = "//"
 block-comment-tokens = { start = "/*", end = "*/" }
 language-servers = [ "clangd" ]
-indent = { tab-width = 2, unit = "  " }
+indent = { tab-width = 4, unit = "    " }
 
 [language.debugger]
 name = "lldb-dap"
@@ -132,10 +126,6 @@ name = "gdbserver attach"
 request = "attach"
 completion = [ { name = "lldb connect url", default = "connect://localhost:3333" }, { name = "file", completion = "filename" }, "pid" ]
 args = { console = "internalConsole", attachCommands = [ "platform select remote-gdb-server", "platform connect {0}", "file {1}", "attach {2}" ] }
-
-[[grammar]]
-name = "cpp"
-source = { git = "https://github.com/tree-sitter/tree-sitter-cpp", rev = "670404d7c689be1c868a46f919ba2a3912f2b7ef" }
 
 [[language]]
 name = "go"
@@ -187,10 +177,6 @@ request = "launch"
 completion = [ { name = "binary", completion = "filename" }, { name = "core", completion = "filename" } ]
 args = { mode = "core", program = "{0}", coreFilePath = "{1}" }
 
-[[grammar]]
-name = "go"
-source = { git = "https://github.com/tree-sitter/tree-sitter-go", rev = "64457ea6b73ef5422ed1687178d4545c3e91334a" }
-
 [[language]]
 name = "gomod"
 scope = "source.gomod"
@@ -201,10 +187,6 @@ comment-token = "//"
 language-servers = [ "gopls" ]
 indent = { tab-width = 4, unit = "\t" }
 
-[[grammar]]
-name = "gomod"
-source = { git = "https://github.com/camdencheek/tree-sitter-go-mod", rev = "e8f51f8e4363a3d9a427e8f63f4c1bbc5ef5d8d0" }
-
 [[language]]
 name = "gotmpl"
 scope = "source.gotmpl"
@@ -213,11 +195,7 @@ file-types = ["gotmpl"]
 comment-token = "//"
 block-comment-tokens = { start = "/*", end = "*/" }
 language-servers = [ "gopls" ]
-indent = { tab-width = 2, unit = " " }
-
-[[grammar]]
-name = "gotmpl"
-source = { git = "https://github.com/dannylongeuay/tree-sitter-go-template", rev = "395a33e08e69f4155156f0b90138a6c86764c979" }
+indent = { tab-width = 4, unit = "\t" }
 
 [[language]]
 name = "gowork"
@@ -229,10 +207,6 @@ comment-token = "//"
 language-servers = [ "gopls" ]
 indent = { tab-width = 4, unit = "\t" }
 
-[[grammar]]
-name = "gowork"
-source = { git = "https://github.com/omertuc/tree-sitter-go-work", rev = "6dd9dd79fb51e9f2abc829d5e97b15015b6a8ae2" }
-
 [[language]]
 name = "lua"
 injection-regex = "lua"
@@ -240,11 +214,86 @@ scope = "source.lua"
 file-types = ["lua", "rockspec"]
 shebangs = ["lua", "luajit"]
 roots = [".luarc.json", ".luacheckrc", ".stylua.toml", "selene.toml", ".git"]
+auto-format = true
 comment-token = "--"
 block-comment-tokens = { start = "--[[", end = "--]]" }
-indent = { tab-width = 2, unit = "  " }
+indent = { tab-width = 4, unit = "    " }
 language-servers = [ "lua-language-server" ]
 
-[[grammar]]
-name = "lua"
-source = { git = "https://github.com/tree-sitter-grammars/tree-sitter-lua", rev = "88e446476a1e97a8724dff7a23e2d709855077f2" }
+[[language]]
+name = "html"
+scope = "text.html.basic"
+injection-regex = "html"
+file-types = ["html", "htm", "shtml", "xhtml", "xht", "jsp", "asp", "aspx", "jshtm", "volt", "rhtml", "cshtml"]
+block-comment-tokens = { start = "<!--", end = "-->" }
+language-servers = [ "vscode-html-language-server" ]
+auto-format = true
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "css"
+scope = "source.css"
+injection-regex = "css"
+file-types = ["css", "scss"]
+block-comment-tokens = { start = "/*", end = "*/" }
+language-servers = [ "vscode-css-language-server" ]
+auto-format = true
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "scss"
+scope = "source.scss"
+injection-regex = "scss"
+file-types = ["scss"]
+block-comment-tokens = { start = "/*", end = "*/" }
+language-servers = [ "vscode-css-language-server" ]
+auto-format = true
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "json"
+scope = "source.json"
+injection-regex = "json"
+file-types = [ "json" ]
+language-servers = [ "vscode-json-language-server" ]
+auto-format = true
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "javascript"
+scope = "source.js"
+injection-regex = "(js|javascript)"
+language-id = "javascript"
+file-types = ["js", "mjs", "cjs", "rules", "es6", "pac", { glob = ".node_repl_history" }, { glob = "jakefile" }]
+shebangs = ["node"]
+roots = [ "package.json" ]
+auto-format = true
+comment-token = "//"
+block-comment-tokens = { start = "/*", end = "*/" }
+language-servers = [ "typescript-language-server" ]
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "typescript"
+scope = "source.ts"
+injection-regex = "(ts|typescript)"
+language-id = "typescript"
+file-types = ["ts", "mts", "cts"]
+shebangs = ["deno", "bun", "ts-node"]
+roots = [ "package.json", "tsconfig.json" ]
+auto-format = true
+comment-token = "//"
+block-comment-tokens = { start = "/*", end = "*/" }
+language-servers = [ "typescript-language-server" ]
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "vue"
+scope = "source.vue"
+injection-regex = "vue"
+file-types = ["vue"]
+roots = ["package.json"]
+auto-format = true
+block-comment-tokens = { start = "<!--", end = "-->" }
+indent = { tab-width = 2, unit = "  " }
+language-servers = [ "vuels" ]
