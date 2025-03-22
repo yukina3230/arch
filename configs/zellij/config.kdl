@@ -287,7 +287,7 @@ themes {
         text_selected {
             base "#d8dee9"
             background "#445a77"
-            emphasis_0 0
+            emphasis_0 "#d8dee9"
             emphasis_1 0
             emphasis_2 0
             emphasis_3 0
