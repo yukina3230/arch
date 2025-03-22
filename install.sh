@@ -36,18 +36,18 @@ sudo cp ~/arch/bin/mines/mines.svg /usr/share/pixmaps/
 
 # GDM
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface clock-format '12h'
-sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-name 'Inter 12'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface clock-show-weekday 'true'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface show-battery-percentage 'true'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-hinting 'full'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-name 'Adwaita Sans 12'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface document-font-name 'Adwaita Sans 12'
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface monospace-font-name 'Adwaita Mono 12'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Qogir-cursors'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
-sudo -u gdm dbus-launch gsettings set org.gnome.desktop.sound event-sounds 'false'
-sudo -u gdm dbus-launch gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'nothing'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click 'true'
-
-# Set Gnome not responding timeout
-gsettings set org.gnome.mutter check-alive-timeout 10000
-
-# Disable Gnome Alert Sound
-gsettings set org.gnome.desktop.sound event-sounds false
+sudo -u gdm dbus-launch gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'nothing'
 
 # Grub
 #sudo unzip "~/arch/configs/grub/arch-linux.zip" -d /usr/share/grub/themes/
@@ -72,6 +72,9 @@ cp -r ~/arch/configs/paru/ ~/.config/
 
 # Cargo
 cp ~/arch/configs/cargo/config.toml ~/.cargo/
+
+# Xdg-terminal-exec
+cp ~/arch/configs/xdg-terminal-exec/xdg-terminals.list ~/.config/
 
 # Alacritty
 cp -r ~/arch/configs/alacritty/ ~/.config/
