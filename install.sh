@@ -47,6 +47,7 @@ sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface monospace-font
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Qogir-cursors'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click 'true'
+sudo -u gdm dbus-launch gsettings set org.gnome.settings-daemon.plugins.media-keys volume-step '5'
 sudo -u gdm dbus-launch gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'nothing'
 
 # Grub
