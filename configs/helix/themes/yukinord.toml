@@ -58,35 +58,35 @@
 "function.method.private" = { fg = "nord13" }
 "function.macro" = { fg = "nord13", modifiers = ["bold"] }
 "function.special" = { fg = "nord13" }
-"tag" = { fg = "nord8" }
-"tag.builtin" = { fg = "nord8" }
+"tag" = { fg = "nord9" }
+"tag.builtin" = { fg = "nord9" }
 "namespace" = { fg = "nord14" }
-"special" = { fg = "nord8" }
+"special" = { fg = "nord13" }
 "markup" = {}
 "markup.heading" = { fg = "nord8" }
-"markup.heading.marker" = { fg = "nord8" }
-"markup.heading.marker.1" = { fg = "nord8" }
-"markup.heading.marker.2" = { fg = "nord8" }
-"markup.heading.marker.3" = { fg = "nord8" }
-"markup.heading.marker.4" = { fg = "nord8" }
-"markup.heading.marker.5" = { fg = "nord8" }
-"markup.heading.marker.6" = { fg = "nord8" }
-"markup.list" = { fg = "nord4" }
+"markup.heading.marker" = { fg = "nord4" }
+"markup.heading.marker.1" = { fg = "nord4" }
+"markup.heading.marker.2" = { fg = "nord4" }
+"markup.heading.marker.3" = { fg = "nord4" }
+"markup.heading.marker.4" = { fg = "nord4" }
+"markup.heading.marker.5" = { fg = "nord4" }
+"markup.heading.marker.6" = { fg = "nord4" }
+"markup.list" = {}
 "markup.list.unnumbered" = { fg = "nord4" }
 "markup.list.numbered" = { fg = "nord4" }
 "markup.list.checked" = { fg = "nord4" }
 "markup.list.unchecked" = { fg = "nord4" }
-"markup.bold" = { fg = "nord4", modifiers = ["bold"] }
-"markup.italic" = { fg = "nord4", modifiers = ["italic"] }
-"markup.strikethrough" = { fg = "nord4", modifiers = ["crossed_out"] }
-"markup.link" = { fg = "nord9" }
-"markup.link.url" = { fg = "nord9" }
-"markup.link.label" = { fg = "nord12" }
-"markup.link.text" = { fg = "nord12" }
-"markup.quote" = { fg = "nord4" }
-"markup.raw" = { fg = "nord4" }
-"markup.raw.inline" = { fg = "nord4", bg = "nord0" }
-"markup.raw.block" = { fg = "nord4", bg = "nord0" }
+"markup.bold" = { modifiers = ["bold"] }
+"markup.italic" = { modifiers = ["italic"] }
+"markup.strikethrough" = { modifiers = ["crossed_out"] }
+"markup.link" = { fg = "nord7", modifiers = ["underlined"] }
+"markup.link.url" = { fg = "nord7", modifiers = ["underlined"] }
+"markup.link.label" = { fg = "nord14" }
+"markup.link.text" = { fg = "nord14" }
+"markup.quote" = { fg = "nord12", bg = "nord0" }
+"markup.raw" = {}
+"markup.raw.inline" = { fg = "nord13", bg = "nord0" }
+"markup.raw.block" = { fg = "nord13", bg = "nord0" }
 "diff" = {}
 "diff.plus" = { fg = "nord14" }
 "diff.plus.gutter" = { fg = "nord14" }
