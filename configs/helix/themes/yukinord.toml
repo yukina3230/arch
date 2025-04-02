@@ -58,8 +58,8 @@
 "function.method.private" = { fg = "nord13" }
 "function.macro" = { fg = "nord13", modifiers = ["bold"] }
 "function.special" = { fg = "nord13" }
-"tag" = { fg = "nord9" }
-"tag.builtin" = { fg = "nord9" }
+"tag" = { fg = "nord8" }
+"tag.builtin" = { fg = "nord8" }
 "namespace" = { fg = "nord14" }
 "special" = { fg = "nord13" }
 "markup" = {}
@@ -79,14 +79,14 @@
 "markup.bold" = { modifiers = ["bold"] }
 "markup.italic" = { modifiers = ["italic"] }
 "markup.strikethrough" = { modifiers = ["crossed_out"] }
-"markup.link" = { fg = "nord7", modifiers = ["underlined"] }
-"markup.link.url" = { fg = "nord7", modifiers = ["underlined"] }
-"markup.link.label" = { fg = "nord14" }
-"markup.link.text" = { fg = "nord14" }
-"markup.quote" = { fg = "nord12", bg = "nord0" }
+"markup.link" = { modifiers = ["underlined"] }
+"markup.link.url" = { modifiers = ["underlined"] }
+"markup.link.label" = { fg = "nord12" }
+"markup.link.text" = { fg = "nord12" }
+"markup.quote" = { fg = "nord14", bg = "nord0" }
 "markup.raw" = {}
 "markup.raw.inline" = { fg = "nord13", bg = "nord0" }
-"markup.raw.block" = { fg = "nord13", bg = "nord0" }
+"markup.raw.block" = { fg = "nord4", bg = "nord0" }
 "diff" = {}
 "diff.plus" = { fg = "nord14" }
 "diff.plus.gutter" = { fg = "nord14" }
@@ -162,11 +162,11 @@
 "ui.cursorcolumn.secondary" = { bg = "nord2" }
 "warning" = { fg = "nord13" }
 "error" = { fg = "nord11" }
-"info" = { fg = "nord7" }
+"info" = { fg = "nord9" }
 "hint" = { fg = "nord9" }
 "diagnostic" = {}
 "diagnostic.hint" = { underline = { color = "nord9", style = "curl" } }
-"diagnostic.info" = { underline = { color = "nord7", style = "curl" } }
+"diagnostic.info" = { underline = { color = "nord9", style = "curl" } }
 "diagnostic.warning" = { underline = { color = "nord13", style = "curl" } }
 "diagnostic.error" = { underline = { color = "nord11", style = "curl" } }
 "diagnostic.unnecessary" = { modifiers = ["dim"] }

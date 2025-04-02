@@ -94,6 +94,9 @@ sudo ln -s $(which helix) /usr/bin/hx
 sudo cp ~/arch/configs/helix/lldb_dap_rustc_primer.py /usr/local/etc/
 cp -r ~/arch/configs/helix/ ~/.config/
 
+# Zed
+cp -r ~/arch/configs/zed/ ~/.config/
+
 # Mpv
 cp -r ~/arch/configs/mpv/ ~/.config/
 

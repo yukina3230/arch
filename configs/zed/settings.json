@@ -1,0 +1,35 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette
+{
+  "vim_mode": false,
+  "outline_panel": {
+    "dock": "left"
+  },
+  "features": {
+    "edit_prediction_provider": "supermaven"
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "ui_font_family": "Adwaita Sans",
+  "ui_font_size": 16,
+  "buffer_font_family": "Adwaita Mono",
+  "buffer_font_size": null,
+  "terminal": {
+    "dock": "bottom",
+    "font_family": "Adwaita Mono",
+    "font_size": 16
+  },
+  "theme": {
+    "mode": "system",
+    "light": "One Light",
+    "dark": "Yukinord"
+  }
+}
