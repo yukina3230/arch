@@ -71,6 +71,9 @@ sudo cp ~/arch/configs/pacman/pacman.conf /etc/
 # Paru
 cp -r ~/arch/configs/paru/ ~/.config/
 
+# Arch-update
+cp -r ~/arch/configs/arch-update/ ~/.config/
+
 # Cargo
 cp ~/arch/configs/cargo/config.toml ~/.cargo/
 
