@@ -9,7 +9,7 @@ mkdir ~/Applications/
 
 # Environment variables
 sudo sed -i '$a XCURSOR_THEME=Qogir-cursors' /etc/environment
-sudo sed -i '$a EDITOR="/usr/bin/vim"' /etc/environment
+sudo sed -i '$a EDITOR="/usr/bin/helix"' /etc/environment
 
 # Aliases
 alias -s lock="xdg-screensaver lock"
