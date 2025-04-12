@@ -208,6 +208,18 @@ language-servers = [ "gopls" ]
 indent = { tab-width = 4, unit = "\t" }
 
 [[language]]
+name = "haskell"
+scope = "source.haskell"
+injection-regex = "hs|haskell"
+file-types = ["hs", "hs-boot", "hsc"]
+roots = ["Setup.hs", "stack.yaml", "cabal.project"]
+auto-format = true
+comment-token = "--"
+block-comment-tokens = { start = "{-", end = "-}" }
+language-servers = [ "haskell-language-server" ]
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
 name = "lua"
 injection-regex = "lua"
 scope = "source.lua"
