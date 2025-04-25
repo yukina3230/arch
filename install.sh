@@ -114,7 +114,3 @@ sudo cp ~/arch/configs/theme/index.theme /usr/share/icons/default/
 
 # Templates
 cp -a ~/arch/templates/. ~/Templates/
-
-# Samples
-cp ~/arch/samples/hack ~/.hack
-sudo cp ~/arch/samples/amogus.cow /usr/share/cowsay/cows/
