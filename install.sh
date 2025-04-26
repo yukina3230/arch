@@ -109,8 +109,8 @@ sudo cp ~/arch/configs/ftp/vsftpd.conf /etc/
 # Zram
 sudo cp ~/arch/configs/zram/zram-generator.conf /etc/systemd/
 
-# Cursors theme
-sudo cp ~/arch/configs/theme/index.theme /usr/share/icons/default/
+# Cursor theme
+sudo cp ~/arch/configs/cursor-theme/index.theme /usr/share/icons/default/
 
 # Templates
 cp -a ~/arch/templates/. ~/Templates/
