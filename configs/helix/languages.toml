@@ -309,3 +309,46 @@ auto-format = true
 block-comment-tokens = { start = "<!--", end = "-->" }
 indent = { tab-width = 2, unit = "  " }
 language-servers = [ "vuels" ]
+
+[[language]]
+name = "c-sharp"
+scope = "source.csharp"
+injection-regex = "c-?sharp"
+file-types = ["cs", "csx", "cake"]
+roots = ["sln", "csproj"]
+auto-format = true
+comment-token = "//"
+block-comment-tokens = { start = "/*", end = "*/" }
+indent = { tab-width = 4, unit = "    " }
+language-servers = [ "omnisharp" ]
+
+[language.debugger]
+name = "netcoredbg"
+transport = "tcp"
+command = "netcoredbg"
+args = [ "--interpreter=vscode" ]
+port-arg = "--server={}"
+
+[[language.debugger.templates]]
+name = "launch"
+request = "launch"
+completion = [ { name = "path to dll", completion = "filename" } ]
+args = { type = "coreclr", console = "internalConsole", internalConsoleOptions = "openOnSessionStart", program = "{0}" }
+
+[[language.debugger.templates]]
+name = "attach"
+request = "attach"
+completion = [ "pid" ]
+args = { processId = "{0}" }
+
+[[language]]
+name = "java"
+scope = "source.java"
+injection-regex = "java"
+file-types = ["java", "jav", "pde"]
+roots = ["pom.xml", "build.gradle", "build.gradle.kts"]
+language-servers = [ "jdtls" ]
+indent = { tab-width = 4, unit = "    " }
+auto-format = true
+comment-tokens = ["//"]
+block-comment-tokens = { start = "/*", end = "*/" }
