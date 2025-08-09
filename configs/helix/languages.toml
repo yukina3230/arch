@@ -5,6 +5,7 @@ injection-regex = "rs|rust"
 file-types = ["rs"]
 roots = ["Cargo.toml", "Cargo.lock"]
 shebangs = ["rust-script", "cargo"]
+formatter = { command = "rustfmt", args = ["--edition", "2024"] }
 auto-format = true
 comment-tokens = ["//", "///", "//!"]
 block-comment-tokens = [
@@ -12,16 +13,18 @@ block-comment-tokens = [
   { start = "/**", end = "*/" },
   { start = "/*!", end = "*/" },
 ]
-language-servers = [ "rust-analyzer" ]
+language-servers = ["rust-analyzer"]
 indent = { tab-width = 4, unit = "    " }
 persistent-diagnostic-sources = ["rustc", "clippy"]
 
 [language.auto-pairs]
-'(' = ')'
-'{' = '}'
-'[' = ']'
+"(" = ")"
+"{" = "}"
+"[" = "]"
+"|" = "|"
+"<" = ">"
+"`" = "`"
 '"' = '"'
-'`' = '`'
 
 [language.debugger]
 name = "lldb-dap"
@@ -43,7 +46,7 @@ args = { program = "{0}", runInTerminal = true }
 [[language.debugger.templates]]
 name = "attach"
 request = "attach"
-completion = [ "pid" ]
+completion = ["pid"]
 args = { pid = "{0}" }
 
 [[language.debugger.templates]]
@@ -56,53 +59,23 @@ args = { attachCommands = [ "platform select remote-gdb-server", "platform conne
 command = "rustup"
 args = ["run", "stable", "rust-analyzer"]
 
+[language-server.rust-analyzer.config.cargo]
+features = "all"
+
 [language-server.rust-analyzer.config.check]
 command = "clippy"
 
 [[language]]
-name = "c"
-scope = "source.c"
-injection-regex = "c"
-file-types = ["c", "h"]
+name = "zig"
+scope = "source.zig"
+injection-regex = "zig"
+file-types = ["zig", "zon"]
+roots = ["build.zig"]
 auto-format = true
-comment-token = "//"
-block-comment-tokens = { start = "/*", end = "*/" }
-language-servers = [ "clangd" ]
+comment-tokens = ["//", "///", "//!"]
+language-servers = [ "zls" ]
 indent = { tab-width = 4, unit = "    " }
-
-[language.debugger]
-name = "lldb-dap"
-transport = "stdio"
-command = "lldb-dap"
-
-[[language.debugger.templates]]
-name = "binary"
-request = "launch"
-completion = [ { name = "binary", completion = "filename" } ]
-args = { console = "internalConsole", program = "{0}" }
-
-[[language.debugger.templates]]
-name = "attach"
-request = "attach"
-completion = [ "pid" ]
-args = { console = "internalConsole", pid = "{0}" }
-
-[[language.debugger.templates]]
-name = "gdbserver attach"
-request = "attach"
-completion = [ { name = "lldb connect url", default = "connect://localhost:3333" }, { name = "file", completion = "filename" }, "pid" ]
-args = { console = "internalConsole", attachCommands = [ "platform select remote-gdb-server", "platform connect {0}", "file {1}", "attach {2}" ] }
-
-[[language]]
-name = "cpp"
-scope = "source.cpp"
-injection-regex = "cpp"
-file-types = ["cc", "hh", "c++", "cpp", "hpp", "h", "ipp", "tpp", "cxx", "hxx", "ixx", "txx", "ino", "C", "H", "cu", "cuh", "cppm", "h++", "ii", "inl", { glob = ".hpp.in" }, { glob = ".h.in" }]
-auto-format = true
-comment-token = "//"
-block-comment-tokens = { start = "/*", end = "*/" }
-language-servers = [ "clangd" ]
-indent = { tab-width = 4, unit = "    " }
+formatter = { command = "zig" , args = ["fmt", "--stdin"] }
 
 [language.debugger]
 name = "lldb-dap"
@@ -133,11 +106,11 @@ scope = "source.go"
 injection-regex = "go"
 file-types = ["go"]
 roots = ["go.work", "go.mod"]
-auto-format = true
 formatter = { command = "goimports" }
+auto-format = true
 comment-token = "//"
 block-comment-tokens = { start = "/*", end = "*/" }
-language-servers = [ "gopls", "golangci-lint-lsp" ]
+language-servers = ["gopls"]
 indent = { tab-width = 4, unit = "\t" }
 
 [language.debugger]
@@ -168,7 +141,7 @@ args = { mode = "test", program = "{0}" }
 [[language.debugger.templates]]
 name = "attach"
 request = "attach"
-completion = [ "pid" ]
+completion = ["pid"]
 args = { mode = "local", processId = "{0}" }
 
 [[language.debugger.templates]]
@@ -184,7 +157,7 @@ injection-regex = "gomod"
 file-types = [{ glob = "go.mod" }]
 auto-format = true
 comment-token = "//"
-language-servers = [ "gopls" ]
+language-servers = ["gopls"]
 indent = { tab-width = 4, unit = "\t" }
 
 [[language]]
@@ -192,9 +165,10 @@ name = "gotmpl"
 scope = "source.gotmpl"
 injection-regex = "gotmpl"
 file-types = ["gotmpl"]
+auto-format = true
 comment-token = "//"
 block-comment-tokens = { start = "/*", end = "*/" }
-language-servers = [ "gopls" ]
+language-servers = ["gopls"]
 indent = { tab-width = 4, unit = "\t" }
 
 [[language]]
@@ -204,20 +178,14 @@ injection-regex = "gowork"
 file-types = [{ glob = "go.work" }]
 auto-format = true
 comment-token = "//"
-language-servers = [ "gopls" ]
+language-servers = ["gopls"]
 indent = { tab-width = 4, unit = "\t" }
 
-[[language]]
-name = "haskell"
-scope = "source.haskell"
-injection-regex = "hs|haskell"
-file-types = ["hs", "hs-boot", "hsc"]
-roots = ["Setup.hs", "stack.yaml", "cabal.project"]
-auto-format = true
-comment-token = "--"
-block-comment-tokens = { start = "{-", end = "-}" }
-language-servers = [ "haskell-language-server" ]
-indent = { tab-width = 4, unit = "    " }
+[language-server.gopls]
+command = "gopls"
+
+[language-server.gopls.config]
+staticcheck = true
 
 [[language]]
 name = "lua"
@@ -230,7 +198,7 @@ auto-format = true
 comment-token = "--"
 block-comment-tokens = { start = "--[[", end = "--]]" }
 indent = { tab-width = 4, unit = "    " }
-language-servers = [ "lua-language-server" ]
+language-servers = ["lua-language-server"]
 
 [[language]]
 name = "html"
@@ -238,7 +206,7 @@ scope = "text.html.basic"
 injection-regex = "html"
 file-types = ["html", "htm", "shtml", "xhtml", "xht", "jsp", "asp", "aspx", "jshtm", "volt", "rhtml", "cshtml"]
 block-comment-tokens = { start = "<!--", end = "-->" }
-language-servers = [ "vscode-html-language-server" ]
+language-servers = ["vscode-html-language-server"]
 auto-format = true
 indent = { tab-width = 2, unit = "  " }
 
@@ -248,7 +216,7 @@ scope = "source.css"
 injection-regex = "css"
 file-types = ["css", "scss"]
 block-comment-tokens = { start = "/*", end = "*/" }
-language-servers = [ "vscode-css-language-server" ]
+language-servers = ["vscode-css-language-server"]
 auto-format = true
 indent = { tab-width = 2, unit = "  " }
 
@@ -258,7 +226,7 @@ scope = "source.scss"
 injection-regex = "scss"
 file-types = ["scss"]
 block-comment-tokens = { start = "/*", end = "*/" }
-language-servers = [ "vscode-css-language-server" ]
+language-servers = ["vscode-css-language-server"]
 auto-format = true
 indent = { tab-width = 2, unit = "  " }
 
@@ -266,8 +234,8 @@ indent = { tab-width = 2, unit = "  " }
 name = "json"
 scope = "source.json"
 injection-regex = "json"
-file-types = [ "json" ]
-language-servers = [ "vscode-json-language-server" ]
+file-types = ["json"]
+language-servers = ["vscode-json-language-server"]
 auto-format = true
 indent = { tab-width = 2, unit = "  " }
 
@@ -278,11 +246,11 @@ injection-regex = "(js|javascript)"
 language-id = "javascript"
 file-types = ["js", "mjs", "cjs", "rules", "es6", "pac", { glob = ".node_repl_history" }, { glob = "jakefile" }]
 shebangs = ["node"]
-roots = [ "package.json" ]
+roots = ["package.json"]
 auto-format = true
 comment-token = "//"
 block-comment-tokens = { start = "/*", end = "*/" }
-language-servers = [ "typescript-language-server" ]
+language-servers = ["typescript-language-server"]
 indent = { tab-width = 2, unit = "  " }
 
 [[language]]
@@ -292,11 +260,11 @@ injection-regex = "(ts|typescript)"
 language-id = "typescript"
 file-types = ["ts", "mts", "cts"]
 shebangs = ["deno", "bun", "ts-node"]
-roots = [ "package.json", "tsconfig.json" ]
+roots = ["package.json", "tsconfig.json"]
 auto-format = true
 comment-token = "//"
 block-comment-tokens = { start = "/*", end = "*/" }
-language-servers = [ "typescript-language-server" ]
+language-servers = ["typescript-language-server"]
 indent = { tab-width = 2, unit = "  " }
 
 [[language]]
@@ -308,47 +276,4 @@ roots = ["package.json"]
 auto-format = true
 block-comment-tokens = { start = "<!--", end = "-->" }
 indent = { tab-width = 2, unit = "  " }
-language-servers = [ "vuels" ]
-
-[[language]]
-name = "c-sharp"
-scope = "source.csharp"
-injection-regex = "c-?sharp"
-file-types = ["cs", "csx", "cake"]
-roots = ["sln", "csproj"]
-auto-format = true
-comment-token = "//"
-block-comment-tokens = { start = "/*", end = "*/" }
-indent = { tab-width = 4, unit = "    " }
-language-servers = [ "omnisharp" ]
-
-[language.debugger]
-name = "netcoredbg"
-transport = "tcp"
-command = "netcoredbg"
-args = [ "--interpreter=vscode" ]
-port-arg = "--server={}"
-
-[[language.debugger.templates]]
-name = "launch"
-request = "launch"
-completion = [ { name = "path to dll", completion = "filename" } ]
-args = { type = "coreclr", console = "internalConsole", internalConsoleOptions = "openOnSessionStart", program = "{0}" }
-
-[[language.debugger.templates]]
-name = "attach"
-request = "attach"
-completion = [ "pid" ]
-args = { processId = "{0}" }
-
-[[language]]
-name = "java"
-scope = "source.java"
-injection-regex = "java"
-file-types = ["java", "jav", "pde"]
-roots = ["pom.xml", "build.gradle", "build.gradle.kts"]
-language-servers = [ "jdtls" ]
-indent = { tab-width = 4, unit = "    " }
-auto-format = true
-comment-tokens = ["//"]
-block-comment-tokens = { start = "/*", end = "*/" }
+language-servers = ["vuels"]

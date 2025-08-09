@@ -10,6 +10,9 @@ mkdir ~/Applications/
 # Environment variables
 sudo sed -i '$a XCURSOR_THEME=Qogir-cursors' /etc/environment
 sudo sed -i '$a EDITOR="/usr/bin/helix"' /etc/environment
+sudo sed -i '$a CHROME_EXECUTABLE="/usr/bin/google-chrome-stable"' /etc/environment
+sudo sed -i '$a VCPKG_ROOT=".local/share/vcpkg/vcpkg/"' /etc/environment
+sudo sed -i '$a JAVA_HOME="/usr/lib/jvm/java-24-openjdk/"' /etc/environment
 
 # Aliases
 alias -s lock="xdg-screensaver lock"
@@ -41,9 +44,6 @@ sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface color-scheme '
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface show-battery-percentage 'true'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-hinting 'full'
-sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface font-name 'Adwaita Sans 12'
-sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface document-font-name 'Adwaita Sans 12'
-sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface monospace-font-name 'Adwaita Mono 12'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface cursor-theme 'Qogir-cursors'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
 sudo -u gdm dbus-launch gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click 'true'
@@ -62,6 +62,9 @@ sudo cp ~/arch/configs/plymouth/plymouthd.conf /etc/plymouth/
 sudo cp ~/arch/configs/mkinitcpio/mkinitcpio.conf /etc/
 sudo mkinitcpio -p linux
 
+# Libvirt
+sudo cp ~/arch/configs/libvirt/network.conf /etc/libvirt/
+
 # Reflector
 sudo cp ~/arch/configs/reflector/reflector.conf /etc/xdg/reflector/
 
@@ -78,7 +81,7 @@ cp -r ~/arch/configs/arch-update/ ~/.config/
 cp ~/arch/configs/cargo/config.toml ~/.cargo/
 
 # Xdg-terminal-exec
-cp ~/arch/configs/xdg-terminal-exec/xdg-terminals.list ~/.config/
+cp -a ~/arch/configs/xdg-terminal-exec/. ~/.config/
 
 # Alacritty
 cp -r ~/arch/configs/alacritty/ ~/.config/
@@ -88,6 +91,12 @@ cp -r ~/arch/configs/zellij/ ~/.config/
 
 # Fish
 cp -r ~/arch/configs/fish/ ~/.config/
+
+# Starship
+cp ~/arch/configs/starship/starship.toml ~/.config/
+
+# Bottom
+cp -r ~/arch/configs/bottom/ ~/.config/
 
 # Yazi
 cp -r ~/arch/configs/yazi/ ~/.config/

@@ -2,14 +2,31 @@ theme = "yukinord"
 
 [editor]
 completion-timeout = 5
+preview-completion-insert = false
+completion-trigger-len = 1
+completion-replace = true
 bufferline = "always"
 color-modes = true
+default-line-ending = "lf"
 popup-border = "all"
+indent-heuristic = "tree-sitter"
 end-of-line-diagnostics = "hint"
+
+[editor.auto-pairs]
+"(" = ")"
+"{" = "}"
+"[" = "]"
+"<" = ">"
+"`" = "`"
+"'" = "'"
+'"' = '"'
 
 [editor.statusline]
 left = ["mode", "spacer", "version-control", "read-only-indicator", "file-name", "diagnostics", "workspace-diagnostics", "spinner"]
-right = ["selections", "primary-selection-length", "position", "position-percentage", "total-line-numbers", "file-encoding", "file-line-ending", "file-type"]
+right = ["selections", "primary-selection-length", "position", "position-percentage", "total-line-numbers", "file-indent-style", "file-encoding", "file-line-ending", "file-type"]
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "VISUAL"
 
 [editor.lsp]
 display-messages = true

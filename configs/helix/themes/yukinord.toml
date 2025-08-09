@@ -23,10 +23,10 @@
 "string.special.path" = { fg = "nord13" }
 "string.special.url" = { fg = "nord13" }
 "string.special.symbol" = { fg = "nord13" }
-"comment" = { fg = "nord4_alt" }
-"comment.line" = { fg = "nord4_alt" }
-"comment.block" = { fg = "nord4_alt" }
-"comment.block.documentation" = { fg = "nord4_alt" }
+"comment" = { fg = "nord4_" }
+"comment.line" = { fg = "nord4_" }
+"comment.block" = { fg = "nord4_" }
+"comment.block.documentation" = { fg = "nord4_" }
 "variable" = { fg = "nord4" }
 "variable.builtin" = { fg = "nord8" }
 "variable.parameter" = { fg = "nord4" }
@@ -103,8 +103,8 @@
 "markup.heading.hover" = {}
 "markup.raw.inline.completion" = {}
 "markup.raw.inline.hover" = {}
-"ui.background" = { bg = "nord0_alt" }
-"ui.background.separator" = { bg = "nord0_alt" }
+"ui.background" = { bg = "nord0_" }
+"ui.background.separator" = { bg = "nord0_" }
 "ui.cursor" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.normal" = { fg = "nord0", bg = "nord6" }
 "ui.cursor.insert" = { fg = "nord0", bg = "nord6" }
@@ -116,18 +116,18 @@
 "ui.cursor.primary.select" = { fg = "nord0", bg = "nord6" }
 "ui.debug.breakpoint" = { fg = "nord11" }
 "ui.debug.active" = { fg = "nord13" }
-"ui.gutter" = { bg = "nord0_alt" }
-"ui.gutter.selected" = { bg = "nord0_alt" }
-"ui.linenr" = { fg = "nord3_alt" }
+"ui.gutter" = { bg = "nord0_" }
+"ui.gutter.selected" = { bg = "nord0_" }
+"ui.linenr" = { fg = "nord2_" }
 "ui.linenr.selected" = { fg = "nord6" }
 "ui.statusline" = { fg = "nord5", bg = "nord0" }
 "ui.statusline.inactive" = { fg = "nord5", bg = "nord0" }
-"ui.statusline.normal" = { fg = "nord0_alt", bg = "nord8" }
-"ui.statusline.insert" = { fg = "nord0_alt", bg = "nord13" }
-"ui.statusline.select" = { fg = "nord0_alt", bg = "nord15" }
+"ui.statusline.normal" = { fg = "nord0_", bg = "nord8" }
+"ui.statusline.insert" = { fg = "nord0_", bg = "nord13" }
+"ui.statusline.select" = { fg = "nord0_", bg = "nord15" }
 "ui.statusline.separator" = { fg = "nord5" }
 "ui.bufferline" = { fg = "nord5", bg = "nord0" }
-"ui.bufferline.active" = { fg = "nord0_alt", bg = "nord8" }
+"ui.bufferline.active" = { fg = "nord0_", bg = "nord8" }
 "ui.bufferline.background" = { bg = "nord0" }
 "ui.popup" = { bg = "nord0" }
 "ui.popup.info" = { bg = "nord0" }
@@ -137,8 +137,8 @@
 "ui.window" = { fg = "nord0", bg = "nord0" }
 "ui.help" = { bg = "nord0" }
 "ui.text" = { fg = "nord5" }
-"ui.text.focus" = { fg = "nord8", bg = "nord9_alt" }
-"ui.text.inactive" = { fg = "nord4_alt" }
+"ui.text.focus" = { fg = "nord8", bg = "nord9_", modifiers = ["bold"] }
+"ui.text.inactive" = { fg = "nord4_" }
 "ui.text.info" = { fg = "nord5" }
 "ui.text.directory" = { fg = "nord8" }
 "ui.virtual.ruler" = { bg = "nord0" }
@@ -150,12 +150,12 @@
 "ui.virtual.wrap" = { fg = "nord10" }
 "ui.virtual.jump-label" = { fg = "nord7", bg = "nord0", modifiers = [ "bold", "italic" ] }
 "ui.menu" = { bg = "nord0" }
-"ui.menu.selected" = { fg = "nord8", bg = "nord9_alt" }
+"ui.menu.selected" = { fg = "nord8", bg = "nord9_", modifiers = ["bold"] }
 "ui.menu.scroll" = { fg = "nord6", bg = "nord3" }
 "ui.selection" = {}
-"ui.selection.primary" = { bg = "nord10_alt" }
-"ui.highlight" = { bg = "nord10_alt" }
-"ui.highlight.frameline" = { bg = "nord13_alt" }
+"ui.selection.primary" = { bg = "nord10_" }
+"ui.highlight" = { bg = "nord10_" }
+"ui.highlight.frameline" = { bg = "nord13_" }
 "ui.cursorline.primary" = { bg = "nord2" }
 "ui.cursorline.secondary" = { bg = "nord2" }
 "ui.cursorcolumn.primary" = { bg = "nord2" }
@@ -174,24 +174,24 @@
 
 [palette]
 nord0 = "#2e3440"
-nord0_alt = "#1d2129"
+nord0_ = "#1d2129"
 nord1 = "#3b4252"
 nord2 = "#434c5e"
+nord2_ = "#616e88"
 nord3 = "#4c566a"
-nord3_alt = "#616e88"
 nord4 = "#d8dee9"
-nord4_alt = "#8e929c"
+nord4_ = "#8e929c"
 nord5 = "#e5e9f0"
 nord6 = "#eceff4"
 nord7 = "#8fbcbb"
 nord8 = "#88c0d0"
 nord9 = "#81a1c1"
-nord9_alt = "#3b4857"
+nord9_ = "#3b4857"
 nord10 = "#5e81ac"
-nord10_alt = "#445a77"
+nord10_ = "#445a77"
 nord11 = "#bf616a"
 nord12 = "#d08770"
 nord13 = "#ebcb8b"
-nord13_alt = "#5b5447"
+nord13_ = "#5b5447"
 nord14 = "#a3be8c"
 nord15 = "#b48ead"
